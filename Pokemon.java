@@ -9,63 +9,111 @@ public class Pokemon {
 		Pokemon p2;
 		boolean skipSteps = false;
 		if (args!= null && args.length >= 2) {
-			p1 = new Pokemon(PokemonEnum.valueOf(args[0].toUpperCase()));
-			p2 = new Pokemon(PokemonEnum.valueOf(args[1].toUpperCase()));
+			try {
+				p1 = new Pokemon(PokemonEnum.valueOf(args[0].toUpperCase()));
+			}
+			catch (Exception e) {
+				p1 = new Pokemon("NO_NAME", Type.NORMAL, 1, EnumSet.noneOf(Attack.class));
+			}
+			try {
+				p2 = new Pokemon(PokemonEnum.valueOf(args[1].toUpperCase()));
+			}
+			catch (Exception e) {
+				p2 = new Pokemon("NO_NAME", Type.NORMAL, 1, EnumSet.noneOf(Attack.class));
+			}
 			skipSteps = args.length >= 3 && args[2].equalsIgnoreCase("skip");
 			System.out.println("\n" + p1.name + " vs " + p2.name + "\n");
 		}
 		else {
-			System.out.println("\nAvailable Pokemon");
-			for (PokemonEnum poke: PokemonEnum.values()) {
-				System.out.printf("%-12s Type:%-12s HP:%-5d Attacks:", poke.name(), poke.type.name(), poke.hp);
-				for (Attack a: poke.attacks) {
-					System.out.print(a.name() + " ");
-				}
-				System.out.println();
-			}
-			System.out.println();
+			displayPokemon();
 			System.out.println("Choose player 1's Pokemon");
-			p1 = new Pokemon(PokemonEnum.valueOf(scan.nextLine().trim().toUpperCase()));
+			p1 = askForPokemon(scan);
 			System.out.println("Choose player 2's Pokemon");
-			p2 = new Pokemon(PokemonEnum.valueOf(scan.nextLine().trim().toUpperCase()));
+			p2 = askForPokemon(scan);
 			System.out.println();
 		}
 
-		boolean keepBattling = true;
-		while (keepBattling) {
-			Attack p1Attack = null;
-			double bestDamage = -1;
-			for (Attack a: p1.attackToPP.keySet()) {
-				if (p1.attackToPP.get(a) > 0 && a.damage * a.type.getScaleFactor(p2.type) > bestDamage) {
-					p1Attack = a;
-					bestDamage = a.damage * a.type.getScaleFactor(p2.type);
-				}
-			}
-			keepBattling = !p1.useAttack(p1Attack, p2);
-			if (!keepBattling) {
-				continue;
-			}
-			if (!skipSteps) {
-				scan.nextLine();
-			}
-
-			Attack p2Attack = null;
-			bestDamage = -1;
-			for (Attack a: p2.attackToPP.keySet()) {
-				if (p2.attackToPP.get(a) > 0 && a.damage * a.type.getScaleFactor(p1.type) > bestDamage) {
-					p2Attack = a;
-					bestDamage = a.damage * a.type.getScaleFactor(p1.type);
-				}
-			}
-			keepBattling = !p2.useAttack(p2Attack, p1);
-			if (!keepBattling) {
-				continue;
-			}
-			if (!skipSteps) {
-				scan.nextLine();
-			}
+		while (doTurn(scan, p1, p2, skipSteps) && doTurn(scan, p2, p1, skipSteps)) {
 		}
 	}
+
+	private static void displayPokemon() {
+		System.out.println("\nAvailable Pokemon");
+		for (PokemonEnum poke: PokemonEnum.values()) {
+			System.out.printf("%-12s Type:%-12s HP:%-5d Attacks:", poke.name(), poke.type.name(), poke.hp);
+			for (Attack a: poke.attacks) {
+				System.out.print(a.name() + " ");
+			}
+			System.out.println();
+		}
+		System.out.println();
+	}
+
+	private static Pokemon askForPokemon(Scanner scan) {
+		String choice = scan.nextLine().trim().toUpperCase();
+		if (choice.equals("CUSTOM")) {
+			System.out.println("Enter name, type, and hp separated by commas or spaces");
+			String[] specs = scan.nextLine().split("[,\\s]+");
+			String name = specs.length >= 1 && specs[0].length() > 0 ? specs[0].toUpperCase(): "NO_NAME";
+			Type type;
+			int hp;
+			try {
+				type = Type.valueOf(specs[1].toUpperCase());
+			}
+			catch (Exception e) {
+				type = Type.NORMAL;
+			}
+			try {
+				hp = Integer.parseInt(specs[2]);
+			}
+			catch (Exception e) {
+				hp = 1;
+			}
+
+			System.out.println("Enter attacks separated by commas or spaces");
+			String[] stringAttacks = scan.nextLine().split("[,\\s]+");
+			EnumSet<Attack> customAttacks = EnumSet.noneOf(Attack.class);
+			for (int i = 0; i < stringAttacks.length; i++) {
+				try {
+					customAttacks.add(Attack.valueOf(stringAttacks[i].toUpperCase()));
+				}
+				catch (IllegalArgumentException e) {
+				}
+			}
+
+			return new Pokemon(name, type, hp, customAttacks);
+		}
+		else {
+			Pokemon p;
+			try {
+				p = new Pokemon(PokemonEnum.valueOf(choice)); 
+			}
+			catch (Exception e) {
+				p = new Pokemon("NO_NAME", Type.NORMAL, 1, EnumSet.noneOf(Attack.class));
+			}
+			return p;
+		}
+	}
+
+	//return true if opponent Pokemon did NOT faint from the turn
+	private static boolean doTurn(Scanner scan, Pokemon p1, Pokemon p2, boolean skipSteps) {
+		Attack p1Attack = null;
+		double bestDamage = -1;
+		for (Attack a: p1.attackToPP.keySet()) {
+			if (p1.attackToPP.get(a) > 0 && a.damage * a.type.getScaleFactor(p2.type) > bestDamage) {
+				p1Attack = a;
+				bestDamage = a.damage * a.type.getScaleFactor(p2.type);
+			}
+		}
+		boolean keepBattling = !p1.useAttack(p1Attack, p2);
+		if (keepBattling && !skipSteps) {
+			scan.nextLine(); //Makes user press enter to progress the turn
+		}
+		return keepBattling;
+	}
+
+
+	//Start of Pokemon Object code
 	public final String name;
 	public final Type type;
 	private int currentHP;
@@ -76,6 +124,15 @@ public class Pokemon {
 		this.type = poke.type;
 		this.currentHP = poke.hp;
 		for (Attack a: poke.attacks) {
+			attackToPP.put(a, a.pp);
+		}
+	}
+
+	public Pokemon(String name, Type type, int currentHP, EnumSet<Attack> attacks) {
+		this.name = name;
+		this.type = type;
+		this.currentHP = currentHP;
+		for (Attack a: attacks) {
 			attackToPP.put(a, a.pp);
 		}
 	}
@@ -103,7 +160,7 @@ public class Pokemon {
 				scaleFactor == 0.5 ? "It's not very effective..": 
 				scaleFactor == 0 ? (opponent.name + " is unaffected!"): 
 				(opponent.name + " was hit"));
-			boolean criticalHit = Math.random() < 0.1;
+			boolean criticalHit = scaleFactor != 0 && Math.random() < 0.1;
 			if (criticalHit) {
 				System.out.println("It's a critical hit!");				
 			}
@@ -185,17 +242,24 @@ enum Attack {
 }
 
 enum Type {
-	GRASS, 
+	NORMAL, 
 	FIRE, 
 	WATER, 
+	ELECTRIC, 
+	GRASS, 
+	ICE, 
+	FIGHTING, 
+	POISON, 
+	GROUND, 
 	FLYING, 
+	PSYCHIC, 
+	BUG, 
 	ROCK, 
 	GHOST, 
-	FIGHTING, 
-	PSYCHIC, 
-	NORMAL, 
 	DRAGON, 
+	DARK, 
 	STEEL, 
+	FAIRY, 
 	NONE;
 
 	//Offensive Type attributes
@@ -206,47 +270,75 @@ enum Type {
 	static {
 		NORMAL.superEffective = EnumSet.noneOf(Type.class);
 		NORMAL.notVeryEffective = EnumSet.of(ROCK, STEEL);
-		NORMAL.noEffect = EnumSet.of(GHOST);
+		NORMAL.noEffect = EnumSet.of(GHOST, NONE);
 
-		GRASS.superEffective = EnumSet.of(WATER, ROCK);
-		GRASS.notVeryEffective = EnumSet.of(GRASS, FIRE, FLYING, DRAGON, STEEL);
-		GRASS.noEffect = EnumSet.noneOf(Type.class);
-
-		FIRE.superEffective = EnumSet.of(GRASS, STEEL);
+		FIRE.superEffective = EnumSet.of(GRASS, ICE, BUG, STEEL);
 		FIRE.notVeryEffective = EnumSet.of(FIRE, WATER, ROCK, DRAGON);
-		FIRE.noEffect = EnumSet.noneOf(Type.class);
+		FIRE.noEffect = EnumSet.of(NONE);
 
-		WATER.superEffective = EnumSet.of(FIRE, ROCK);
-		WATER.notVeryEffective = EnumSet.of(GRASS, WATER, DRAGON);
-		WATER.noEffect = EnumSet.noneOf(Type.class);
+		WATER.superEffective = EnumSet.of(FIRE, GROUND, ROCK);
+		WATER.notVeryEffective = EnumSet.of(WATER, GRASS, DRAGON);
+		WATER.noEffect = EnumSet.of(NONE);
 
-		FLYING.superEffective = EnumSet.of(GRASS, FIGHTING);
-		FLYING.notVeryEffective = EnumSet.of(ROCK, STEEL);
-		FLYING.noEffect = EnumSet.noneOf(Type.class);
+		ELECTRIC.superEffective = EnumSet.of(WATER, FLYING);
+		ELECTRIC.notVeryEffective = EnumSet.of(ELECTRIC, GRASS, DRAGON);
+		ELECTRIC.noEffect = EnumSet.of(GROUND, NONE);
 
-		ROCK.superEffective = EnumSet.of(FIRE, FLYING);
-		ROCK.notVeryEffective = EnumSet.of(STEEL, FIGHTING);
-		ROCK.noEffect = EnumSet.noneOf(Type.class);
+		GRASS.superEffective = EnumSet.of(WATER, GROUND, ROCK);
+		GRASS.notVeryEffective = EnumSet.of(FIRE, GRASS, POISON, FLYING, BUG, DRAGON, STEEL);
+		GRASS.noEffect = EnumSet.of(NONE);
 
-		GHOST.superEffective = EnumSet.of(GHOST, PSYCHIC);
-		GHOST.notVeryEffective = EnumSet.noneOf(Type.class);
-		GHOST.noEffect = EnumSet.of(NORMAL);
+		ICE.superEffective = EnumSet.of(GRASS, GROUND, FLYING, DRAGON);
+		ICE.notVeryEffective = EnumSet.of(FIRE, WATER, ICE, STEEL);
+		ICE.noEffect = EnumSet.of(NONE);
 
-		FIGHTING.superEffective = EnumSet.of(ROCK, NORMAL, STEEL);
-		FIGHTING.notVeryEffective = EnumSet.of(FLYING, PSYCHIC);
-		FIGHTING.noEffect = EnumSet.of(GHOST);
+		FIGHTING.superEffective = EnumSet.of(NORMAL, ICE, ROCK, DARK, STEEL);
+		FIGHTING.notVeryEffective = EnumSet.of(POISON, FLYING, PSYCHIC, BUG, FAIRY);
+		FIGHTING.noEffect = EnumSet.of(GHOST, NONE);
 
-		PSYCHIC.superEffective = EnumSet.of(FIGHTING);
+		POISON.superEffective = EnumSet.of(GRASS, FAIRY);
+		POISON.notVeryEffective = EnumSet.of(POISON, GROUND, ROCK, GHOST);
+		POISON.noEffect = EnumSet.of(STEEL, NONE);
+
+		GROUND.superEffective = EnumSet.of(FIRE, ELECTRIC, POISON, ROCK, STEEL);
+		GROUND.notVeryEffective = EnumSet.of(GRASS, BUG);
+		GROUND.noEffect = EnumSet.of(FLYING, NONE);
+
+		FLYING.superEffective = EnumSet.of(GRASS, FIGHTING, BUG);
+		FLYING.notVeryEffective = EnumSet.of(ELECTRIC, ROCK, STEEL);
+		FLYING.noEffect = EnumSet.of(NONE);
+
+		PSYCHIC.superEffective = EnumSet.of(FIGHTING, POISON);
 		PSYCHIC.notVeryEffective = EnumSet.of(PSYCHIC, STEEL);
-		PSYCHIC.noEffect = EnumSet.noneOf(Type.class);
+		PSYCHIC.noEffect = EnumSet.of(DARK, NONE);
+
+		BUG.superEffective = EnumSet.of(GRASS, PSYCHIC, DARK);
+		BUG.notVeryEffective = EnumSet.of(FIRE, FIGHTING, POISON, FLYING, GHOST, STEEL, FAIRY);
+		BUG.noEffect = EnumSet.of(NONE);
+
+		ROCK.superEffective = EnumSet.of(FIRE, ICE, FLYING, BUG);
+		ROCK.notVeryEffective = EnumSet.of(FIGHTING, GROUND, STEEL);
+		ROCK.noEffect = EnumSet.of(NONE);
+
+		GHOST.superEffective = EnumSet.of(PSYCHIC, GHOST);
+		GHOST.notVeryEffective = EnumSet.of(DARK);
+		GHOST.noEffect = EnumSet.of(NORMAL, NONE);
 
 		DRAGON.superEffective = EnumSet.of(DRAGON);
 		DRAGON.notVeryEffective = EnumSet.of(STEEL);
-		DRAGON.noEffect = EnumSet.noneOf(Type.class);
+		DRAGON.noEffect = EnumSet.of(FAIRY, NONE);
 
-		STEEL.superEffective = EnumSet.of(ROCK);
-		STEEL.notVeryEffective = EnumSet.of(FIRE, WATER, STEEL, FIGHTING);
-		STEEL.noEffect = EnumSet.noneOf(Type.class);
+		DARK.superEffective = EnumSet.of(PSYCHIC, GHOST);
+		DARK.notVeryEffective = EnumSet.of(FIGHTING, DARK, FAIRY);
+		DARK.noEffect = EnumSet.of(NONE);
+
+		STEEL.superEffective = EnumSet.of(ICE, ROCK, FAIRY);
+		STEEL.notVeryEffective = EnumSet.of(FIRE, WATER, ELECTRIC, STEEL);
+		STEEL.noEffect = EnumSet.of(NONE);
+
+		FAIRY.superEffective = EnumSet.of(FIGHTING, DRAGON, DARK);
+		FAIRY.notVeryEffective = EnumSet.of(FIRE, POISON, STEEL);
+		FAIRY.noEffect = EnumSet.of(NONE);
 
 		NONE.superEffective = EnumSet.noneOf(Type.class);
 		NONE.notVeryEffective = EnumSet.noneOf(Type.class);
