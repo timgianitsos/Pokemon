@@ -33,12 +33,14 @@ public class Pokemon {
                 p1 = new Pokemon(PokemonEnum.valueOf(args[0].toUpperCase()));
             }
             catch (Exception e) {
+                System.out.println("Invalid argument 1. Generating default..");
                 p1 = new Pokemon("NO_NAME", Type.NORMAL, null, new int[]{30,30,30,30,30,30}, EnumSet.noneOf(Attack.class));
             }
             try {
                 p2 = new Pokemon(PokemonEnum.valueOf(args[1].toUpperCase()));
             }
             catch (Exception e) {
+                System.out.println("Invalid argument 2. Generating default..");
                 p2 = new Pokemon("NO_NAME", Type.NORMAL, null, new int[]{30,30,30,30,30,30}, EnumSet.noneOf(Attack.class));
             }
             skipSteps = args.length >= 3 && args[2].equalsIgnoreCase("skip");
@@ -74,64 +76,47 @@ public class Pokemon {
     private static Pokemon askForPokemon(Scanner scan) {
         String choice = scan.nextLine().trim().toUpperCase();
         if (choice.equals("CUSTOM")) {
-            System.out.println("Enter name, first type, and second type (or leave second type blank if not applicable)" 
-                + " each separated by commas or spaces");
-            String[] specs = scan.nextLine().split("[,\\s]+");
-            String name = specs.length >= 1 && specs[0].length() > 0 ? specs[0].toUpperCase(): "NO_NAME";
-            Type type1;
-            Type type2;
             try {
-                type1 = Type.valueOf(specs[1].toUpperCase());
-            }
-            catch (Exception e) {
-                type1 = Type.NORMAL;
-            }
-            try {
-                type2 = Type.valueOf(specs[2].toUpperCase());
-            }
-            catch (Exception e) {
-                type2 = null;
-            }
+                System.out.println("Enter name, first type, and second type (or leave second type blank if not applicable)" 
+                        + " each separated by commas or spaces");
+                String[] specs = scan.nextLine().split("[,\\s]+");
+                if (specs[0].length() == 0) {
+                    throw new Exception();
+                }
+                String name = specs[0].toUpperCase();
+                Type type1 = Type.valueOf(specs[1].toUpperCase());
+                Type type2 = specs.length == 3 ? Type.valueOf(specs[2].toUpperCase()): null;
 
-            System.out.println("Enter the " + Stat.values().length + " base stats separated by commas or spaces");
-            Scanner statScan = new Scanner(scan.nextLine());
-            statScan.useDelimiter("[,\\s]+");
-            int[] customBaseStats = new int[Stat.values().length];
-            int i = 0;
-            try {
-                for (; i < customBaseStats.length; i++) {
+                System.out.println("Enter the " + Stat.values().length + " base stats separated by commas or spaces");
+                Scanner statScan = new Scanner(scan.nextLine());
+                statScan.useDelimiter("[,\\s]+");
+                int[] customBaseStats = new int[Stat.values().length];
+                for (int i = 0; i < customBaseStats.length; i++) {
                     customBaseStats[i] = statScan.nextInt();
                 }
-            }
-            catch (Exception e) {
-                for (i = 0; i < customBaseStats.length; i++) {
-                    customBaseStats[i] = 30;
-                }
-            }
 
-            System.out.println("Enter attacks separated by commas or spaces");
-            String[] stringAttacks = scan.nextLine().split("[,\\s]+");
-            EnumSet<Attack> customAttacks = EnumSet.noneOf(Attack.class);
-            for (i = 0; i < stringAttacks.length; i++) {
-                try {
+                System.out.println("Enter attacks separated by commas or spaces");
+                String[] stringAttacks = scan.nextLine().split("[,\\s]+");
+                EnumSet<Attack> customAttacks = EnumSet.noneOf(Attack.class);
+                for (int i = 0; i < stringAttacks.length; i++) {
                     customAttacks.add(Attack.valueOf(stringAttacks[i].toUpperCase()));
                 }
-                catch (Exception e) {
-                    customAttacks = EnumSet.noneOf(Attack.class);
-                }
-            }
-
-            return new Pokemon(name, type1, type2, customBaseStats, customAttacks);
+                
+                return new Pokemon(name, type1, type2, customBaseStats, customAttacks);
+            } 
+            catch (Exception e) {
+                System.out.println("Invalid arguments. Generating default..");
+                return new Pokemon(PokemonEnum.MAGIKARP);
+            }    
         }
         else {
-            Pokemon p;
             try {
-                p = new Pokemon(PokemonEnum.valueOf(choice)); 
+                return new Pokemon(PokemonEnum.valueOf(choice)); 
             }
             catch (Exception e) {
-                p = new Pokemon("NO_NAME", Type.NORMAL, null, new int[]{30,30,30,30,30,30}, EnumSet.noneOf(Attack.class));
+                System.out.println("Invalid argument. Generating default..");
+                return new Pokemon(PokemonEnum.MAGIKARP);
             }
-            return p;
         }
     }
 
@@ -247,6 +232,7 @@ enum PokemonEnum {
     GOLEM(Type.ROCK, Type.GROUND, new int[]{80, 120, 130, 55, 65, 45}, EnumSet.of(Attack.ROCK_SLIDE)), 
     ALAKAZAM(Type.PSYCHIC, null, new int[]{55, 50, 45, 135, 95, 120}, EnumSet.of(Attack.PSYCHIC)), 
     GENGAR(Type.GHOST, Type.POISON, new int[]{60, 65, 60, 130, 75, 110}, EnumSet.of(Attack.SHADOW_BALL)), 
+    MAGIKARP(Type.WATER, null, new int[]{20, 10, 55, 15, 20, 80}, EnumSet.of(Attack.SPLASH)), 
     SNORLAX(Type.NORMAL, null, new int[]{160, 110, 65, 65, 110, 30}, EnumSet.of(Attack.BODY_SLAM)), 
     DRAGONITE(Type.DRAGON, Type.FLYING, new int[]{91, 134, 95, 100, 100, 80}, EnumSet.of(Attack.DRAGON_CLAW)), 
     STEELIX(Type.STEEL, Type.GROUND, new int[]{75, 85, 200, 55, 65, 30}, EnumSet.of(Attack.IRON_HEAD)), 
@@ -302,6 +288,8 @@ enum Attack {
     AIR_SLASH(75, 95, 20, Type.FLYING), 
     EARTHQUAKE(100, 100, 10, Type.GROUND), 
     X_SCISSOR(80, 100, 15, Type.BUG), 
+    SPLASH(0, 0, 40, Type.NORMAL), 
+
     STRUGGLE(30, Integer.MAX_VALUE, -1, Type.NONE);
     
     public final int baseDamage;
