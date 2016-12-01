@@ -1,6 +1,26 @@
 import java.util.*;
+//TODO improve damage calculation, levels, hidden pokemon, parameterized randomization
+/*
+---------Custom Pokemon---------
+Paste the following lines when prompted to enter the name of a pokemon
 
-//Pokemon have a single type
+
+custom
+MEGA_CHARIZARD_X FIRE DRAGON
+78 130 111 130 85 100
+FLAMETHROWER DRAGON_CLAW AIR_SLASH SOLAR_BEAM
+
+custom
+MEGA_CHARIZARD_Y FIRE FLYING
+78 104 78 159 115 100
+FLAMETHROWER DRAGON_CLAW AIR_SLASH SOLAR_BEAM
+
+custom
+SHEDINJA NONE
+1 90 45 30 30 40
+X_SCISSOR, SHADOW_BALL
+
+*/
 public class Pokemon {
 
 	public static void main(String[] args) {
@@ -13,16 +33,15 @@ public class Pokemon {
 				p1 = new Pokemon(PokemonEnum.valueOf(args[0].toUpperCase()));
 			}
 			catch (Exception e) {
-				p1 = new Pokemon("NO_NAME", Type.NORMAL, 1, EnumSet.noneOf(Attack.class));
+				p1 = new Pokemon("NO_NAME", Type.NORMAL, null, new int[]{30,30,30,30,30,30}, EnumSet.noneOf(Attack.class));
 			}
 			try {
 				p2 = new Pokemon(PokemonEnum.valueOf(args[1].toUpperCase()));
 			}
 			catch (Exception e) {
-				p2 = new Pokemon("NO_NAME", Type.NORMAL, 1, EnumSet.noneOf(Attack.class));
+				p2 = new Pokemon("NO_NAME", Type.NORMAL, null, new int[]{30,30,30,30,30,30}, EnumSet.noneOf(Attack.class));
 			}
 			skipSteps = args.length >= 3 && args[2].equalsIgnoreCase("skip");
-			System.out.println("\n" + p1.name + " vs " + p2.name + "\n");
 		}
 		else {
 			displayPokemon();
@@ -30,8 +49,10 @@ public class Pokemon {
 			p1 = askForPokemon(scan);
 			System.out.println("Choose player 2's Pokemon");
 			p2 = askForPokemon(scan);
-			System.out.println();
 		}
+
+		System.out.println("\n" + p1.name + " with HP:" + p1.getCurrentHP() + "   vs   " 
+					+ p2.name + " with HP:" + p2.getCurrentHP() + "\n");
 
 		while (doTurn(scan, p1, p2, skipSteps) && doTurn(scan, p2, p1, skipSteps)) {
 		}
@@ -40,7 +61,8 @@ public class Pokemon {
 	private static void displayPokemon() {
 		System.out.println("\nAvailable Pokemon");
 		for (PokemonEnum poke: PokemonEnum.values()) {
-			System.out.printf("%-12s Type:%-12s HP:%-5d Attacks:", poke.name(), poke.type.name(), poke.hp);
+			System.out.printf("%-12s Type 1:%-12s Type 2:%-12s Attacks:", poke.name(), poke.type1.name(), 
+					(poke.type2 == null ? "": poke.type2.name()));
 			for (Attack a: poke.attacks) {
 				System.out.print(a.name() + " ");
 			}
@@ -52,36 +74,54 @@ public class Pokemon {
 	private static Pokemon askForPokemon(Scanner scan) {
 		String choice = scan.nextLine().trim().toUpperCase();
 		if (choice.equals("CUSTOM")) {
-			System.out.println("Enter name, type, and hp separated by commas or spaces");
+			System.out.println("Enter name, first type, and second type (or leave second type blank if not applicable)" 
+				+ " each separated by commas or spaces");
 			String[] specs = scan.nextLine().split("[,\\s]+");
 			String name = specs.length >= 1 && specs[0].length() > 0 ? specs[0].toUpperCase(): "NO_NAME";
-			Type type;
-			int hp;
+			Type type1;
+			Type type2;
 			try {
-				type = Type.valueOf(specs[1].toUpperCase());
+				type1 = Type.valueOf(specs[1].toUpperCase());
 			}
 			catch (Exception e) {
-				type = Type.NORMAL;
+				type1 = Type.NORMAL;
 			}
 			try {
-				hp = Integer.parseInt(specs[2]);
+				type2 = Type.valueOf(specs[2].toUpperCase());
 			}
 			catch (Exception e) {
-				hp = 1;
+				type2 = null;
+			}
+
+			System.out.println("Enter the " + Stat.values().length + " base stats separated by commas or spaces");
+			Scanner statScan = new Scanner(scan.nextLine());
+			statScan.useDelimiter("[,\\s]+");
+			int[] customBaseStats = new int[Stat.values().length];
+			int i = 0;
+			try {
+				for (; i < customBaseStats.length; i++) {
+					customBaseStats[i] = statScan.nextInt();
+				}
+			}
+			catch (Exception e) {
+				for (i = 0; i < customBaseStats.length; i++) {
+					customBaseStats[i] = 30;
+				}
 			}
 
 			System.out.println("Enter attacks separated by commas or spaces");
 			String[] stringAttacks = scan.nextLine().split("[,\\s]+");
 			EnumSet<Attack> customAttacks = EnumSet.noneOf(Attack.class);
-			for (int i = 0; i < stringAttacks.length; i++) {
+			for (i = 0; i < stringAttacks.length; i++) {
 				try {
 					customAttacks.add(Attack.valueOf(stringAttacks[i].toUpperCase()));
 				}
-				catch (IllegalArgumentException e) {
+				catch (Exception e) {
+					customAttacks = EnumSet.noneOf(Attack.class);
 				}
 			}
 
-			return new Pokemon(name, type, hp, customAttacks);
+			return new Pokemon(name, type1, type2, customBaseStats, customAttacks);
 		}
 		else {
 			Pokemon p;
@@ -89,7 +129,7 @@ public class Pokemon {
 				p = new Pokemon(PokemonEnum.valueOf(choice)); 
 			}
 			catch (Exception e) {
-				p = new Pokemon("NO_NAME", Type.NORMAL, 1, EnumSet.noneOf(Attack.class));
+				p = new Pokemon("NO_NAME", Type.NORMAL, null, new int[]{30,30,30,30,30,30}, EnumSet.noneOf(Attack.class));
 			}
 			return p;
 		}
@@ -100,9 +140,9 @@ public class Pokemon {
 		Attack p1Attack = null;
 		double bestDamage = -1;
 		for (Attack a: p1.attackToPP.keySet()) {
-			if (p1.attackToPP.get(a) > 0 && a.damage * a.type.getScaleFactor(p2.type) > bestDamage) {
+			if (p1.attackToPP.get(a) > 0 && a.baseDamage * a.type.getScaleFactor(p2.type1, p2.type2) * a.baseAccuracy > bestDamage) {
 				p1Attack = a;
-				bestDamage = a.damage * a.type.getScaleFactor(p2.type);
+				bestDamage = a.baseDamage * a.type.getScaleFactor(p2.type1, p2.type2) * a.baseAccuracy;
 			}
 		}
 		boolean keepBattling = !p1.useAttack(p1Attack, p2);
@@ -115,30 +155,41 @@ public class Pokemon {
 
 	//Start of Pokemon Object code
 	public final String name;
-	public final Type type;
-	private int currentHP;
+	public final Type type1;
+	public final Type type2;
+	public final int level = 50;
+	private final EnumMap<Stat, Integer> statToBaseValue = new EnumMap<Stat, Integer>(Stat.class);
 	private final EnumMap<Attack, Integer> attackToPP = new EnumMap<Attack, Integer>(Attack.class);
+	private final EnumMap<Stat, Integer> statToIV = new EnumMap<Stat, Integer>(Stat.class);
+	private int currentHP;
 
 	public Pokemon(PokemonEnum poke) {
-		this.name = poke.name();
-		this.type = poke.type;
-		this.currentHP = poke.hp;
-		for (Attack a: poke.attacks) {
-			attackToPP.put(a, a.pp);
-		}
+		this(poke.name(), poke.type1, poke.type2, poke.baseStats, poke.attacks);
 	}
 
-	public Pokemon(String name, Type type, int currentHP, EnumSet<Attack> attacks) {
+	public Pokemon(String name, Type type1, Type type2, int[] baseStats, EnumSet<Attack> attacks) {
 		this.name = name;
-		this.type = type;
-		this.currentHP = currentHP;
-		for (Attack a: attacks) {
-			attackToPP.put(a, a.pp);
+		this.type1 = type1;
+		this.type2 = type2;
+		for (int i = 0; i < baseStats.length; i++) {
+			this.statToBaseValue.put(Stat.values()[i], baseStats[i]);
 		}
+		for (Attack a: attacks) {
+			this.attackToPP.put(a, a.basePP);
+		}
+		for (Stat s: Stat.values()) {
+			this.statToIV.put(s, (int)(Math.random() * 32)); //Change map value to alter stats
+		}
+		currentHP = statToBaseValue.get(Stat.HP) == 1 ? 1: 
+				((2 * statToBaseValue.get(Stat.HP) + statToIV.get(Stat.HP) + 252 / 4) * level / 100) + level + 10;
 	}
 
-	public int getHP() {
-		return this.currentHP;
+	public int getBaseStat(Stat s) {
+		return this.statToBaseValue.get(s);
+	}
+
+	public int getCurrentHP() {
+		return currentHP;
 	}
 
 	//Returns true if the opponent faints from using the attack
@@ -153,18 +204,18 @@ public class Pokemon {
 		}
 
 		System.out.println(this.name + " used " + attack.name());
-		if (Math.random() * 100 < attack.accuracy) {
-			double scaleFactor = attack.type.getScaleFactor(opponent.type);
+		if (Math.random() * 100 < attack.baseAccuracy) {
+			double scaleFactor = attack.type.getScaleFactor(opponent.type1, opponent.type2);
 			System.out.println(
-				scaleFactor == 2 ? "It's super effective!": 
-				scaleFactor == 0.5 ? "It's not very effective..": 
+				scaleFactor > 1 ? "It's super effective!": 
+				scaleFactor < 1 && scaleFactor > 0 ? "It's not very effective..": 
 				scaleFactor == 0 ? (opponent.name + " is unaffected!"): 
 				(opponent.name + " was hit"));
-			boolean criticalHit = scaleFactor != 0 && Math.random() < 0.1;
-			if (criticalHit) {
-				System.out.println("It's a critical hit!");				
+			if (scaleFactor != 0 && Math.random() < 0.0625) {
+				System.out.println("It's a critical hit!");
+				scaleFactor *= 2;
 			}
-			int damageDealt = (int)(attack.damage * scaleFactor * (criticalHit ? 2: 1));
+			int damageDealt = (int)(attack.baseDamage * scaleFactor);
 			opponent.currentHP -= damageDealt <= opponent.currentHP ? damageDealt: opponent.currentHP;
 		}
 		else {
@@ -184,58 +235,84 @@ public class Pokemon {
 
 enum PokemonEnum {
 	//Add new pokemon here
-	MEWTWO(Type.PSYCHIC, 200, EnumSet.of(Attack.PSYSTRIKE)), 
+	MEWTWO(Type.PSYCHIC, null, new int[]{106,110,90,154,90,130}, EnumSet.of(Attack.PSYSTRIKE)), 
+	MEW(Type.PSYCHIC, null, new int[]{100,100,100,100,100,100}, EnumSet.allOf(Attack.class)), 
 
-	VENUSAUR(Type.GRASS, 150, EnumSet.of(Attack.ENERGY_BALL, Attack.BODY_SLAM)), 
-	CHARIZARD(Type.FIRE, 150, EnumSet.of(Attack.FLAMETHROWER, Attack.DRAGON_CLAW)), 
-	BLASTOISE(Type.WATER, 150, EnumSet.of(Attack.SURF, Attack.BRICK_BREAK)), 
-	PIDGEOT(Type.FLYING, 100, EnumSet.of(Attack.DRILL_PECK)), 
-	GOLEM(Type.ROCK, 135, EnumSet.of(Attack.ROCK_SLIDE)), 
-	GENGAR(Type.GHOST, 135, EnumSet.of(Attack.SHADOW_BALL)), 
-	MACHAMP(Type.FIGHTING, 135, EnumSet.of(Attack.BRICK_BREAK)), 
-	ALAKAZAM(Type.PSYCHIC, 135, EnumSet.of(Attack.PSYCHIC)), 
-	SNORLAX(Type.NORMAL, 225, EnumSet.of(Attack.BODY_SLAM)), 
-	DRAGONITE(Type.DRAGON, 180, EnumSet.of(Attack.DRAGON_CLAW)), 
-	STEELIX(Type.STEEL, 135, EnumSet.of(Attack.IRON_HEAD));
+	VENUSAUR(Type.GRASS, Type.POISON, new int[]{80, 82, 83, 100, 100, 80}, EnumSet.of(Attack.ENERGY_BALL, Attack.BODY_SLAM)), 
+	CHARIZARD(Type.FIRE, Type.FLYING, new int[]{78, 84, 78, 109, 85, 100}, EnumSet.of(Attack.FLAMETHROWER, Attack.DRAGON_CLAW)), 
+	BLASTOISE(Type.WATER, null, new int[]{79, 83, 100, 85, 105, 78}, EnumSet.of(Attack.SURF, Attack.BRICK_BREAK)), 
+	PIDGEOT(Type.NORMAL, Type.FLYING, new int[]{83, 80, 75, 70, 70, 101}, EnumSet.of(Attack.DRILL_PECK)), 
+	RAICHU(Type.ELECTRIC, null, new int[]{60, 90, 55, 90, 80, 110}, EnumSet.of(Attack.THUNDER_BOLT, Attack.IRON_TAIL)), 
+	MACHAMP(Type.FIGHTING, null, new int[]{90, 130, 80, 65, 85, 55}, EnumSet.of(Attack.BRICK_BREAK)), 
+	GOLEM(Type.ROCK, Type.GROUND, new int[]{80, 120, 130, 55, 65, 45}, EnumSet.of(Attack.ROCK_SLIDE)), 
+	ALAKAZAM(Type.PSYCHIC, null, new int[]{55, 50, 45, 135, 95, 120}, EnumSet.of(Attack.PSYCHIC)), 
+	GENGAR(Type.GHOST, Type.POISON, new int[]{60, 65, 60, 130, 75, 110}, EnumSet.of(Attack.SHADOW_BALL)), 
+	SNORLAX(Type.NORMAL, null, new int[]{160, 110, 65, 65, 110, 30}, EnumSet.of(Attack.BODY_SLAM)), 
+	DRAGONITE(Type.DRAGON, Type.FLYING, new int[]{91, 134, 95, 100, 100, 80}, EnumSet.of(Attack.DRAGON_CLAW)), 
+	STEELIX(Type.STEEL, Type.GROUND, new int[]{75, 85, 200, 55, 65, 30}, EnumSet.of(Attack.IRON_HEAD)), 
+	GARCHOMP(Type.DRAGON, Type.GROUND, new int[]{108, 130, 95, 80, 85, 102}, EnumSet.of(Attack.DRAGON_CLAW, Attack.EARTHQUAKE)), 
+	GLACEON(Type.ICE, null, new int[]{65, 60, 110, 130, 95, 65}, EnumSet.of(Attack.ICE_BEAM));
 
-	public final Type type;
-	public final int hp;
-	public final EnumSet<Attack> attacks;
+	public final Type type1;
+	public final Type type2;
+	protected final int[] baseStats;
+	protected final EnumSet<Attack> attacks;
 
-	PokemonEnum(Type type, int hp, EnumSet<Attack> attacks) {
-		this.type = type;
-		this.hp = hp;
+	PokemonEnum(Type type1, Type type2, int[] baseStats, EnumSet<Attack> attacks) {
+		if (baseStats.length != Stat.values().length) {
+			throw new IllegalStateException("Attempted to construct Pokemon with " + baseStats.length 
+				+ " stats when " + Stat.values().length + " stats are required.");
+		}
+		this.type1 = type1;
+		this.type2 = type2;
+		this.baseStats = baseStats;
 		this.attacks = attacks;
+	}
+
+	public int getBaseStat(Stat s) {
+		return this.baseStats[s.ordinal()];
 	}
 
 }
 
+enum Stat {
+	HP, ATTACK, DEFENCE, SPECIAL_ATTACK, SPECIAL_DEFENCE, SPEED;
+}
+
+//TODO Need physical vs special
 enum Attack {
 	//Add new attacks here
-	PSYSTRIKE(120, 100, 10, Type.PSYCHIC), 
+	PSYSTRIKE(100, 100, 10, Type.PSYCHIC), 
 
-	ENERGY_BALL(90, 75, 5, Type.GRASS), 
-	FLAMETHROWER(90, 75, 5, Type.FIRE), 
-	SURF(90, 75, 5, Type.WATER), 
-	DRILL_PECK(90, 75, 5, Type.FLYING), 
-	ROCK_SLIDE(90, 75, 5, Type.ROCK), 
-	SHADOW_BALL(90, 75, 5, Type.GHOST), 
-	BRICK_BREAK(90, 75, 5, Type.FIGHTING), 
-	PSYCHIC(90, 75, 5, Type.PSYCHIC), 
-	BODY_SLAM(90, 75, 5, Type.NORMAL), 
-	DRAGON_CLAW(90, 75, 5, Type.DRAGON),
-	IRON_HEAD(90, 75, 5, Type.STEEL),
-	STRUGGLE(30, 100, -1, Type.NONE);
+	ENERGY_BALL(90, 100, 10, Type.GRASS), 
+	FLAMETHROWER(90, 100, 15, Type.FIRE), 
+	SURF(90, 100, 15, Type.WATER), 
+	THUNDER_BOLT(90, 100, 15, Type.ELECTRIC), 
+	ICE_BEAM(90, 100, 10, Type.ICE), 
+	SOLAR_BEAM(120, 50, 10, Type.GRASS), 
+	DRILL_PECK(80, 100, 20, Type.FLYING), 
+	ROCK_SLIDE(75, 90, 10, Type.ROCK), 
+	SHADOW_BALL(80, 100, 15, Type.GHOST), 
+	BRICK_BREAK(75, 100, 15, Type.FIGHTING), 
+	PSYCHIC(90, 100, 10, Type.PSYCHIC), 
+	BODY_SLAM(85, 100, 15, Type.NORMAL), 
+	DRAGON_CLAW(80, 100, 15, Type.DRAGON),
+	IRON_HEAD(80, 100, 15, Type.STEEL), 
+	IRON_TAIL(100, 75, 15, Type.STEEL), 
+	AIR_SLASH(75, 95, 20, Type.FLYING), 
+	EARTHQUAKE(100, 100, 10, Type.GROUND), 
+	X_SCISSOR(80, 100, 15, Type.BUG), 
+	STRUGGLE(30, Integer.MAX_VALUE, -1, Type.NONE);
 	
-	public final int damage;
-	public final int accuracy;
-	public final int pp;
+	public final int baseDamage;
+	public final int baseAccuracy;
+	public final int basePP;
 	public final Type type;
 
 	Attack(int damage, int accuracy, int pp, Type type) {
-		this.damage = damage;
-		this.accuracy = accuracy;
-		this.pp = pp;
+		this.baseDamage = damage;
+		this.baseAccuracy = accuracy;
+		this.basePP = pp;
 		this.type = type;
 	}
 
@@ -346,19 +423,32 @@ enum Type {
 
 	}
 
-	public double getScaleFactor(Type opponentType) {
-		if (superEffective.contains(opponentType)) {
-			return 2;
+	public double getScaleFactor(Type opponentType1, Type opponentType2) {
+		double scaleFactor = 1;
+
+		//Calculate scale for type 1
+		if (superEffective.contains(opponentType1)) {
+			scaleFactor = 2;
 		}
-		else if (notVeryEffective.contains(opponentType)) {
-			return 0.5;
+		else if (notVeryEffective.contains(opponentType1)) {
+			scaleFactor = 0.5;
 		}
-		else if (noEffect.contains(opponentType)) {
-			return 0;
+		else if (noEffect.contains(opponentType1)) {
+			scaleFactor = 0;
 		}
-		else {
-			return 1;
+
+		//Calculate scale for type 2
+		if (superEffective.contains(opponentType2)) {
+			scaleFactor *=  2;
 		}
+		else if (notVeryEffective.contains(opponentType2)) {
+			scaleFactor *= 0.5;
+		}
+		else if (noEffect.contains(opponentType2)) {
+			scaleFactor *= 0;
+		}
+		
+		return scaleFactor;
 	}
 
 }
