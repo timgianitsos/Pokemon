@@ -269,6 +269,7 @@ enum Stat {
 enum Attack {
     //Add new attacks here
     PSYSTRIKE(100, 100, 10, Type.PSYCHIC), 
+    THUNDER(110, 70, 10, Type.ELECTRIC), 
 
     ENERGY_BALL(90, 100, 10, Type.GRASS), 
     FLAMETHROWER(90, 100, 15, Type.FIRE), 
