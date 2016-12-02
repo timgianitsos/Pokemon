@@ -39,14 +39,14 @@ public class Pokemon {
             }
             catch (Exception e) {
                 System.out.println("Invalid argument 1. Generating default..");
-                p1 = new Pokemon("NO_NAME", Type.NORMAL, null, new int[]{30,30,30,30,30,30}, EnumSet.noneOf(Attack.class));
+                p1 = new Pokemon(PokemonEnum.MAGIKARP);
             }
             try {
                 p2 = new Pokemon(PokemonEnum.valueOf(args[1].toUpperCase()));
             }
             catch (Exception e) {
                 System.out.println("Invalid argument 2. Generating default..");
-                p2 = new Pokemon("NO_NAME", Type.NORMAL, null, new int[]{30,30,30,30,30,30}, EnumSet.noneOf(Attack.class));
+                p2 = new Pokemon(PokemonEnum.MAGIKARP);
             }
             skipSteps = args.length >= 3 && args[2].equalsIgnoreCase("skip");
         }
@@ -227,7 +227,7 @@ enum PokemonEnum {
     //Add new pokemon here
     MEWTWO(Type.PSYCHIC, null, new int[]{106,110,90,154,90,130}, EnumSet.of(Attack.PSYSTRIKE)), 
     MEW(Type.PSYCHIC, null, new int[]{100,100,100,100,100,100}, EnumSet.allOf(Attack.class)),
-    ZAPADOS(Type.ELECTRIC, Type.FLYING,new int[]{90,90,85,125,90,100}, EnumSet.of(Attack.THUNDER_BOLT, Attack.DRILL_PECK)),
+    ZAPDOS(Type.ELECTRIC, Type.FLYING,new int[]{90,90,85,125,90,100}, EnumSet.of(Attack.THUNDER_BOLT, Attack.DRILL_PECK)),
 
     VENUSAUR(Type.GRASS, Type.POISON, new int[]{80, 82, 83, 100, 100, 80}, EnumSet.of(Attack.ENERGY_BALL, Attack.BODY_SLAM)), 
     CHARIZARD(Type.FIRE, Type.FLYING, new int[]{78, 84, 78, 109, 85, 100}, EnumSet.of(Attack.FLAMETHROWER, Attack.DRAGON_CLAW)), 
@@ -238,7 +238,7 @@ enum PokemonEnum {
     GOLEM(Type.ROCK, Type.GROUND, new int[]{80, 120, 130, 55, 65, 45}, EnumSet.of(Attack.ROCK_SLIDE)), 
     ALAKAZAM(Type.PSYCHIC, null, new int[]{55, 50, 45, 135, 95, 120}, EnumSet.of(Attack.PSYCHIC)), 
     GENGAR(Type.GHOST, Type.POISON, new int[]{60, 65, 60, 130, 75, 110}, EnumSet.of(Attack.SHADOW_BALL)), 
-    MAGIKARP(Type.WATER, null, new int[]{20, 10, 55, 15, 20, 80}, EnumSet.of(Attack.SPLASH)), 
+    MAGIKARP(Type.WATER, null, new int[]{20, 10, 55, 15, 20, 80}, EnumSet.of(Attack.SPLASH, Attack.TACKLE)), 
     SNORLAX(Type.NORMAL, null, new int[]{160, 110, 65, 65, 110, 30}, EnumSet.of(Attack.BODY_SLAM)), 
     DRAGONITE(Type.DRAGON, Type.FLYING, new int[]{91, 134, 95, 100, 100, 80}, EnumSet.of(Attack.DRAGON_CLAW)), 
     STEELIX(Type.STEEL, Type.GROUND, new int[]{75, 85, 200, 55, 65, 30}, EnumSet.of(Attack.IRON_HEAD)), 
@@ -277,6 +277,7 @@ enum Attack {
     PSYSTRIKE(100, 100, 10, Type.PSYCHIC), 
     THUNDER(110, 70, 10, Type.ELECTRIC), 
     AURA_SPHERE(90, 100, 20, Type.FIGHTING), 
+    TACKLE(40, 100, 35, Type.NORMAL), 
 
     ENERGY_BALL(90, 100, 10, Type.GRASS), 
     FLAMETHROWER(90, 100, 15, Type.FIRE), 
