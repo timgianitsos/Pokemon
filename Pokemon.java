@@ -1,4 +1,6 @@
 import java.util.*;
+import java.io.File;
+
 //TODO improve damage calculation, levels, hidden pokemon, parameterized randomizaetion, consider using REST API, STAB, natures, IVs, EVs
 /*
 ---------Custom Pokemon---------
@@ -60,7 +62,7 @@ public class Pokemon {
 
         System.out.println("\n" + p1.name + " with HP:" + p1.getCurrentHP() + "   vs   " 
                     + p2.name + " with HP:" + p2.getCurrentHP() + "\n");
-
+        scan.nextLine();
         while (doTurn(scan, p1, p2, skipSteps) && doTurn(scan, p2, p1, skipSteps)) {
         }
     }
@@ -155,6 +157,9 @@ public class Pokemon {
 
     public Pokemon(PokemonEnum poke) {
         this(poke.name(), poke.type1, poke.type2, poke.baseStats, poke.attacks);
+        if (new File("cries/" + poke.name() + ".wav").exists()) {
+            new AePlayWave("cries/" + poke.name() + ".wav").start();
+        }
     }
 
     public Pokemon(String name, Type type1, Type type2, int[] baseStats, EnumSet<Attack> attacks) {
