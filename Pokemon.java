@@ -1,11 +1,9 @@
 import java.util.*;
 import java.io.File;
 
-//TODO improve damage calculation, levels, hidden pokemon, parameterized randomization, consider using REST API, STAB, natures, IVs, EVs
+//TODO levels, parameterized randomization, consider using REST API, natures, IVs, EVs, doTurn improve
 
 public class Pokemon {
-
-    private static final int BASE_STAT_TOTAL_DISPLAY_THRESHHOLD = 580;
 
     public static void main(String[] args) {
         Scanner scan = new Scanner(System.in);
@@ -42,9 +40,78 @@ public class Pokemon {
         if (!skipSteps) {
             scan.nextLine();
         }
-        
-        while (doTurn(scan, p1, p2, skipSteps) && doTurn(scan, p2, p1, skipSteps)) {
+
+        int i = 1;
+        while (p1.currentHP != 0 && p2.currentHP != 0) {
+            System.out.println("Turn " + (i++) + " ---------------------------");
+            doTurn(p1, p2);
+            if (!skipSteps && p1.currentHP != 0 && p2.currentHP != 0) {
+                scan.nextLine();
+            }
         }
+    }
+
+    public final String name;
+    public final Type type1;
+    public final Type type2;
+    private final EnumMap<Stat, Integer> statToValue = new EnumMap<Stat, Integer>(Stat.class);
+    private final EnumMap<Attack, Integer> attackToPP = new EnumMap<Attack, Integer>(Attack.class);
+    private int currentHP;
+
+    public static final PokemonEnum DEFAULT_POKEMON = PokemonEnum.MAGIKARP;
+    public static final int LEVEL = 50;
+    public static final double CRITICAL_HIT_PROBABILITY = 0.0625;
+    public static final boolean SKIP_SOUND = false;
+    private static final int BASE_STAT_TOTAL_DISPLAY_THRESHHOLD = 580;
+
+    public Pokemon(PokemonEnum poke) {
+        this(poke.name(), poke.type1, poke.type2, poke.baseStats, poke.attacks);
+    }
+
+    public Pokemon(String name, Type type1, Type type2, int[] baseStats, EnumSet<Attack> attacks) {
+        boolean invalidArguments = false;
+        if (type1 == null) {
+            System.out.println("A Pokemon must have a valid primary type. Generating default..");
+            invalidArguments = true;
+        }
+        else if (type1 == type2) {
+            System.out.println("A Pokemon may not have two identical types " + type1.name() + ". Generating default..");
+            invalidArguments = true;
+        }
+        else if (baseStats.length != Stat.values().length) {
+            System.out.println("Attempted to construct Pokemon with " + baseStats.length 
+                + " stats when " + Stat.values().length + " stats are required. Generating default..");
+            invalidArguments = true;
+        }
+
+        if (invalidArguments) {
+            name = DEFAULT_POKEMON.name();
+            type1 = DEFAULT_POKEMON.type1;
+            type2 = DEFAULT_POKEMON.type2;
+            baseStats = DEFAULT_POKEMON.baseStats;
+            attacks = DEFAULT_POKEMON.attacks;
+        }
+
+        this.name = name;
+        if (!SKIP_SOUND && new File("cries/" + this.name + ".wav").exists()) {
+            new AePlayWave("cries/" + this.name + ".wav").start();
+        }
+        this.type1 = type1;
+        this.type2 = type2;
+        for (int i = 0; i < baseStats.length; i++) {
+            if (Stat.values()[i] == Stat.HP) {
+                this.statToValue.put(Stat.HP, baseStats[i] == 1 ? 1: 
+                    (int)(((2.0 * baseStats[i] + (int)(Math.random() * 32) + 0 / 4) * LEVEL / 100) + LEVEL + 10));
+            }
+            else {
+                this.statToValue.put(Stat.values()[i], 
+                    (int)((((2.0 * baseStats[i] + (int)(Math.random() * 32) + 0 / 4) * LEVEL / 100) + 5) * 1));
+            }
+        }
+        for (Attack a: attacks) {
+            this.attackToPP.put(a, a.basePP);
+        }
+        currentHP = statToValue.get(Stat.HP);
     }
 
     private static void displayPokemon() {
@@ -54,7 +121,7 @@ public class Pokemon {
             for (int i = 0; i < poke.baseStats.length; i++) {
                 baseStatTotal += poke.baseStats[i];
             }
-            if (baseStatTotal < BASE_STAT_TOTAL_DISPLAY_THRESHHOLD && !poke.name().contains("MEGA") && poke.type1 != Type.NONE) {
+            if (baseStatTotal < BASE_STAT_TOTAL_DISPLAY_THRESHHOLD && !poke.name().contains("MEGA_") && poke.type1 != Type.NONE) {
                 System.out.printf("%-12s Type 1:%-12s Type 2:%-12s Attacks:", poke.name(), poke.type1.name(), 
                         (poke.type2 == null ? "": poke.type2.name()));
                 for (Attack a: poke.attacks) {
@@ -106,130 +173,49 @@ public class Pokemon {
         }
     }
 
-    //return true if opponent Pokemon did NOT faint from the turn
-    private static boolean doTurn(Scanner scan, Pokemon p1, Pokemon p2, boolean skipSteps) {
-        Attack p1Attack = null;
-        double bestAttackScore = -1;
+    public static void doTurn(Pokemon p1, Pokemon p2) {
+        assert (p1.currentHP != 0 && p2.currentHP != 0);
+        Pokemon first;
+        Pokemon second;
+        if (p1.getStat(Stat.SPEED) == p2.getStat(Stat.SPEED)) {
+            double randomNumber = Math.random();
+            first = randomNumber >= 0.5 ? p1: p2;
+            second = randomNumber >= 0.5 ? p2: p1;
+        }
+        else if (p1.getStat(Stat.SPEED) > p2.getStat(Stat.SPEED)) {
+            first = p1;
+            second = p2;
+        }
+        else {
+            first = p2;
+            second = p1;
+        }
+        assert (first != second);
+        first.useAttack(first.getBestAttack(second), second);
+        if (second.currentHP != 0) {
+            second.useAttack(second.getBestAttack(first), first);
+        }
+    }
 
-        //AI that determines which Attack to choose
-        for (Attack a: p1.attackToPP.keySet()) {
-            double attackScore = p1.attackDamage(a, p2) * a.baseAccuracy; //Score each move by multiplying damage with accuracy
-            if (p1.attackToPP.get(a) > 0 && attackScore > bestAttackScore) {
-                p1Attack = a;
+    //AI that determines which Attack to choose
+    //Each move recieves a score by multiplying damage with accuracy
+    //returns null if no move is available
+    public Attack getBestAttack(Pokemon opponent) {
+        Attack attack = null;
+        double bestAttackScore = -1;
+        for (Attack a: this.attackToPP.keySet()) {
+            double attackScore = this.attackDamage(a, opponent) * a.baseAccuracy;
+            assert (attackScore >= 0);
+            if (this.attackToPP.get(a) > 0 && attackScore > bestAttackScore) {
+                attack = a;
                 bestAttackScore = attackScore;
             }
         }
-
-        boolean keepBattling = !p1.useAttack(p1Attack, p2);
-        if (keepBattling && !skipSteps) {
-            scan.nextLine(); //Makes user press enter to progress the turn
-        }
-        return keepBattling;
+        return attack;
     }
 
-
-    //Start of Pokemon Object code
-    public final String name;
-    public final Type type1;
-    public final Type type2;
-    private final EnumMap<Stat, Integer> statToValue = new EnumMap<Stat, Integer>(Stat.class);
-    private final EnumMap<Attack, Integer> attackToPP = new EnumMap<Attack, Integer>(Attack.class);
-    private int currentHP;
-
-    public static final PokemonEnum DEFAULT_POKEMON = PokemonEnum.MAGIKARP;
-    public static final int LEVEL = 50;
-    public static final double CRITICAL_HIT_PROBABILITY = 0.0625;
-    public static final boolean SKIP_SOUND = false;
-
-    public Pokemon(PokemonEnum poke) {
-        this(poke.name(), poke.type1, poke.type2, poke.baseStats, poke.attacks);
-    }
-
-    public Pokemon(String name, Type type1, Type type2, int[] baseStats, EnumSet<Attack> attacks) {
-        boolean invalidArguments = false;
-        if (type1 == null) {
-            System.out.println("A Pokemon must have a valid primary type. Generating default..");
-            invalidArguments = true;
-        }
-        else if (type1 == type2) {
-            System.out.println("A Pokemon may not have two identical types " + type1.name() + ". Generating default..");
-            invalidArguments = true;
-        }
-        else if (baseStats.length != Stat.values().length) {
-            System.out.println("Attempted to construct Pokemon with " + baseStats.length 
-                + " stats when " + Stat.values().length + " stats are required. Generating default..");
-            invalidArguments = true;
-        }
-
-        if (invalidArguments) {
-            name = DEFAULT_POKEMON.name();
-            type1 = DEFAULT_POKEMON.type1;
-            type2 = DEFAULT_POKEMON.type2;
-            baseStats = DEFAULT_POKEMON.baseStats;
-            attacks = DEFAULT_POKEMON.attacks;
-        }
-
-        this.name = name;
-        if (!SKIP_SOUND && new File("cries/" + this.name + ".wav").exists()) {
-            new AePlayWave("cries/" + name + ".wav").start();
-        }
-        this.type1 = type1;
-        this.type2 = type2;
-        for (int i = 0; i < baseStats.length; i++) {
-            if (Stat.values()[i] == Stat.HP) {
-                this.statToValue.put(Stat.HP, baseStats[i] == 1 ? 1: 
-                    (int)(((2.0 * baseStats[i] + (int)(Math.random() * 32) + 0 / 4) * LEVEL / 100) + LEVEL + 10));
-            }
-            else {
-                this.statToValue.put(Stat.values()[i], 
-                    (int)((((2.0 * baseStats[i] + (int)(Math.random() * 32) + 0 / 4) * LEVEL / 100) + 5) * 1));
-            }
-        }
-        for (Attack a: attacks) {
-            this.attackToPP.put(a, a.basePP);
-        }
-        currentHP = statToValue.get(Stat.HP);
-    }
-
-    public int getStat(Stat s) {
-        return this.statToValue.get(s);
-    }
-
-    public int getCurrentHP() {
-        return currentHP;
-    }
-
-    public Attack[] getAttacks() {
-        Attack[] attks = new Attack[attackToPP.keySet().size()];
-        int i = 0;
-        for (Attack a: attackToPP.keySet()) {
-            attks[i++] = a;
-        }
-        return attks;
-    }
-
-    //Returns the number of pp of the given Attack, or -1 if this Pokemon does not know the Attack
-    public int getAttackPP(Attack a) {
-        Integer pp = attackToPP.get(a);
-        return pp != null ? pp: -1;
-    }
-
-    //If this Pokemon doesn't know the move or the move has no PP, then this calculates damage of STRUGGLE
-    public double attackDamage(Attack att, Pokemon opponent) {
-        if (this.attackToPP.get(att) == null || this.attackToPP.get(att) <= 0) {
-            att = Attack.STRUGGLE;
-        }
-        
-        Stat offensiveStat = att.isPhysical ? Stat.ATTACK: Stat.SPECIAL_ATTACK;
-        Stat defensiveStat = att.isPhysical ? Stat.DEFENCE: Stat.SPECIAL_DEFENCE;
-
-        double damageDealt = (((2.0 * LEVEL + 10.0) / 250.0 * this.statToValue.get(offensiveStat) / opponent.statToValue.get(defensiveStat) 
-            * att.baseDamage + 2.0) * att.type.getEffectiveness(this.type1, this.type2, opponent.type1, opponent.type2));
-        return damageDealt;
-    }
-
-    //Returns true if the opponent faints from using the attack
-    public boolean useAttack(Attack attack, Pokemon opponent) {
+    public void useAttack(Attack attack, Pokemon opponent) {
+        assert (this.currentHP != 0 && opponent.currentHP != 0);
         if (this.attackToPP.get(attack) == null) {
             System.out.println("Invalid attack!");
             attack = Attack.STRUGGLE;
@@ -270,8 +256,43 @@ public class Pokemon {
 
         boolean opponentFainted = opponent.currentHP <= 0;
         System.out.println(opponent.name + " has " + opponent.currentHP + " hp left\n" + (opponentFainted ? opponent.name + " fainted!\n": ""));
+    }
 
-        return opponentFainted;
+    //If this Pokemon doesn't know the move or the move has no PP, then this calculates damage of STRUGGLE
+    public double attackDamage(Attack att, Pokemon opponent) {
+        if (this.attackToPP.get(att) == null || this.attackToPP.get(att) <= 0) {
+            att = Attack.STRUGGLE;
+        }
+        
+        Stat offensiveStat = att.isPhysical ? Stat.ATTACK: Stat.SPECIAL_ATTACK;
+        Stat defensiveStat = att.isPhysical ? Stat.DEFENCE: Stat.SPECIAL_DEFENCE;
+
+        double damageDealt = (((2.0 * LEVEL + 10.0) / 250.0 * this.statToValue.get(offensiveStat) / opponent.statToValue.get(defensiveStat) 
+            * att.baseDamage + 2.0) * att.type.getEffectiveness(this.type1, this.type2, opponent.type1, opponent.type2));
+        return damageDealt;
+    }
+
+    public int getStat(Stat s) {
+        return this.statToValue.get(s);
+    }
+
+    public int getCurrentHP() {
+        return this.currentHP;
+    }
+
+    public Attack[] getAttacks() {
+        Attack[] attks = new Attack[attackToPP.keySet().size()];
+        int i = 0;
+        for (Attack a: attackToPP.keySet()) {
+            attks[i++] = a;
+        }
+        return attks;
+    }
+
+    //Returns the number of pp of the given Attack, or 0 if this Pokemon does not know the Attack
+    public int getAttackPP(Attack a) {
+        Integer pp = attackToPP.get(a);
+        return pp != null ? pp: 0;
     }
 
 }
