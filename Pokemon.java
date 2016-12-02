@@ -6,11 +6,15 @@ import java.io.File;
 ---------Custom Pokemon---------
 Paste the following lines when prompted to enter the name of a pokemon
 
+custom
+MEGA_PIDGEOT NORMAL FLYING
+83 80 80 135 80 121
+AIR_SLASH HURRICANE
 
 custom
 MEGA_CHARIZARD_X FIRE DRAGON
 78 130 111 130 85 100
-FLAMETHROWER DRAGON_CLAW AIR_SLASH SOLAR_BEAM
+FLAMETHROWER DRAGON_CLAW EARTHQUAKE SOLAR_BEAM
 
 custom
 MEGA_CHARIZARD_Y FIRE FLYING
@@ -77,7 +81,10 @@ public class Pokemon {
 
         System.out.println("\n" + p1.name + " with HP:" + p1.getCurrentHP() + "   vs   " 
                     + p2.name + " with HP:" + p2.getCurrentHP() + "\n");
-        scan.nextLine();
+        if (!skipSteps) {
+            scan.nextLine();
+        }
+        
         while (doTurn(scan, p1, p2, skipSteps) && doTurn(scan, p2, p1, skipSteps)) {
         }
     }
@@ -266,21 +273,24 @@ enum PokemonEnum {
     MEWTWO(Type.PSYCHIC, null, new int[]{106,110,90,154,90,130}, EnumSet.of(Attack.PSYSTRIKE)), 
     MEW(Type.PSYCHIC, null, new int[]{100,100,100,100,100,100}, EnumSet.allOf(Attack.class)), 
     ZAPDOS(Type.ELECTRIC, Type.FLYING, new int[]{90,90,85,125,90,100}, EnumSet.of(Attack.THUNDER_BOLT, Attack.DRILL_PECK)), 
-    REGIGIGAS(Type.NORMAL, null, new int[]{110, 160, 110, 80, 110, 110}, EnumSet.of(Attack.DIZZY_PUNCH)), 
+    REGIGIGAS(Type.NORMAL, null, new int[]{110,160,110,80,110,110}, EnumSet.of(Attack.DIZZY_PUNCH)), 
 
     VENUSAUR(Type.GRASS, Type.POISON, new int[]{80, 82, 83, 100, 100, 80}, EnumSet.of(Attack.ENERGY_BALL, Attack.BODY_SLAM)), 
     CHARIZARD(Type.FIRE, Type.FLYING, new int[]{78, 84, 78, 109, 85, 100}, EnumSet.of(Attack.FLAMETHROWER, Attack.DRAGON_CLAW)), 
     BLASTOISE(Type.WATER, null, new int[]{79, 83, 100, 85, 105, 78}, EnumSet.of(Attack.SURF, Attack.BRICK_BREAK)), 
-    PIDGEOT(Type.NORMAL, Type.FLYING, new int[]{83, 80, 75, 70, 70, 101}, EnumSet.of(Attack.DRILL_PECK)), 
+    PIDGEOT(Type.NORMAL, Type.FLYING, new int[]{83, 80, 75, 70, 70, 101}, EnumSet.of(Attack.AIR_SLASH)), 
     RAICHU(Type.ELECTRIC, null, new int[]{60, 90, 55, 90, 80, 110}, EnumSet.of(Attack.THUNDER_BOLT, Attack.IRON_TAIL)), 
     MACHAMP(Type.FIGHTING, null, new int[]{90, 130, 80, 65, 85, 55}, EnumSet.of(Attack.BRICK_BREAK)), 
     GOLEM(Type.ROCK, Type.GROUND, new int[]{80, 120, 130, 55, 65, 45}, EnumSet.of(Attack.ROCK_SLIDE)), 
     ALAKAZAM(Type.PSYCHIC, null, new int[]{55, 50, 45, 135, 95, 120}, EnumSet.of(Attack.PSYCHIC)), 
     GENGAR(Type.GHOST, Type.POISON, new int[]{60, 65, 60, 130, 75, 110}, EnumSet.of(Attack.SHADOW_BALL)), 
+    ELECTABUZZ(Type.ELECTRIC, null, new int[]{65, 83, 57, 95, 85, 105}, EnumSet.of(Attack.THUNDER_BOLT)), 
+    MAGMAR(Type.FIRE, null, new int[]{65, 95, 57, 100, 85, 93}, EnumSet.of(Attack.FLAMETHROWER)), 
     MAGIKARP(Type.WATER, null, new int[]{20, 10, 55, 15, 20, 80}, EnumSet.of(Attack.SPLASH, Attack.TACKLE)), 
     SNORLAX(Type.NORMAL, null, new int[]{160, 110, 65, 65, 110, 30}, EnumSet.of(Attack.BODY_SLAM)), 
     DRAGONITE(Type.DRAGON, Type.FLYING, new int[]{91, 134, 95, 100, 100, 80}, EnumSet.of(Attack.DRAGON_CLAW)), 
     STEELIX(Type.STEEL, Type.GROUND, new int[]{75, 85, 200, 55, 65, 30}, EnumSet.of(Attack.IRON_HEAD)), 
+    METAGROSS(Type.STEEL, Type.PSYCHIC, new int[]{80, 135, 130, 95, 90, 70}, EnumSet.of(Attack.IRON_HEAD, Attack.PSYCHIC)), 
     GARCHOMP(Type.DRAGON, Type.GROUND, new int[]{108, 130, 95, 80, 85, 102}, EnumSet.of(Attack.DRAGON_CLAW, Attack.EARTHQUAKE)), 
     GLACEON(Type.ICE, null, new int[]{65, 60, 110, 130, 95, 65}, EnumSet.of(Attack.ICE_BEAM));
 
@@ -338,6 +348,7 @@ enum Attack {
     EARTHQUAKE(100, 100, 10, Type.GROUND), 
     X_SCISSOR(80, 100, 15, Type.BUG), 
     SPLASH(0, 0, 40, Type.NORMAL), 
+    HURRICANE(110, 70, 10, Type.FLYING), 
 
     STRUGGLE(30, Integer.MAX_VALUE, -1, Type.NONE);
     
