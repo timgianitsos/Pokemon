@@ -149,8 +149,8 @@ public class Pokemon {
     public final Type type2;
     public final int level = 50;
     private final EnumMap<Stat, Integer> statToBaseValue = new EnumMap<Stat, Integer>(Stat.class);
-    private final EnumMap<Attack, Integer> attackToPP = new EnumMap<Attack, Integer>(Attack.class);
     private final EnumMap<Stat, Integer> statToIV = new EnumMap<Stat, Integer>(Stat.class);
+    private final EnumMap<Attack, Integer> attackToPP = new EnumMap<Attack, Integer>(Attack.class);
     private int currentHP;
 
     public Pokemon(PokemonEnum poke) {
@@ -164,11 +164,11 @@ public class Pokemon {
         for (int i = 0; i < baseStats.length; i++) {
             this.statToBaseValue.put(Stat.values()[i], baseStats[i]);
         }
+        for (Stat s: Stat.values()) {
+            this.statToIV.put(s, (int)(Math.random() * 32));
+        }
         for (Attack a: attacks) {
             this.attackToPP.put(a, a.basePP);
-        }
-        for (Stat s: Stat.values()) {
-            this.statToIV.put(s, (int)(Math.random() * 32)); //Change map value to alter stats
         }
         currentHP = statToBaseValue.get(Stat.HP) == 1 ? 1: 
                 ((2 * statToBaseValue.get(Stat.HP) + statToIV.get(Stat.HP) + 252 / 4) * level / 100) + level + 10;
@@ -180,6 +180,21 @@ public class Pokemon {
 
     public int getCurrentHP() {
         return currentHP;
+    }
+
+    public Attack[] getAttacks() {
+        Attack[] attks = new Attack[attackToPP.keySet().size()];
+        int i = 0;
+        for (Attack a: attackToPP.keySet()) {
+            attks[i++] = a;
+        }
+        return attks;
+    }
+
+    //Returns the number of pp of the given Attack, or -1 if this Pokemon does not know the Attack
+    public int getAttackPP(Attack a) {
+        Integer pp = attackToPP.get(a);
+        return pp != null ? pp: -1;
     }
 
     //Returns true if the opponent faints from using the attack
@@ -226,7 +241,7 @@ public class Pokemon {
 enum PokemonEnum {
     //Add new pokemon here
     MEWTWO(Type.PSYCHIC, null, new int[]{106,110,90,154,90,130}, EnumSet.of(Attack.PSYSTRIKE)), 
-    MEW(Type.PSYCHIC, null, new int[]{100,100,100,100,100,100}, EnumSet.allOf(Attack.class)),
+    MEW(Type.PSYCHIC, null, new int[]{100,100,100,100,100,100}, EnumSet.allOf(Attack.class)), 
     ZAPDOS(Type.ELECTRIC, Type.FLYING,new int[]{90,90,85,125,90,100}, EnumSet.of(Attack.THUNDER_BOLT, Attack.DRILL_PECK)),
 
     VENUSAUR(Type.GRASS, Type.POISON, new int[]{80, 82, 83, 100, 100, 80}, EnumSet.of(Attack.ENERGY_BALL, Attack.BODY_SLAM)), 
