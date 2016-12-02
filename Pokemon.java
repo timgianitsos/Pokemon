@@ -18,14 +18,29 @@ MEGA_CHARIZARD_Y FIRE FLYING
 FLAMETHROWER DRAGON_CLAW AIR_SLASH SOLAR_BEAM
 
 custom
+MEGA_MEWTWO_X PSYCHIC FIGHTING
+106 190 100 154 100 130
+PSYSTRIKE AURA_SPHERE
+
+custom
+MEGA_MEWTWO_Y PSYCHIC
+106 150 70 194 120 140
+PSYSTRIKE SHADOW_BALL
+
+custom
 SHEDINJA NONE
 1 90 45 30 30 40
 X_SCISSOR, SHADOW_BALL
 
 custom
-MEGA_MEWTWO_X PSYCHIC FIGHTING
-106 190 100 154 100 130
-PSYSTRIKE AURA_SPHERE
+PRIMAL_KYOGRE WATER
+100 150 90 180 160 90
+SURF ICE_BEAM
+
+custom
+PRIMAL_GROUDON GROUND FIRE
+100 180 160 150 90 90
+EARTHQUAKE FLAMETHROWER
 
 */
 public class Pokemon {
@@ -132,9 +147,10 @@ public class Pokemon {
         Attack p1Attack = null;
         double bestDamage = -1;
         for (Attack a: p1.attackToPP.keySet()) {
-            if (p1.attackToPP.get(a) > 0 && a.baseDamage * a.type.getScaleFactor(p2.type1, p2.type2) * a.baseAccuracy > bestDamage) {
+            double damageFactor = a.baseDamage * a.type.getScaleFactor(p1.type1, p1.type2, p2.type1, p2.type2) * a.baseAccuracy;
+            if (p1.attackToPP.get(a) > 0 && damageFactor > bestDamage) {
                 p1Attack = a;
-                bestDamage = a.baseDamage * a.type.getScaleFactor(p2.type1, p2.type2) * a.baseAccuracy;
+                bestDamage = damageFactor;
             }
         }
         boolean keepBattling = !p1.useAttack(p1Attack, p2);
@@ -157,13 +173,13 @@ public class Pokemon {
 
     public Pokemon(PokemonEnum poke) {
         this(poke.name(), poke.type1, poke.type2, poke.baseStats, poke.attacks);
-        if (new File("cries/" + poke.name() + ".wav").exists()) {
-            new AePlayWave("cries/" + poke.name() + ".wav").start();
-        }
     }
 
     public Pokemon(String name, Type type1, Type type2, int[] baseStats, EnumSet<Attack> attacks) {
         this.name = name;
+        if (new File("cries/" + this.name + ".wav").exists()) {
+            new AePlayWave("cries/" + name + ".wav").start();
+        }
         this.type1 = type1;
         this.type2 = type2;
         for (int i = 0; i < baseStats.length; i++) {
@@ -215,9 +231,9 @@ public class Pokemon {
 
         System.out.println(this.name + " used " + attack.name());
         if (Math.random() * 100 < attack.baseAccuracy) {
-            double scaleFactor = attack.type.getScaleFactor(opponent.type1, opponent.type2);
+            double scaleFactor = attack.type.getScaleFactor(this.type1, this.type2, opponent.type1, opponent.type2);
             System.out.println(
-                scaleFactor > 1 ? "It's super effective!": 
+                scaleFactor >= 2 ? "It's super effective!": 
                 scaleFactor < 1 && scaleFactor > 0 ? "It's not very effective..": 
                 scaleFactor == 0 ? (opponent.name + " is unaffected!"): 
                 (opponent.name + " was hit"));
@@ -245,9 +261,12 @@ public class Pokemon {
 
 enum PokemonEnum {
     //Add new pokemon here
+
+    //TODO make legendaries hidden
     MEWTWO(Type.PSYCHIC, null, new int[]{106,110,90,154,90,130}, EnumSet.of(Attack.PSYSTRIKE)), 
     MEW(Type.PSYCHIC, null, new int[]{100,100,100,100,100,100}, EnumSet.allOf(Attack.class)), 
-    ZAPDOS(Type.ELECTRIC, Type.FLYING,new int[]{90,90,85,125,90,100}, EnumSet.of(Attack.THUNDER_BOLT, Attack.DRILL_PECK)),
+    ZAPDOS(Type.ELECTRIC, Type.FLYING, new int[]{90,90,85,125,90,100}, EnumSet.of(Attack.THUNDER_BOLT, Attack.DRILL_PECK)), 
+    REGIGIGAS(Type.NORMAL, null, new int[]{110, 160, 110, 80, 110, 110}, EnumSet.of(Attack.DIZZY_PUNCH)), 
 
     VENUSAUR(Type.GRASS, Type.POISON, new int[]{80, 82, 83, 100, 100, 80}, EnumSet.of(Attack.ENERGY_BALL, Attack.BODY_SLAM)), 
     CHARIZARD(Type.FIRE, Type.FLYING, new int[]{78, 84, 78, 109, 85, 100}, EnumSet.of(Attack.FLAMETHROWER, Attack.DRAGON_CLAW)), 
@@ -298,6 +317,7 @@ enum Attack {
     THUNDER(110, 70, 10, Type.ELECTRIC), 
     AURA_SPHERE(90, 100, 20, Type.FIGHTING), 
     TACKLE(40, 100, 35, Type.NORMAL), 
+    DIZZY_PUNCH(70, 100, 10, Type.NORMAL), 
 
     ENERGY_BALL(90, 100, 10, Type.GRASS), 
     FLAMETHROWER(90, 100, 15, Type.FIRE), 
@@ -440,21 +460,21 @@ enum Type {
 
     }
 
-    public double getScaleFactor(Type opponentType1, Type opponentType2) {
-        double scaleFactor = 1;
+    public double getScaleFactor(Type userType1, Type userType2, Type opponentType1, Type opponentType2) {
+        double scaleFactor =  this == userType1 || this == userType2 ? 1.5: 1;
 
-        //Calculate scale for type 1
+        //Calculate scale for opponent type 1
         if (superEffective.contains(opponentType1)) {
-            scaleFactor = 2;
+            scaleFactor *= 2;
         }
         else if (notVeryEffective.contains(opponentType1)) {
-            scaleFactor = 0.5;
+            scaleFactor *= 0.5;
         }
         else if (noEffect.contains(opponentType1)) {
-            scaleFactor = 0;
+            scaleFactor *= 0;
         }
 
-        //Calculate scale for type 2
+        //Calculate scale for opponent type 2
         if (superEffective.contains(opponentType2)) {
             scaleFactor *=  2;
         }
