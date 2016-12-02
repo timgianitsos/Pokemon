@@ -2,51 +2,7 @@ import java.util.*;
 import java.io.File;
 
 //TODO improve damage calculation, levels, hidden pokemon, parameterized randomizaetion, consider using REST API, STAB, natures, IVs, EVs
-/*
----------Custom Pokemon---------
-Paste the following lines when prompted to enter the name of a pokemon
 
-custom
-MEGA_PIDGEOT NORMAL FLYING
-83 80 80 135 80 121
-AIR_SLASH HURRICANE
-
-custom
-MEGA_CHARIZARD_X FIRE DRAGON
-78 130 111 130 85 100
-FLAMETHROWER DRAGON_CLAW EARTHQUAKE SOLAR_BEAM
-
-custom
-MEGA_CHARIZARD_Y FIRE FLYING
-78 104 78 159 115 100
-FLAMETHROWER DRAGON_CLAW AIR_SLASH SOLAR_BEAM
-
-custom
-MEGA_MEWTWO_X PSYCHIC FIGHTING
-106 190 100 154 100 130
-PSYSTRIKE AURA_SPHERE
-
-custom
-MEGA_MEWTWO_Y PSYCHIC
-106 150 70 194 120 140
-PSYSTRIKE SHADOW_BALL
-
-custom
-SHEDINJA NONE
-1 90 45 30 30 40
-X_SCISSOR, SHADOW_BALL
-
-custom
-PRIMAL_KYOGRE WATER
-100 150 90 180 160 90
-SURF ICE_BEAM
-
-custom
-PRIMAL_GROUDON GROUND FIRE
-100 180 160 150 90 90
-EARTHQUAKE FLAMETHROWER
-
-*/
 public class Pokemon {
 
     private static final int BASE_STAT_TOTAL_DISPLAY_THRESHHOLD = 580;
@@ -188,6 +144,7 @@ public class Pokemon {
     public static final PokemonEnum DEFAULT_POKEMON = PokemonEnum.MAGIKARP;
     public static final int LEVEL = 50;
     public static final double CRITICAL_HIT_PROBABILITY = 0.0625;
+    public static final boolean SKIP_SOUND = false;
 
     public Pokemon(PokemonEnum poke) {
         this(poke.name(), poke.type1, poke.type2, poke.baseStats, poke.attacks);
@@ -218,7 +175,7 @@ public class Pokemon {
         }
 
         this.name = name;
-        if (new File("cries/" + this.name + ".wav").exists()) {
+        if (!SKIP_SOUND && new File("cries/" + this.name + ".wav").exists()) {
             new AePlayWave("cries/" + name + ".wav").start();
         }
         this.type1 = type1;
@@ -307,6 +264,16 @@ enum PokemonEnum {
     MEW(Type.PSYCHIC, null, new int[]{100,100,100,100,100,100}, EnumSet.allOf(Attack.class)), 
     ZAPDOS(Type.ELECTRIC, Type.FLYING, new int[]{90,90,85,125,90,100}, EnumSet.of(Attack.THUNDER_BOLT, Attack.DRILL_PECK)), 
     REGIGIGAS(Type.NORMAL, null, new int[]{110,160,110,80,110,110}, EnumSet.of(Attack.DIZZY_PUNCH)), 
+    MEGA_PIDGEOT(Type.NORMAL, Type.FLYING, new int[]{83, 80, 80, 135, 80, 121}, EnumSet.of(Attack.AIR_SLASH, Attack.HURRICANE)), 
+    MEGA_CHARIZARD_X(Type.FIRE, Type.DRAGON, new int[]{78, 130, 111, 130, 85, 100}, 
+        EnumSet.of(Attack.FLAMETHROWER, Attack.DRAGON_CLAW, Attack.EARTHQUAKE, Attack.SOLAR_BEAM)), 
+    MEGA_CHARIZARD_Y(Type.FIRE, Type.FLYING, new int[]{78, 104, 78, 159, 115, 100}, 
+        EnumSet.of(Attack.FLAMETHROWER, Attack.DRAGON_CLAW, Attack.AIR_SLASH, Attack.SOLAR_BEAM)), 
+    MEGA_MEWTWO_X(Type.PSYCHIC, Type.FIGHTING, new int[]{106, 190, 100, 154, 100, 130}, EnumSet.of(Attack.PSYSTRIKE, Attack.AURA_SPHERE)), 
+    MEGA_MEWTWO_Y(Type.PSYCHIC, null, new int[]{106, 150, 70, 194, 120, 140}, EnumSet.of(Attack.PSYSTRIKE, Attack.SHADOW_BALL)), 
+    SHEDINJA(Type.NONE, null, new int[]{1, 90, 45, 30, 30, 40}, EnumSet.of(Attack.X_SCISSOR, Attack.SHADOW_BALL)), 
+    PRIMAL_KYOGRE(Type.WATER, null, new int[]{100, 150, 90, 180, 160, 90}, EnumSet.of(Attack.SURF, Attack.ICE_BEAM)), 
+    PRIMAL_GROUDON(Type.GROUND, Type.FIRE, new int[]{100, 180, 160, 150, 90, 90}, EnumSet.of(Attack.EARTHQUAKE, Attack.FLAMETHROWER)), 
 
     VENUSAUR(Type.GRASS, Type.POISON, new int[]{80, 82, 83, 100, 100, 80}, EnumSet.of(Attack.ENERGY_BALL, Attack.BODY_SLAM)), 
     CHARIZARD(Type.FIRE, Type.FLYING, new int[]{78, 84, 78, 109, 85, 100}, EnumSet.of(Attack.FLAMETHROWER, Attack.DRAGON_CLAW)), 
