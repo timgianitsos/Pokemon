@@ -49,6 +49,8 @@ EARTHQUAKE FLAMETHROWER
 */
 public class Pokemon {
 
+    private static final int BASE_STAT_TOTAL_DISPLAY_THRESHHOLD = 580;
+
     public static void main(String[] args) {
         Scanner scan = new Scanner(System.in);
         Pokemon p1;
@@ -60,14 +62,14 @@ public class Pokemon {
             }
             catch (Exception e) {
                 System.out.println("Invalid argument 1. Generating default..");
-                p1 = new Pokemon(PokemonEnum.MAGIKARP);
+                p1 = new Pokemon(DEFAULT_POKEMON);
             }
             try {
                 p2 = new Pokemon(PokemonEnum.valueOf(args[1].toUpperCase()));
             }
             catch (Exception e) {
                 System.out.println("Invalid argument 2. Generating default..");
-                p2 = new Pokemon(PokemonEnum.MAGIKARP);
+                p2 = new Pokemon(DEFAULT_POKEMON);
             }
             skipSteps = args.length >= 3 && args[2].equalsIgnoreCase("skip");
         }
@@ -92,12 +94,18 @@ public class Pokemon {
     private static void displayPokemon() {
         System.out.println("\nAvailable Pokemon");
         for (PokemonEnum poke: PokemonEnum.values()) {
-            System.out.printf("%-12s Type 1:%-12s Type 2:%-12s Attacks:", poke.name(), poke.type1.name(), 
-                    (poke.type2 == null ? "": poke.type2.name()));
-            for (Attack a: poke.attacks) {
-                System.out.print(a.name() + " ");
+            int baseStatTotal = 0;
+            for (int i = 0; i < poke.baseStats.length; i++) {
+                baseStatTotal += poke.baseStats[i];
             }
-            System.out.println();
+            if (baseStatTotal < BASE_STAT_TOTAL_DISPLAY_THRESHHOLD && !poke.name().contains("MEGA") && poke.type1 != Type.NONE) {
+                System.out.printf("%-12s Type 1:%-12s Type 2:%-12s Attacks:", poke.name(), poke.type1.name(), 
+                        (poke.type2 == null ? "": poke.type2.name()));
+                for (Attack a: poke.attacks) {
+                    System.out.print(a.name() + " ");
+                }
+                System.out.println();
+            }
         }
         System.out.println();
     }
@@ -135,7 +143,7 @@ public class Pokemon {
             } 
             catch (Exception e) {
                 System.out.println("Invalid arguments. Generating default..");
-                return new Pokemon(PokemonEnum.MAGIKARP);
+                return new Pokemon(DEFAULT_POKEMON);
             }    
         }
         else {
@@ -144,7 +152,7 @@ public class Pokemon {
             }
             catch (Exception e) {
                 System.out.println("Invalid argument. Generating default..");
-                return new Pokemon(PokemonEnum.MAGIKARP);
+                return new Pokemon(DEFAULT_POKEMON);
             }
         }
     }
@@ -172,11 +180,14 @@ public class Pokemon {
     public final String name;
     public final Type type1;
     public final Type type2;
-    public final int level = 50;
     private final EnumMap<Stat, Integer> statToBaseValue = new EnumMap<Stat, Integer>(Stat.class);
     private final EnumMap<Stat, Integer> statToIV = new EnumMap<Stat, Integer>(Stat.class);
     private final EnumMap<Attack, Integer> attackToPP = new EnumMap<Attack, Integer>(Attack.class);
     private int currentHP;
+
+    public static final PokemonEnum DEFAULT_POKEMON = PokemonEnum.MAGIKARP;
+    public static final int LEVEL = 50;
+    public static final double CRITICAL_HIT_PROBABILITY = 0.0625;
 
     public Pokemon(PokemonEnum poke) {
         this(poke.name(), poke.type1, poke.type2, poke.baseStats, poke.attacks);
@@ -187,18 +198,23 @@ public class Pokemon {
         if (type1 == null) {
             System.out.println("A Pokemon must have a valid primary type. Generating default..");
             invalidArguments = true;
-            
         }
         else if (type1 == type2) {
-            System.out.println("A Pokemon may not have two identical types. Generating default..");
+            System.out.println("A Pokemon may not have two identical types " + type1.name() + ". Generating default..");
             invalidArguments = true;
         }
+        else if (baseStats.length != Stat.values().length) {
+            System.out.println("Attempted to construct Pokemon with " + baseStats.length 
+                + " stats when " + Stat.values().length + " stats are required. Generating default..");
+            invalidArguments = true;
+        }
+
         if (invalidArguments) {
-            name = PokemonEnum.MAGIKARP.name();
-            type1 = PokemonEnum.MAGIKARP.type1;
-            type2 = PokemonEnum.MAGIKARP.type2;
-            baseStats = PokemonEnum.MAGIKARP.baseStats;
-            attacks = PokemonEnum.MAGIKARP.attacks;
+            name = DEFAULT_POKEMON.name();
+            type1 = DEFAULT_POKEMON.type1;
+            type2 = DEFAULT_POKEMON.type2;
+            baseStats = DEFAULT_POKEMON.baseStats;
+            attacks = DEFAULT_POKEMON.attacks;
         }
 
         this.name = name;
@@ -217,7 +233,7 @@ public class Pokemon {
             this.attackToPP.put(a, a.basePP);
         }
         currentHP = statToBaseValue.get(Stat.HP) == 1 ? 1: 
-                ((2 * statToBaseValue.get(Stat.HP) + statToIV.get(Stat.HP) + 252 / 4) * level / 100) + level + 10;
+                ((2 * statToBaseValue.get(Stat.HP) + statToIV.get(Stat.HP) + 252 / 4) * LEVEL / 100) + LEVEL + 10;
     }
 
     public int getBaseStat(Stat s) {
@@ -262,7 +278,7 @@ public class Pokemon {
                 scaleFactor < 1 && scaleFactor > 0 ? "It's not very effective..": 
                 scaleFactor == 0 ? (opponent.name + " is unaffected!"): 
                 (opponent.name + " was hit"));
-            if (scaleFactor != 0 && Math.random() < 0.0625) {
+            if (scaleFactor != 0 && Math.random() < CRITICAL_HIT_PROBABILITY) {
                 System.out.println("It's a critical hit!");
                 scaleFactor *= 2;
             }
@@ -287,7 +303,6 @@ public class Pokemon {
 enum PokemonEnum {
     //Add new pokemon here
 
-    //TODO make legendaries hidden
     MEWTWO(Type.PSYCHIC, null, new int[]{106,110,90,154,90,130}, EnumSet.of(Attack.PSYSTRIKE)), 
     MEW(Type.PSYCHIC, null, new int[]{100,100,100,100,100,100}, EnumSet.allOf(Attack.class)), 
     ZAPDOS(Type.ELECTRIC, Type.FLYING, new int[]{90,90,85,125,90,100}, EnumSet.of(Attack.THUNDER_BOLT, Attack.DRILL_PECK)), 
@@ -322,7 +337,7 @@ enum PokemonEnum {
             throw new IllegalStateException("A Pokemon must have a valid primary type");
         }
         if (type1 == type2) {
-            throw new IllegalStateException("A Pokemon may not have two identical types");
+            throw new IllegalStateException("A Pokemon may not have two identical types " + type1.name());
         }
         if (baseStats.length != Stat.values().length) {
             throw new IllegalStateException("Attempted to construct Pokemon with " + baseStats.length 
