@@ -183,6 +183,24 @@ public class Pokemon {
     }
 
     public Pokemon(String name, Type type1, Type type2, int[] baseStats, EnumSet<Attack> attacks) {
+        boolean invalidArguments = false;
+        if (type1 == null) {
+            System.out.println("A Pokemon must have a valid primary type. Generating default..");
+            invalidArguments = true;
+            
+        }
+        else if (type1 == type2) {
+            System.out.println("A Pokemon may not have two identical types. Generating default..");
+            invalidArguments = true;
+        }
+        if (invalidArguments) {
+            name = PokemonEnum.MAGIKARP.name();
+            type1 = PokemonEnum.MAGIKARP.type1;
+            type2 = PokemonEnum.MAGIKARP.type2;
+            baseStats = PokemonEnum.MAGIKARP.baseStats;
+            attacks = PokemonEnum.MAGIKARP.attacks;
+        }
+
         this.name = name;
         if (new File("cries/" + this.name + ".wav").exists()) {
             new AePlayWave("cries/" + name + ".wav").start();
@@ -300,6 +318,12 @@ enum PokemonEnum {
     protected final EnumSet<Attack> attacks;
 
     PokemonEnum(Type type1, Type type2, int[] baseStats, EnumSet<Attack> attacks) {
+        if (type1 == null) {
+            throw new IllegalStateException("A Pokemon must have a valid primary type");
+        }
+        if (type1 == type2) {
+            throw new IllegalStateException("A Pokemon may not have two identical types");
+        }
         if (baseStats.length != Stat.values().length) {
             throw new IllegalStateException("Attempted to construct Pokemon with " + baseStats.length 
                 + " stats when " + Stat.values().length + " stats are required.");
