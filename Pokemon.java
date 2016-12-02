@@ -1,7 +1,7 @@
 import java.util.*;
 import java.io.File;
 
-//TODO improve damage calculation, levels, hidden pokemon, parameterized randomizaetion, consider using REST API, STAB, natures, IVs, EVs
+//TODO improve damage calculation, levels, hidden pokemon, parameterized randomization, consider using REST API, STAB, natures, IVs, EVs
 
 public class Pokemon {
 
@@ -104,8 +104,6 @@ public class Pokemon {
             System.out.println("Invalid argument. Generating default..");
             return new Pokemon(DEFAULT_POKEMON);
         }
-
-
     }
 
     //return true if opponent Pokemon did NOT faint from the turn
@@ -221,8 +219,11 @@ public class Pokemon {
         if (this.attackToPP.get(att) == null || this.attackToPP.get(att) <= 0) {
             att = Attack.STRUGGLE;
         }
-        //TODO use sp att and sp defence
-        double damageDealt = (((2.0 * LEVEL + 10.0) / 250.0 * this.statToValue.get(Stat.ATTACK) / opponent.statToValue.get(Stat.DEFENCE) 
+        
+        Stat offensiveStat = att.isPhysical ? Stat.ATTACK: Stat.SPECIAL_ATTACK;
+        Stat defensiveStat = att.isPhysical ? Stat.DEFENCE: Stat.SPECIAL_DEFENCE;
+
+        double damageDealt = (((2.0 * LEVEL + 10.0) / 250.0 * this.statToValue.get(offensiveStat) / opponent.statToValue.get(defensiveStat) 
             * att.baseDamage + 2.0) * att.type.getEffectiveness(this.type1, this.type2, opponent.type1, opponent.type2));
         return damageDealt;
     }
@@ -277,27 +278,27 @@ public class Pokemon {
 
 enum PokemonEnum {
     //Add new pokemon here
-
-    MEWTWO(Type.PSYCHIC, null, new int[]{106,110,90,154,90,130}, EnumSet.of(Attack.PSYSTRIKE)), 
-    MEW(Type.PSYCHIC, null, new int[]{100,100,100,100,100,100}, EnumSet.allOf(Attack.class)), 
     ZAPDOS(Type.ELECTRIC, Type.FLYING, new int[]{90,90,85,125,90,100}, EnumSet.of(Attack.THUNDER_BOLT, Attack.DRILL_PECK)), 
     DRAGONITE(Type.DRAGON, Type.FLYING, new int[]{91, 134, 95, 100, 100, 80}, EnumSet.of(Attack.DRAGON_CLAW)), 
+    MEWTWO(Type.PSYCHIC, null, new int[]{106,110,90,154,90,130}, EnumSet.of(Attack.PSYSTRIKE)), 
+    MEW(Type.PSYCHIC, null, new int[]{100,100,100,100,100,100}, EnumSet.allOf(Attack.class)), 
     SHEDINJA(Type.NONE, null, new int[]{1, 90, 45, 30, 30, 40}, EnumSet.of(Attack.X_SCISSOR, Attack.SHADOW_BALL)), 
     METAGROSS(Type.STEEL, Type.PSYCHIC, new int[]{80, 135, 130, 95, 90, 70}, EnumSet.of(Attack.IRON_HEAD, Attack.PSYCHIC)), 
     GARCHOMP(Type.DRAGON, Type.GROUND, new int[]{108, 130, 95, 80, 85, 102}, EnumSet.of(Attack.DRAGON_CLAW, Attack.EARTHQUAKE)), 
     REGIGIGAS(Type.NORMAL, null, new int[]{110,160,110,80,110,110}, EnumSet.of(Attack.DIZZY_PUNCH)), 
+
     MEGA_PIDGEOT(Type.NORMAL, Type.FLYING, new int[]{83, 80, 80, 135, 80, 121}, EnumSet.of(Attack.AIR_SLASH, Attack.HURRICANE)), 
     MEGA_CHARIZARD_X(Type.FIRE, Type.DRAGON, new int[]{78, 130, 111, 130, 85, 100}, 
         EnumSet.of(Attack.FLAMETHROWER, Attack.DRAGON_CLAW, Attack.EARTHQUAKE, Attack.SOLAR_BEAM)), 
     MEGA_CHARIZARD_Y(Type.FIRE, Type.FLYING, new int[]{78, 104, 78, 159, 115, 100}, 
-        EnumSet.of(Attack.FLAMETHROWER, Attack.DRAGON_CLAW, Attack.AIR_SLASH, Attack.SOLAR_BEAM)), 
+        EnumSet.of(Attack.FLAMETHROWER, Attack.DRAGON_PULSE, Attack.AIR_SLASH, Attack.SOLAR_BEAM)), 
     MEGA_MEWTWO_X(Type.PSYCHIC, Type.FIGHTING, new int[]{106, 190, 100, 154, 100, 130}, EnumSet.of(Attack.PSYSTRIKE, Attack.AURA_SPHERE)), 
     MEGA_MEWTWO_Y(Type.PSYCHIC, null, new int[]{106, 150, 70, 194, 120, 140}, EnumSet.of(Attack.PSYSTRIKE, Attack.SHADOW_BALL)), 
     PRIMAL_KYOGRE(Type.WATER, null, new int[]{100, 150, 90, 180, 160, 90}, EnumSet.of(Attack.SURF, Attack.ICE_BEAM)), 
     PRIMAL_GROUDON(Type.GROUND, Type.FIRE, new int[]{100, 180, 160, 150, 90, 90}, EnumSet.of(Attack.EARTHQUAKE, Attack.FLAMETHROWER)), 
 
     VENUSAUR(Type.GRASS, Type.POISON, new int[]{80, 82, 83, 100, 100, 80}, EnumSet.of(Attack.ENERGY_BALL, Attack.BODY_SLAM)), 
-    CHARIZARD(Type.FIRE, Type.FLYING, new int[]{78, 84, 78, 109, 85, 100}, EnumSet.of(Attack.FLAMETHROWER, Attack.DRAGON_CLAW)), 
+    CHARIZARD(Type.FIRE, Type.FLYING, new int[]{78, 84, 78, 109, 85, 100}, EnumSet.of(Attack.FLAMETHROWER, Attack.DRAGON_PULSE)), 
     BLASTOISE(Type.WATER, null, new int[]{79, 83, 100, 85, 105, 78}, EnumSet.of(Attack.SURF, Attack.BRICK_BREAK)), 
     PIDGEOT(Type.NORMAL, Type.FLYING, new int[]{83, 80, 75, 70, 70, 101}, EnumSet.of(Attack.AIR_SLASH)), 
     RAICHU(Type.ELECTRIC, null, new int[]{60, 90, 55, 90, 80, 110}, EnumSet.of(Attack.THUNDER_BOLT, Attack.IRON_TAIL)), 
@@ -344,47 +345,54 @@ enum Stat {
     HP, ATTACK, DEFENCE, SPECIAL_ATTACK, SPECIAL_DEFENCE, SPEED;
 }
 
-//TODO Need physical vs special
 enum Attack {
     //Add new attacks here
-    SOLAR_BEAM(120, 70, 10, Type.GRASS), 
-    PSYSTRIKE(100, 100, 10, Type.PSYCHIC), 
-    THUNDER(110, 70, 10, Type.ELECTRIC), 
-    AURA_SPHERE(90, 100, 20, Type.FIGHTING), 
-    DIZZY_PUNCH(70, 100, 10, Type.NORMAL), 
-    IRON_TAIL(100, 75, 15, Type.STEEL), 
-    AIR_SLASH(75, 95, 20, Type.FLYING), 
-    EARTHQUAKE(100, 100, 10, Type.GROUND), 
-    HURRICANE(110, 70, 10, Type.FLYING), 
+    SOLAR_BEAM(120, 70, 10, Type.GRASS, false), 
+    PSYSTRIKE(100, 100, 10, Type.PSYCHIC, false), 
+    THUNDER(110, 70, 10, Type.ELECTRIC, false), 
+    AURA_SPHERE(90, 100, 20, Type.FIGHTING, false), 
+    DIZZY_PUNCH(70, 100, 10, Type.NORMAL, true), 
+    IRON_TAIL(100, 75, 15, Type.STEEL, true), 
+    AIR_SLASH(75, 95, 20, Type.FLYING, false), 
+    EARTHQUAKE(100, 100, 10, Type.GROUND, true), 
+    HURRICANE(110, 70, 10, Type.FLYING, false), 
 
-    TACKLE(40, 100, 35, Type.NORMAL), 
-    ENERGY_BALL(90, 100, 10, Type.GRASS), 
-    FLAMETHROWER(90, 100, 15, Type.FIRE), 
-    SURF(90, 100, 15, Type.WATER), 
-    THUNDER_BOLT(90, 100, 15, Type.ELECTRIC), 
-    ICE_BEAM(90, 100, 10, Type.ICE), 
-    DRILL_PECK(80, 100, 20, Type.FLYING), 
-    ROCK_SLIDE(75, 90, 10, Type.ROCK), 
-    SHADOW_BALL(80, 100, 15, Type.GHOST), 
-    BRICK_BREAK(75, 100, 15, Type.FIGHTING), 
-    PSYCHIC(90, 100, 10, Type.PSYCHIC), 
-    BODY_SLAM(85, 100, 15, Type.NORMAL), 
-    DRAGON_CLAW(80, 100, 15, Type.DRAGON),
-    IRON_HEAD(80, 100, 15, Type.STEEL), 
-    X_SCISSOR(80, 100, 15, Type.BUG), 
+    TACKLE(40, 100, 35, Type.NORMAL, true), 
+    ENERGY_BALL(90, 100, 10, Type.GRASS, false), 
+    FLAMETHROWER(90, 100, 15, Type.FIRE, false), 
+    SURF(90, 100, 15, Type.WATER, false), 
+    THUNDER_BOLT(90, 100, 15, Type.ELECTRIC, false), 
+    ICE_BEAM(90, 100, 10, Type.ICE, false), 
+    DRILL_PECK(80, 100, 20, Type.FLYING, true), 
+    ROCK_SLIDE(75, 90, 10, Type.ROCK, true), 
+    SHADOW_BALL(80, 100, 15, Type.GHOST, false), 
+    BRICK_BREAK(75, 100, 15, Type.FIGHTING, true), 
+    PSYCHIC(90, 100, 10, Type.PSYCHIC, false), 
+    BODY_SLAM(85, 100, 15, Type.NORMAL, true), 
+    DRAGON_CLAW(80, 100, 15, Type.DRAGON, true), 
+    DRAGON_PULSE(85, 100, 10, Type.DRAGON, false), 
+    IRON_HEAD(80, 100, 15, Type.STEEL, true), 
+    X_SCISSOR(80, 100, 15, Type.BUG, true), 
 
-    STRUGGLE(50, 100, -1, Type.NONE);
+    STRUGGLE(50, 100, 1, Type.NONE, true);
+
+    //List of attacks that differ from official
+    //SOLARBEAM (accuracy)
+    //AURA_SPHERE (accuracy)
+    //STRUGGLE (acuracy)
     
     public final int baseDamage;
     public final int baseAccuracy;
     public final int basePP;
     public final Type type;
+    public final boolean isPhysical;
 
-    Attack(int damage, int accuracy, int pp, Type type) {
+    Attack(int damage, int accuracy, int pp, Type type, boolean isPhysical) {
         this.baseDamage = damage;
         this.baseAccuracy = accuracy;
         this.basePP = pp;
         this.type = type;
+        this.isPhysical = isPhysical;
     }
 
 }
