@@ -1,5 +1,5 @@
 import java.util.*;
-//TODO improve damage calculation, levels, hidden pokemon, parameterized randomization, consider using REST API
+//TODO improve damage calculation, levels, hidden pokemon, parameterized randomizaetion, consider using REST API, STAB, natures, IVs, EVs
 /*
 ---------Custom Pokemon---------
 Paste the following lines when prompted to enter the name of a pokemon
@@ -19,6 +19,11 @@ custom
 SHEDINJA NONE
 1 90 45 30 30 40
 X_SCISSOR, SHADOW_BALL
+
+custom
+MEGA_MEWTWO_X PSYCHIC FIGHTING
+106 190 100 154 100 130
+PSYSTRIKE AURA_SPHERE
 
 */
 public class Pokemon {
@@ -271,6 +276,7 @@ enum Attack {
     //Add new attacks here
     PSYSTRIKE(100, 100, 10, Type.PSYCHIC), 
     THUNDER(110, 70, 10, Type.ELECTRIC), 
+    AURA_SPHERE(90, 100, 20, Type.FIGHTING), 
 
     ENERGY_BALL(90, 100, 10, Type.GRASS), 
     FLAMETHROWER(90, 100, 15, Type.FIRE), 
