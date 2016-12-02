@@ -1,7 +1,7 @@
 import java.util.*;
 import java.io.File;
 
-//TODO levels, parameterized randomization, consider using REST API, natures, IVs, EVs, doTurn improve
+//TODO levels, parameterized randomization, consider using REST API, natures, IVs, EVs
 
 public class Pokemon {
 
@@ -174,7 +174,9 @@ public class Pokemon {
     }
 
     public static void doTurn(Pokemon p1, Pokemon p2) {
-        assert (p1.currentHP != 0 && p2.currentHP != 0);
+        if (p1 == null || p2 == null || p1.currentHP == 0 || p2.currentHP == 0) {
+            throw new IllegalStateException("Combatants must not be null and must have positive HP");
+        }
         Pokemon first;
         Pokemon second;
         if (p1.getStat(Stat.SPEED) == p2.getStat(Stat.SPEED)) {
@@ -199,9 +201,12 @@ public class Pokemon {
 
     //AI that determines which Attack to choose
     //Each move recieves a score by multiplying damage with accuracy
-    //returns null if no move is available
+    //returns STRUGGLE if no move is available
     public Attack getBestAttack(Pokemon opponent) {
-        Attack attack = null;
+        if (opponent == null || opponent.currentHP == 0) {
+            throw new IllegalStateException("Opponent must not be null and must have positive HP");
+        }
+        Attack attack = Attack.STRUGGLE;
         double bestAttackScore = -1;
         for (Attack a: this.attackToPP.keySet()) {
             double attackScore = this.attackDamage(a, opponent) * a.baseAccuracy;
@@ -215,13 +220,15 @@ public class Pokemon {
     }
 
     public void useAttack(Attack attack, Pokemon opponent) {
-        assert (this.currentHP != 0 && opponent.currentHP != 0);
-        if (this.attackToPP.get(attack) == null) {
+        if (opponent == null || this.currentHP == 0 || opponent.currentHP == 0) {
+            throw new IllegalStateException("Combatants must not be null and must have positive HP");
+        }
+        if (attack != Attack.STRUGGLE && this.attackToPP.get(attack) == null) {
             System.out.println("Invalid attack!");
             attack = Attack.STRUGGLE;
         }
-        else if (this.attackToPP.get(attack) <= 0) {
-            System.out.println(attack.name() + " has run out of PP!");
+        else if (attack == Attack.STRUGGLE || this.attackToPP.get(attack) <= 0) {
+            System.out.println(this.name + " has run out of attacks!");
             attack = Attack.STRUGGLE;
         }
 
@@ -260,6 +267,9 @@ public class Pokemon {
 
     //If this Pokemon doesn't know the move or the move has no PP, then this calculates damage of STRUGGLE
     public double attackDamage(Attack att, Pokemon opponent) {
+        if (opponent == null) {
+            throw new IllegalStateException("Opponent must not be null and must have positive HP");
+        }
         if (this.attackToPP.get(att) == null || this.attackToPP.get(att) <= 0) {
             att = Attack.STRUGGLE;
         }
@@ -289,7 +299,7 @@ public class Pokemon {
         return attks;
     }
 
-    //Returns the number of pp of the given Attack, or 0 if this Pokemon does not know the Attack
+    //Returns the number of PP of the given Attack, or 0 if this Pokemon does not know the Attack
     public int getAttackPP(Attack a) {
         Integer pp = attackToPP.get(a);
         return pp != null ? pp: 0;
