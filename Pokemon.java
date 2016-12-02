@@ -136,8 +136,7 @@ public class Pokemon {
     public final String name;
     public final Type type1;
     public final Type type2;
-    private final EnumMap<Stat, Integer> statToBaseValue = new EnumMap<Stat, Integer>(Stat.class);
-    private final EnumMap<Stat, Integer> statToIV = new EnumMap<Stat, Integer>(Stat.class);
+    private final EnumMap<Stat, Integer> statToValue = new EnumMap<Stat, Integer>(Stat.class);
     private final EnumMap<Attack, Integer> attackToPP = new EnumMap<Attack, Integer>(Attack.class);
     private int currentHP;
 
@@ -181,20 +180,23 @@ public class Pokemon {
         this.type1 = type1;
         this.type2 = type2;
         for (int i = 0; i < baseStats.length; i++) {
-            this.statToBaseValue.put(Stat.values()[i], baseStats[i]);
-        }
-        for (Stat s: Stat.values()) {
-            this.statToIV.put(s, (int)(Math.random() * 32));
+            if (Stat.values()[i] == Stat.HP) {
+                this.statToValue.put(Stat.HP, baseStats[i] == 1 ? 1: 
+                    (int)(((2.0 * baseStats[i] + (int)(Math.random() * 32) + 0 / 4) * LEVEL / 100) + LEVEL + 10));
+            }
+            else {
+                this.statToValue.put(Stat.values()[i], 
+                    (int)((((2.0 * baseStats[i] + (int)(Math.random() * 32) + 0 / 4) * LEVEL / 100) + 5) * 1));
+            }
         }
         for (Attack a: attacks) {
             this.attackToPP.put(a, a.basePP);
         }
-        currentHP = statToBaseValue.get(Stat.HP) == 1 ? 1: 
-                ((2 * statToBaseValue.get(Stat.HP) + statToIV.get(Stat.HP) + 252 / 4) * LEVEL / 100) + LEVEL + 10;
+        currentHP = statToValue.get(Stat.HP);
     }
 
-    public int getBaseStat(Stat s) {
-        return this.statToBaseValue.get(s);
+    public int getStat(Stat s) {
+        return this.statToValue.get(s);
     }
 
     public int getCurrentHP() {
