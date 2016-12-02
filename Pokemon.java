@@ -67,9 +67,9 @@ public class Pokemon {
     }
 
     private static Pokemon askForPokemon(Scanner scan) {
-        String choice = scan.nextLine().trim().toUpperCase();
-        if (choice.equals("CUSTOM")) {
-            try {
+        try {
+            String choice = scan.nextLine().trim().toUpperCase();
+            if (choice.equals("CUSTOM")) {
                 System.out.println("Enter name, first type, and second type (or leave second type blank if not applicable)" 
                         + " each separated by commas or spaces");
                 String[] specs = scan.nextLine().split("[,\\s]+");
@@ -94,36 +94,34 @@ public class Pokemon {
                 for (int i = 0; i < stringAttacks.length; i++) {
                     customAttacks.add(Attack.valueOf(stringAttacks[i].toUpperCase()));
                 }
-                
-                return new Pokemon(name, type1, type2, customBaseStats, customAttacks);
-            } 
-            catch (Exception e) {
-                System.out.println("Invalid arguments. Generating default..");
-                return new Pokemon(DEFAULT_POKEMON);
-            }    
-        }
-        else {
-            try {
+                return new Pokemon(name, type1, type2, customBaseStats, customAttacks);   
+            }
+            else {
                 return new Pokemon(PokemonEnum.valueOf(choice)); 
             }
-            catch (Exception e) {
-                System.out.println("Invalid argument. Generating default..");
-                return new Pokemon(DEFAULT_POKEMON);
-            }
         }
+        catch (Exception e) {
+            System.out.println("Invalid argument. Generating default..");
+            return new Pokemon(DEFAULT_POKEMON);
+        }
+
+
     }
 
     //return true if opponent Pokemon did NOT faint from the turn
     private static boolean doTurn(Scanner scan, Pokemon p1, Pokemon p2, boolean skipSteps) {
         Attack p1Attack = null;
-        double bestDamage = -1;
+        double bestAttackScore = -1;
+
+        //AI that determines which Attack to choose
         for (Attack a: p1.attackToPP.keySet()) {
-            double damageFactor = a.baseDamage * a.type.getScaleFactor(p1.type1, p1.type2, p2.type1, p2.type2) * a.baseAccuracy;
-            if (p1.attackToPP.get(a) > 0 && damageFactor > bestDamage) {
+            double attackScore = p1.attackDamage(a, p2) * a.baseAccuracy; //Score each move by multiplying damage with accuracy
+            if (p1.attackToPP.get(a) > 0 && attackScore > bestAttackScore) {
                 p1Attack = a;
-                bestDamage = damageFactor;
+                bestAttackScore = attackScore;
             }
         }
+
         boolean keepBattling = !p1.useAttack(p1Attack, p2);
         if (keepBattling && !skipSteps) {
             scan.nextLine(); //Makes user press enter to progress the turn
@@ -218,37 +216,55 @@ public class Pokemon {
         return pp != null ? pp: -1;
     }
 
-    //Returns true if the opponent faints from using the attack
-    public boolean useAttack(Attack att, Pokemon opponent) {
-        Attack attack;
+    //If this Pokemon doesn't know the move or the move has no PP, then this calculates damage of STRUGGLE
+    public double attackDamage(Attack att, Pokemon opponent) {
         if (this.attackToPP.get(att) == null || this.attackToPP.get(att) <= 0) {
-            System.out.println(this.name + " has run out of attacks!");
+            att = Attack.STRUGGLE;
+        }
+        //TODO use sp att and sp defence
+        double damageDealt = (((2.0 * LEVEL + 10.0) / 250.0 * this.statToValue.get(Stat.ATTACK) / opponent.statToValue.get(Stat.DEFENCE) 
+            * att.baseDamage + 2.0) * att.type.getEffectiveness(this.type1, this.type2, opponent.type1, opponent.type2));
+        return damageDealt;
+    }
+
+    //Returns true if the opponent faints from using the attack
+    public boolean useAttack(Attack attack, Pokemon opponent) {
+        if (this.attackToPP.get(attack) == null) {
+            System.out.println("Invalid attack!");
             attack = Attack.STRUGGLE;
         }
-        else {
-            attack = att;
+        else if (this.attackToPP.get(attack) <= 0) {
+            System.out.println(attack.name() + " has run out of PP!");
+            attack = Attack.STRUGGLE;
         }
 
         System.out.println(this.name + " used " + attack.name());
         if (Math.random() * 100 < attack.baseAccuracy) {
-            double scaleFactor = attack.type.getScaleFactor(this.type1, this.type2, opponent.type1, opponent.type2);
+            double effectiveness = attack.type.getEffectiveness(this.type1, this.type2, opponent.type1, opponent.type2);
             System.out.println(
-                scaleFactor >= 2 ? "It's super effective!": 
-                scaleFactor < 1 && scaleFactor > 0 ? "It's not very effective..": 
-                scaleFactor == 0 ? (opponent.name + " is unaffected!"): 
+                effectiveness >= 2 ? "It's super effective!": 
+                effectiveness < 1 && effectiveness > 0 ? "It's not very effective..": 
+                effectiveness == 0 ? (opponent.name + " is unaffected!"): 
                 (opponent.name + " was hit"));
-            if (scaleFactor != 0 && Math.random() < CRITICAL_HIT_PROBABILITY) {
+
+            //Scale factor includes critical hits and random scaling between 85-100%
+            double scaleFactor = effectiveness == 0 ? 0: 1;
+            if (effectiveness != 0 && Math.random() < CRITICAL_HIT_PROBABILITY) {
                 System.out.println("It's a critical hit!");
                 scaleFactor *= 2;
             }
-            int damageDealt = (int)(attack.baseDamage * scaleFactor);
+            scaleFactor *= (100 - (int)(Math.random() * 16)) / 100.0;
+
+            int damageDealt = (int)(attackDamage(attack, opponent) * scaleFactor);
             opponent.currentHP -= damageDealt <= opponent.currentHP ? damageDealt: opponent.currentHP;
         }
         else {
             System.out.println("The attack missed!");
         }
-        if (this.attackToPP.get(att) != null && this.attackToPP.get(att) > 0) {
-            this.attackToPP.put(attack, this.attackToPP.get(att) - 1);
+
+        if (this.attackToPP.get(attack) != null) {
+            assert (this.attackToPP.get(attack) > 0);
+            this.attackToPP.put(attack, this.attackToPP.get(attack) - 1);
         }
 
         boolean opponentFainted = opponent.currentHP <= 0;
@@ -265,6 +281,10 @@ enum PokemonEnum {
     MEWTWO(Type.PSYCHIC, null, new int[]{106,110,90,154,90,130}, EnumSet.of(Attack.PSYSTRIKE)), 
     MEW(Type.PSYCHIC, null, new int[]{100,100,100,100,100,100}, EnumSet.allOf(Attack.class)), 
     ZAPDOS(Type.ELECTRIC, Type.FLYING, new int[]{90,90,85,125,90,100}, EnumSet.of(Attack.THUNDER_BOLT, Attack.DRILL_PECK)), 
+    DRAGONITE(Type.DRAGON, Type.FLYING, new int[]{91, 134, 95, 100, 100, 80}, EnumSet.of(Attack.DRAGON_CLAW)), 
+    SHEDINJA(Type.NONE, null, new int[]{1, 90, 45, 30, 30, 40}, EnumSet.of(Attack.X_SCISSOR, Attack.SHADOW_BALL)), 
+    METAGROSS(Type.STEEL, Type.PSYCHIC, new int[]{80, 135, 130, 95, 90, 70}, EnumSet.of(Attack.IRON_HEAD, Attack.PSYCHIC)), 
+    GARCHOMP(Type.DRAGON, Type.GROUND, new int[]{108, 130, 95, 80, 85, 102}, EnumSet.of(Attack.DRAGON_CLAW, Attack.EARTHQUAKE)), 
     REGIGIGAS(Type.NORMAL, null, new int[]{110,160,110,80,110,110}, EnumSet.of(Attack.DIZZY_PUNCH)), 
     MEGA_PIDGEOT(Type.NORMAL, Type.FLYING, new int[]{83, 80, 80, 135, 80, 121}, EnumSet.of(Attack.AIR_SLASH, Attack.HURRICANE)), 
     MEGA_CHARIZARD_X(Type.FIRE, Type.DRAGON, new int[]{78, 130, 111, 130, 85, 100}, 
@@ -273,7 +293,6 @@ enum PokemonEnum {
         EnumSet.of(Attack.FLAMETHROWER, Attack.DRAGON_CLAW, Attack.AIR_SLASH, Attack.SOLAR_BEAM)), 
     MEGA_MEWTWO_X(Type.PSYCHIC, Type.FIGHTING, new int[]{106, 190, 100, 154, 100, 130}, EnumSet.of(Attack.PSYSTRIKE, Attack.AURA_SPHERE)), 
     MEGA_MEWTWO_Y(Type.PSYCHIC, null, new int[]{106, 150, 70, 194, 120, 140}, EnumSet.of(Attack.PSYSTRIKE, Attack.SHADOW_BALL)), 
-    SHEDINJA(Type.NONE, null, new int[]{1, 90, 45, 30, 30, 40}, EnumSet.of(Attack.X_SCISSOR, Attack.SHADOW_BALL)), 
     PRIMAL_KYOGRE(Type.WATER, null, new int[]{100, 150, 90, 180, 160, 90}, EnumSet.of(Attack.SURF, Attack.ICE_BEAM)), 
     PRIMAL_GROUDON(Type.GROUND, Type.FIRE, new int[]{100, 180, 160, 150, 90, 90}, EnumSet.of(Attack.EARTHQUAKE, Attack.FLAMETHROWER)), 
 
@@ -288,12 +307,9 @@ enum PokemonEnum {
     GENGAR(Type.GHOST, Type.POISON, new int[]{60, 65, 60, 130, 75, 110}, EnumSet.of(Attack.SHADOW_BALL)), 
     ELECTABUZZ(Type.ELECTRIC, null, new int[]{65, 83, 57, 95, 85, 105}, EnumSet.of(Attack.THUNDER_BOLT)), 
     MAGMAR(Type.FIRE, null, new int[]{65, 95, 57, 100, 85, 93}, EnumSet.of(Attack.FLAMETHROWER)), 
-    MAGIKARP(Type.WATER, null, new int[]{20, 10, 55, 15, 20, 80}, EnumSet.of(Attack.SPLASH, Attack.TACKLE)), 
+    MAGIKARP(Type.WATER, null, new int[]{20, 10, 55, 15, 20, 80}, EnumSet.of(Attack.TACKLE)), 
     SNORLAX(Type.NORMAL, null, new int[]{160, 110, 65, 65, 110, 30}, EnumSet.of(Attack.BODY_SLAM)), 
-    DRAGONITE(Type.DRAGON, Type.FLYING, new int[]{91, 134, 95, 100, 100, 80}, EnumSet.of(Attack.DRAGON_CLAW)), 
     STEELIX(Type.STEEL, Type.GROUND, new int[]{75, 85, 200, 55, 65, 30}, EnumSet.of(Attack.IRON_HEAD)), 
-    METAGROSS(Type.STEEL, Type.PSYCHIC, new int[]{80, 135, 130, 95, 90, 70}, EnumSet.of(Attack.IRON_HEAD, Attack.PSYCHIC)), 
-    GARCHOMP(Type.DRAGON, Type.GROUND, new int[]{108, 130, 95, 80, 85, 102}, EnumSet.of(Attack.DRAGON_CLAW, Attack.EARTHQUAKE)), 
     GLACEON(Type.ICE, null, new int[]{65, 60, 110, 130, 95, 65}, EnumSet.of(Attack.ICE_BEAM));
 
     public final Type type1;
@@ -331,18 +347,22 @@ enum Stat {
 //TODO Need physical vs special
 enum Attack {
     //Add new attacks here
+    SOLAR_BEAM(120, 70, 10, Type.GRASS), 
     PSYSTRIKE(100, 100, 10, Type.PSYCHIC), 
     THUNDER(110, 70, 10, Type.ELECTRIC), 
     AURA_SPHERE(90, 100, 20, Type.FIGHTING), 
-    TACKLE(40, 100, 35, Type.NORMAL), 
     DIZZY_PUNCH(70, 100, 10, Type.NORMAL), 
+    IRON_TAIL(100, 75, 15, Type.STEEL), 
+    AIR_SLASH(75, 95, 20, Type.FLYING), 
+    EARTHQUAKE(100, 100, 10, Type.GROUND), 
+    HURRICANE(110, 70, 10, Type.FLYING), 
 
+    TACKLE(40, 100, 35, Type.NORMAL), 
     ENERGY_BALL(90, 100, 10, Type.GRASS), 
     FLAMETHROWER(90, 100, 15, Type.FIRE), 
     SURF(90, 100, 15, Type.WATER), 
     THUNDER_BOLT(90, 100, 15, Type.ELECTRIC), 
     ICE_BEAM(90, 100, 10, Type.ICE), 
-    SOLAR_BEAM(120, 50, 10, Type.GRASS), 
     DRILL_PECK(80, 100, 20, Type.FLYING), 
     ROCK_SLIDE(75, 90, 10, Type.ROCK), 
     SHADOW_BALL(80, 100, 15, Type.GHOST), 
@@ -351,14 +371,9 @@ enum Attack {
     BODY_SLAM(85, 100, 15, Type.NORMAL), 
     DRAGON_CLAW(80, 100, 15, Type.DRAGON),
     IRON_HEAD(80, 100, 15, Type.STEEL), 
-    IRON_TAIL(100, 75, 15, Type.STEEL), 
-    AIR_SLASH(75, 95, 20, Type.FLYING), 
-    EARTHQUAKE(100, 100, 10, Type.GROUND), 
     X_SCISSOR(80, 100, 15, Type.BUG), 
-    SPLASH(0, 0, 40, Type.NORMAL), 
-    HURRICANE(110, 70, 10, Type.FLYING), 
 
-    STRUGGLE(30, Integer.MAX_VALUE, -1, Type.NONE);
+    STRUGGLE(50, 100, -1, Type.NONE);
     
     public final int baseDamage;
     public final int baseAccuracy;
@@ -479,7 +494,8 @@ enum Type {
 
     }
 
-    public double getScaleFactor(Type userType1, Type userType2, Type opponentType1, Type opponentType2) {
+    //Given the users types and opponents types, returns the effectiveness of using an Attack of this type
+    public double getEffectiveness(Type userType1, Type userType2, Type opponentType1, Type opponentType2) {
         double scaleFactor =  this == userType1 || this == userType2 ? 1.5: 1;
 
         //Calculate scale for opponent type 1
