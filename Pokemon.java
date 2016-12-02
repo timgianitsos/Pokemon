@@ -1,5 +1,5 @@
 import java.util.*;
-//TODO improve damage calculation, levels, hidden pokemon, parameterized randomization
+//TODO improve damage calculation, levels, hidden pokemon, parameterized randomization, consider using REST API
 /*
 ---------Custom Pokemon---------
 Paste the following lines when prompted to enter the name of a pokemon
