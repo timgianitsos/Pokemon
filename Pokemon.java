@@ -11,6 +11,8 @@ public class Pokemon {
         Pokemon p2;
         boolean skipSteps = false;
         if (args!= null && args.length >= 2) {
+            skipSteps = args.length >= 3 && args[2].equalsIgnoreCase("skip");
+            SKIP_SOUND = skipSteps;
             try {
                 p1 = new Pokemon(PokemonEnum.valueOf(args[0].toUpperCase()));
             }
@@ -25,7 +27,6 @@ public class Pokemon {
                 System.out.println("Invalid argument 2. Generating default..");
                 p2 = new Pokemon(DEFAULT_POKEMON);
             }
-            skipSteps = args.length >= 3 && args[2].equalsIgnoreCase("skip");
         }
         else {
             displayPokemon();
@@ -49,6 +50,10 @@ public class Pokemon {
                 scan.nextLine();
             }
         }
+        if (!SKIP_SOUND) {
+            p1.soundPlayer.quit();
+            p2.soundPlayer.quit();
+        }
     }
 
     public final String name;
@@ -56,12 +61,13 @@ public class Pokemon {
     public final Type type2;
     private final EnumMap<Stat, Integer> statToValue = new EnumMap<Stat, Integer>(Stat.class);
     private final EnumMap<Attack, Integer> attackToPP = new EnumMap<Attack, Integer>(Attack.class);
+    private final AePlayWave soundPlayer;
     private int currentHP;
 
     public static final PokemonEnum DEFAULT_POKEMON = PokemonEnum.MAGIKARP;
     public static final int LEVEL = 50;
     public static final double CRITICAL_HIT_PROBABILITY = 0.0625;
-    public static final boolean SKIP_SOUND = false;
+    public static boolean SKIP_SOUND = false;
     private static final int BASE_STAT_TOTAL_DISPLAY_THRESHHOLD = 580;
 
     public Pokemon(PokemonEnum poke) {
@@ -94,8 +100,13 @@ public class Pokemon {
 
         this.name = name;
         if (!SKIP_SOUND && new File("cries/" + this.name + ".wav").exists()) {
-            new AePlayWave("cries/" + this.name + ".wav").start();
+            soundPlayer = new AePlayWave("cries/" + this.name + ".wav");
+            soundPlayer.start();
         }
+        else {
+            soundPlayer = null;
+        }
+
         this.type1 = type1;
         this.type2 = type2;
         for (int i = 0; i < baseStats.length; i++) {
@@ -262,6 +273,9 @@ public class Pokemon {
         }
 
         boolean opponentFainted = opponent.currentHP <= 0;
+        if (opponentFainted && !SKIP_SOUND) {
+            opponent.soundPlayer.quit();
+        }
         System.out.println(opponent.name + " has " + opponent.currentHP + " hp left\n" + (opponentFainted ? opponent.name + " fainted!\n": ""));
     }
 

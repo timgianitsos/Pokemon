@@ -16,10 +16,9 @@ public class AePlayWave extends Thread {
     }
 
     private String filename;
- 
     private Position curPosition;
- 
     private final int EXTERNAL_BUFFER_SIZE = 524288; // 128Kb 
+    private volatile boolean exit = false;
  
     enum Position { 
         LEFT, RIGHT, NORMAL
@@ -83,10 +82,12 @@ public class AePlayWave extends Thread {
         byte[] abData = new byte[EXTERNAL_BUFFER_SIZE];
  
         try { 
-            while (nBytesRead != -1) { 
-                nBytesRead = audioInputStream.read(abData, 0, abData.length);
+            int startRead = 0;
+            while (nBytesRead != -1 && !exit) { 
+                nBytesRead = audioInputStream.read(abData, startRead, startRead + 2048);
                 if (nBytesRead >= 0) 
-                    auline.write(abData, 0, nBytesRead);
+                    auline.write(abData, startRead, nBytesRead);
+                startRead += nBytesRead;
             } 
         } catch (IOException e) { 
             e.printStackTrace();
@@ -96,5 +97,9 @@ public class AePlayWave extends Thread {
             auline.close();
         } 
  
-    } 
+    }
+
+    public void quit() {
+        exit = true;
+    }
 } 
