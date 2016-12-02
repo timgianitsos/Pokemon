@@ -50,8 +50,10 @@ public class Pokemon {
                 scan.nextLine();
             }
         }
-        if (!SKIP_SOUND) {
+        if (p1.soundPlayer != null) {
             p1.soundPlayer.quit();
+        }
+        if (p2.soundPlayer != null) {
             p2.soundPlayer.quit();
         }
     }
@@ -273,7 +275,7 @@ public class Pokemon {
         }
 
         boolean opponentFainted = opponent.currentHP <= 0;
-        if (opponentFainted && !SKIP_SOUND) {
+        if (opponentFainted && soundPlayer != null) {
             opponent.soundPlayer.quit();
         }
         System.out.println(opponent.name + " has " + opponent.currentHP + " hp left\n" + (opponentFainted ? opponent.name + " fainted!\n": ""));
@@ -330,7 +332,7 @@ enum PokemonEnum {
     SHEDINJA(Type.NONE, null, new int[]{1, 90, 45, 30, 30, 40}, EnumSet.of(Attack.X_SCISSOR, Attack.SHADOW_BALL)), 
     METAGROSS(Type.STEEL, Type.PSYCHIC, new int[]{80, 135, 130, 95, 90, 70}, EnumSet.of(Attack.IRON_HEAD, Attack.PSYCHIC)), 
     GARCHOMP(Type.DRAGON, Type.GROUND, new int[]{108, 130, 95, 80, 85, 102}, EnumSet.of(Attack.DRAGON_CLAW, Attack.EARTHQUAKE)), 
-    REGIGIGAS(Type.NORMAL, null, new int[]{110,160,110,80,110,110}, EnumSet.of(Attack.DIZZY_PUNCH)), 
+    REGIGIGAS(Type.NORMAL, null, new int[]{110,160,110,80,110,100}, EnumSet.of(Attack.DIZZY_PUNCH)), 
 
     MEGA_PIDGEOT(Type.NORMAL, Type.FLYING, new int[]{83, 80, 80, 135, 80, 121}, EnumSet.of(Attack.AIR_SLASH, Attack.HURRICANE)), 
     MEGA_CHARIZARD_X(Type.FIRE, Type.DRAGON, new int[]{78, 130, 111, 130, 85, 100}, 
