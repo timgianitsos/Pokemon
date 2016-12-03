@@ -13,20 +13,8 @@ public class Pokemon {
         if (args!= null && args.length >= 2) {
             skipSteps = args.length >= 3 && args[2].equalsIgnoreCase("skip");
             SKIP_SOUND = skipSteps;
-            try {
-                p1 = new Pokemon(PokemonEnum.valueOf(args[0].toUpperCase()));
-            }
-            catch (Exception e) {
-                System.out.println("Invalid argument 1. Generating default..");
-                p1 = new Pokemon(DEFAULT_POKEMON);
-            }
-            try {
-                p2 = new Pokemon(PokemonEnum.valueOf(args[1].toUpperCase()));
-            }
-            catch (Exception e) {
-                System.out.println("Invalid argument 2. Generating default..");
-                p2 = new Pokemon(DEFAULT_POKEMON);
-            }
+            p1 = new Pokemon(args[0].toUpperCase());
+            p2 = new Pokemon(args[1].toUpperCase());
         }
         else {
             displayPokemon();
@@ -77,9 +65,45 @@ public class Pokemon {
         this(poke.name(), poke.type1, poke.type2, poke.baseStats, poke.attacks);
     }
 
+    public Pokemon(String name) {
+        boolean maximizeStats = false;
+        PokemonEnum p;
+        try {
+            if (name.startsWith(STAT_MAXIMIZER_PREFIX)) {
+                maximizeStats = true;
+                name = name.substring(1, name.length());
+            }
+            p = PokemonEnum.valueOf(name);
+        }
+        catch (Exception e) {
+            System.out.println("Invalid Pokemon name" + (name == null ? "": " \"" + name + "\"") + ". Generating default..");
+            p = DEFAULT_POKEMON;
+        }
+
+        this.name = p.name();
+        this.type1 = p.type1;
+        this.type2 = p.type2;
+        int[] baseStats = p.baseStats;
+        EnumSet<Attack> attacks = p.attacks;
+
+        if (!SKIP_SOUND && new File("cries/" + this.name + ".wav").exists()) {
+            this.soundPlayer = new AePlayWave("cries/" + this.name + ".wav");
+            this.soundPlayer.start();
+        }
+        else {
+            this.soundPlayer = null;
+        }
+
+        createInstanceMappings(maximizeStats, baseStats, attacks);
+    }
+
     public Pokemon(String name, Type type1, Type type2, int[] baseStats, EnumSet<Attack> attacks) {
         boolean invalidArguments = false;
-        if (type1 == null) {
+        if (name == null || name.length() == 0) {
+            System.out.println("Name must be non null and non empty. Generating default..");
+            invalidArguments = true;
+        }
+        else if (type1 == null) {
             System.out.println("A Pokemon must have a valid primary type. Generating default..");
             invalidArguments = true;
         }
@@ -92,7 +116,6 @@ public class Pokemon {
                 + " stats when " + Stat.values().length + " stats are required. Generating default..");
             invalidArguments = true;
         }
-
         if (invalidArguments) {
             name = DEFAULT_POKEMON.name();
             type1 = DEFAULT_POKEMON.type1;
@@ -110,26 +133,29 @@ public class Pokemon {
             this.name = name;
         }
 
-        if (!SKIP_SOUND && new File("cries/" + this.name + ".wav").exists()) {
-            soundPlayer = new AePlayWave("cries/" + this.name + ".wav");
-            soundPlayer.start();
-        }
-        else {
-            soundPlayer = null;
-        }
-
         this.type1 = type1;
         this.type2 = type2;
 
-        calculateStats(maximizeStats, baseStats);
+        if (!SKIP_SOUND && new File("cries/" + this.name + ".wav").exists()) {
+            this.soundPlayer = new AePlayWave("cries/" + this.name + ".wav");
+            this.soundPlayer.start();
+        }
+        else {
+            this.soundPlayer = null;
+        }
 
+        createInstanceMappings(maximizeStats, baseStats, attacks);
+    }
+
+    private void createInstanceMappings(boolean maximizeStats, int[] baseStats, EnumSet<Attack> attacks) {
+        calculateStats(maximizeStats, baseStats);
         for (Attack a: attacks) {
             this.attackToPP.put(a, a.basePP);
         }
-        currentHP = statToValue.get(Stat.HP);
+        this.currentHP = statToValue.get(Stat.HP);
     }
 
-    //Maximizing stats will cause SPEED and one of the attacks to be maximized
+    //Maximizing stats will cause speed and one of the attack stats to be maximized
     private void calculateStats(boolean maximizeStats, int[] baseStats) {
         Stat attackStatToMaximize = !maximizeStats ? null: baseStats[Stat.ATTACK.ordinal()] >= baseStats[Stat.SPECIAL_ATTACK.ordinal()] 
             ? Stat.ATTACK: Stat.SPECIAL_ATTACK;
@@ -202,7 +228,7 @@ public class Pokemon {
                 return new Pokemon(name, type1, type2, customBaseStats, customAttacks);   
             }
             else {
-                return new Pokemon(PokemonEnum.valueOf(choice)); 
+                return new Pokemon(choice);
             }
         }
         catch (Exception e) {
@@ -349,15 +375,7 @@ public class Pokemon {
 }
 
 enum PokemonEnum {
-    //Add new pokemon here. An underscore before a name means its stats get maximized
-    _CHARIZARD(Type.FIRE, Type.FLYING, new int[]{78, 84, 78, 109, 85, 100}, EnumSet.of(Attack.FLAMETHROWER, Attack.DRAGON_PULSE)), 
-    _MEGA_CHARIZARD_X(Type.FIRE, Type.DRAGON, new int[]{78, 130, 111, 130, 85, 100}, 
-        EnumSet.of(Attack.FLAMETHROWER, Attack.DRAGON_CLAW, Attack.EARTHQUAKE, Attack.SOLAR_BEAM)), 
-    _MEGA_CHARIZARD_Y(Type.FIRE, Type.FLYING, new int[]{78, 104, 78, 159, 115, 100}, 
-        EnumSet.of(Attack.FLAMETHROWER, Attack.DRAGON_PULSE, Attack.AIR_SLASH, Attack.SOLAR_BEAM)), 
-    _VENUSAUR(Type.GRASS, Type.POISON, new int[]{80, 82, 83, 100, 100, 80}, EnumSet.of(Attack.ENERGY_BALL, Attack.BODY_SLAM)), 
-    _BLASTOISE(Type.WATER, null, new int[]{79, 83, 100, 85, 105, 78}, EnumSet.of(Attack.SURF, Attack.BRICK_BREAK)), 
-
+    //Add new pokemon here. A Pokemon's stats get maximized if it is created with an underscore before its name
     ZAPDOS(Type.ELECTRIC, Type.FLYING, new int[]{90,90,85,125,90,100}, EnumSet.of(Attack.THUNDER_BOLT, Attack.DRILL_PECK)), 
     DRAGONITE(Type.DRAGON, Type.FLYING, new int[]{91, 134, 95, 100, 100, 80}, EnumSet.of(Attack.DRAGON_CLAW)), 
     MEWTWO(Type.PSYCHIC, null, new int[]{106,110,90,154,90,130}, EnumSet.of(Attack.PSYSTRIKE, Attack.SHADOW_BALL, Attack.BLIZZARD)), 
