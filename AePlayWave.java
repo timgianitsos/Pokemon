@@ -16,6 +16,7 @@ public class AePlayWave extends Thread {
     }
 
     public static final int DEFAULT_BUFFER_SIZE = 524288; // 128Kb 
+    public static final int BATTLE_MUSIC_BUFFER_SIZE = 11534336;
     private String filename;
     private Position curPosition;
     private final int EXTERNAL_BUFFER_SIZE; 

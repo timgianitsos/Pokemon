@@ -94,7 +94,7 @@ class TrainerBattle {
 		scan.nextLine();
 
 		System.out.println("Press enter to stop the music (it may delay a few seconds before stopping - use \"command C\" to stop immediately)");
-		AePlayWave battleMusic = new AePlayWave("prime-cup1-3.wav", 11534336);
+		AePlayWave battleMusic = new AePlayWave("prime-cup1-3.wav", AePlayWave.BATTLE_MUSIC_BUFFER_SIZE);
 		battleMusic.start();
 		scan.nextLine();
 		battleMusic.quit();

@@ -18,14 +18,14 @@ public class Pokemon {
             skipSteps = args.length >= 3 && args[2].equalsIgnoreCase("skip");
             SKIP_SOUND = skipSteps;
             if (!SKIP_SOUND) {
-                battleMusic = new AePlayWave("prime-cup1-3.wav", 11534336);
+                battleMusic = new AePlayWave("prime-cup1-3.wav", AePlayWave.BATTLE_MUSIC_BUFFER_SIZE);
                 battleMusic.start();
             }
             p1 = new Pokemon(args[0].toUpperCase());
             p2 = new Pokemon(args[1].toUpperCase());
         }
         else {
-            battleMusic = new AePlayWave("prime-cup1-3.wav", 11534336);
+            battleMusic = new AePlayWave("prime-cup1-3.wav", AePlayWave.BATTLE_MUSIC_BUFFER_SIZE);
             battleMusic.start();
             displayPokemon();
             System.out.println("Choose player 1's Pokemon");
