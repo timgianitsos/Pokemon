@@ -234,6 +234,12 @@ public class Pokemon {
                     System.out.print(a.name() + " ");
                 }
                 System.out.println();
+                System.out.print("\t");
+                for (Stat s: Stat.values()) {
+                    System.out.print(String.format("%-19s ", s.name() + ":" + poke.getBaseStat(s)));
+                }
+                System.out.println();
+                // System.out.println();
             }
         }
         System.out.println();
