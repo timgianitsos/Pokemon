@@ -358,6 +358,7 @@ enum PokemonEnum {
     MAGIKARP(Type.WATER, null, new int[]{20, 10, 55, 15, 20, 80}, EnumSet.of(Attack.TACKLE)), 
     SNORLAX(Type.NORMAL, null, new int[]{160, 110, 65, 65, 110, 30}, EnumSet.of(Attack.BODY_SLAM)), 
     STEELIX(Type.STEEL, Type.GROUND, new int[]{75, 85, 200, 55, 65, 30}, EnumSet.of(Attack.IRON_HEAD)), 
+    SPIRITOMB(Type.GHOST, Type.DARK, new int[]{50, 92, 108, 92, 108, 35}, EnumSet.of(Attack.SHADOW_BALL)), 
     GLACEON(Type.ICE, null, new int[]{65, 60, 110, 130, 95, 65}, EnumSet.of(Attack.ICE_BEAM));
 
     public final Type type1;
@@ -367,13 +368,13 @@ enum PokemonEnum {
 
     PokemonEnum(Type type1, Type type2, int[] baseStats, EnumSet<Attack> attacks) {
         if (type1 == null) {
-            throw new IllegalStateException("A Pokemon must have a valid primary type");
+            throw new IllegalStateException(this.name() + " must have a valid primary type");
         }
         if (type1 == type2) {
-            throw new IllegalStateException("A Pokemon may not have two identical types " + type1.name());
+            throw new IllegalStateException(this.name() + " may not have two identical types " + type1.name());
         }
         if (baseStats.length != Stat.values().length) {
-            throw new IllegalStateException("Attempted to construct Pokemon with " + baseStats.length 
+            throw new IllegalStateException("Attempted to construct " + this.name() + " with " + baseStats.length 
                 + " stats when " + Stat.values().length + " stats are required.");
         }
         this.type1 = type1;
