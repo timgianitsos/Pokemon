@@ -91,6 +91,7 @@ public class Pokemon {
         }
         catch (Exception e) {
             System.out.println("Invalid Pokemon name" + (name == null ? "": " \"" + name + "\"") + ". Generating default..");
+            maximizeStats = false;
             p = DEFAULT_POKEMON;
         }
 
