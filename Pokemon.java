@@ -1,5 +1,6 @@
 import java.util.*;
 import java.io.File;
+import java.net.URL;
 
 public class Pokemon {
 
@@ -10,14 +11,22 @@ public class Pokemon {
         Scanner scan = new Scanner(System.in);
         Pokemon p1;
         Pokemon p2;
+        AePlayWave battleMusic = null;
+
         boolean skipSteps = false;
         if (args!= null && args.length >= 2) {
             skipSteps = args.length >= 3 && args[2].equalsIgnoreCase("skip");
             SKIP_SOUND = skipSteps;
+            if (!SKIP_SOUND) {
+                battleMusic = new AePlayWave("prime-cup1-3.wav", 11534336);
+                battleMusic.start();
+            }
             p1 = new Pokemon(args[0].toUpperCase());
             p2 = new Pokemon(args[1].toUpperCase());
         }
         else {
+            battleMusic = new AePlayWave("prime-cup1-3.wav", 11534336);
+            battleMusic.start();
             displayPokemon();
             System.out.println("Choose player 1's Pokemon");
             p1 = askForPokemon(scan);
@@ -44,6 +53,9 @@ public class Pokemon {
         }
         if (p2.soundPlayer != null) {
             p2.soundPlayer.quit();
+        }
+        if (battleMusic != null) {
+            battleMusic.quit();
         }
     }
 

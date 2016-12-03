@@ -15,9 +15,10 @@ public class AePlayWave extends Thread {
         new AePlayWave("cries/CHARIZARD.wav").start();
     }
 
+    public static final int DEFAULT_BUFFER_SIZE = 524288; // 128Kb 
     private String filename;
     private Position curPosition;
-    private final int EXTERNAL_BUFFER_SIZE = 524288; // 128Kb 
+    private final int EXTERNAL_BUFFER_SIZE; 
     private volatile boolean exit = false;
  
     enum Position { 
@@ -27,12 +28,20 @@ public class AePlayWave extends Thread {
     public AePlayWave(String wavfile) { 
         filename = wavfile;
         curPosition = Position.NORMAL;
+        EXTERNAL_BUFFER_SIZE = DEFAULT_BUFFER_SIZE;
     } 
  
     public AePlayWave(String wavfile, Position p) { 
         filename = wavfile;
         curPosition = p;
-    } 
+        EXTERNAL_BUFFER_SIZE = DEFAULT_BUFFER_SIZE;
+    }
+
+    public AePlayWave(String wavfile, int size) { 
+        filename = wavfile;
+        curPosition = Position.NORMAL;
+        EXTERNAL_BUFFER_SIZE = size;
+    }
  
     public void run() { 
  

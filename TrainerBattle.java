@@ -92,6 +92,12 @@ class TrainerBattle {
 
 		Pokemon.doTurn(p1, p2);
 		scan.nextLine();
+
+		System.out.println("Press enter to stop the music (it may delay a few seconds before stopping - use \"command C\" to stop immediately)");
+		AePlayWave battleMusic = new AePlayWave("prime-cup1-3.wav", 11534336);
+		battleMusic.start();
+		scan.nextLine();
+		battleMusic.quit();
 	}
 
 
