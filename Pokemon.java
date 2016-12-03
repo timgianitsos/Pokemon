@@ -25,7 +25,7 @@ public class Pokemon {
             p2 = new Pokemon(args[1].toUpperCase());
         }
         else {
-            System.out.println("\nMusic? [y] - yes, [anything else] - no");
+            System.out.println("\nMusic? [y] - yes, [blank] - no");
             String response = scan.nextLine();
             if (response != null && response.length() > 0 && response.charAt(0) == 'y') {
                 battleMusic = new AePlayWave("prime-cup1-3.wav", AePlayWave.BATTLE_MUSIC_BUFFER_SIZE);
