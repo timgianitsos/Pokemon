@@ -20,7 +20,7 @@ public class Pokemon {
             displayPokemon();
             System.out.println("Choose player 1's Pokemon");
             p1 = askForPokemon(scan);
-            System.out.println("Choose player 2's Pokemon");
+            System.out.println("\nChoose player 2's Pokemon");
             p2 = askForPokemon(scan);
         }
 
