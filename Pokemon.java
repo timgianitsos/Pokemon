@@ -347,7 +347,7 @@ enum PokemonEnum {
     VENUSAUR(Type.GRASS, Type.POISON, new int[]{80, 82, 83, 100, 100, 80}, EnumSet.of(Attack.ENERGY_BALL, Attack.BODY_SLAM)), 
     CHARIZARD(Type.FIRE, Type.FLYING, new int[]{78, 84, 78, 109, 85, 100}, EnumSet.of(Attack.FLAMETHROWER, Attack.DRAGON_PULSE)), 
     BLASTOISE(Type.WATER, null, new int[]{79, 83, 100, 85, 105, 78}, EnumSet.of(Attack.SURF, Attack.BRICK_BREAK)), 
-    PIDGEOT(Type.NORMAL, Type.FLYING, new int[]{83, 80, 75, 70, 70, 101}, EnumSet.of(Attack.AIR_SLASH)), 
+    PIDGEOT(Type.NORMAL, Type.FLYING, new int[]{83, 80, 75, 70, 70, 101}, EnumSet.of(Attack.AIR_SLASH, Attack.STEEL_WING)), 
     RAICHU(Type.ELECTRIC, null, new int[]{60, 90, 55, 90, 80, 110}, EnumSet.of(Attack.THUNDER_BOLT, Attack.IRON_TAIL)), 
     ALAKAZAM(Type.PSYCHIC, null, new int[]{55, 50, 45, 135, 95, 120}, EnumSet.of(Attack.PSYCHIC)), 
     MACHAMP(Type.FIGHTING, null, new int[]{90, 130, 80, 65, 85, 55}, EnumSet.of(Attack.BRICK_BREAK)), 
@@ -423,6 +423,7 @@ enum Attack {
     DRAGON_PULSE(85, 100, 10, Type.DRAGON, false), 
     IRON_HEAD(80, 100, 15, Type.STEEL, true), 
     X_SCISSOR(80, 100, 15, Type.BUG, true), 
+    STEEL_WING(70, 90, 25, Type.STEEL, true), 
 
     STRUGGLE(50, 100, 1, Type.NONE, true);
 
