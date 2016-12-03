@@ -1,10 +1,11 @@
 import java.util.*;
 import java.io.File;
 
-//TODO levels, consider using REST API
-
 public class Pokemon {
 
+    /*
+     * This main method allows us to test Pokemon objects
+     */
     public static void main(String[] args) {
         Scanner scan = new Scanner(System.in);
         Pokemon p1;
@@ -46,6 +47,9 @@ public class Pokemon {
         }
     }
 
+    /*
+     * Pokemon instance variables - each Pokemon has its own copy. The public variables can be referenced using reference.variable
+     */
     public final String name;
     public final Type type1;
     public final Type type2;
@@ -54,6 +58,9 @@ public class Pokemon {
     private final AePlayWave soundPlayer;
     private int currentHP;
 
+    /*
+     * Pokemon class variables - there is only one global copy of these. They can be referenced by using Pokemon.variable
+     */
     public static final PokemonEnum DEFAULT_POKEMON = PokemonEnum.MAGIKARP;
     public static final int LEVEL = 50;
     public static final double CRITICAL_HIT_PROBABILITY = 0.0625;
@@ -61,10 +68,17 @@ public class Pokemon {
     public static final String STAT_MAXIMIZER_PREFIX = "_";
     public static boolean SKIP_SOUND = false;
 
+    /*
+     * Create a Pokemon by using a predefined enumeration from PokemonEnum
+     */
     public Pokemon(PokemonEnum poke) {
         this(poke.name(), poke.type1, poke.type2, poke.baseStats, poke.attacks);
     }
 
+    /*
+     * Create a Pokemon from a name. The name must match a PokemonEnum or else it will create a default 
+     * (an underscore at the beginning is permitted as this is used to maximize stats)
+     */
     public Pokemon(String name) {
         boolean maximizeStats = false;
         PokemonEnum p;
@@ -73,7 +87,7 @@ public class Pokemon {
                 maximizeStats = true;
                 name = name.substring(1, name.length());
             }
-            p = PokemonEnum.valueOf(name);
+            p = PokemonEnum.valueOf(name.toUpperCase());
         }
         catch (Exception e) {
             System.out.println("Invalid Pokemon name" + (name == null ? "": " \"" + name + "\"") + ". Generating default..");
@@ -97,6 +111,9 @@ public class Pokemon {
         createInstanceMappings(maximizeStats, baseStats, attacks);
     }
 
+    /*
+     * Create a Pokemon by providing necessary parameters. This allows us to create custom Pokemon not listed in PokemonEnum
+     */
     public Pokemon(String name, Type type1, Type type2, int[] baseStats, EnumSet<Attack> attacks) {
         boolean invalidArguments = false;
         if (name == null || name.length() == 0) {
@@ -125,12 +142,12 @@ public class Pokemon {
         }
 
         boolean maximizeStats = false;
-        if (name.startsWith(STAT_MAXIMIZER_PREFIX)) {
+        if (name.startsWith(STAT_MAXIMIZER_PREFIX) && name.length() > 1) {
             maximizeStats = true;
-            this.name = name.substring(1, name.length());
+            this.name = name.substring(1, name.length()).toUpperCase();
         }
         else {
-            this.name = name;
+            this.name = name.toUpperCase();
         }
 
         this.type1 = type1;
@@ -147,6 +164,9 @@ public class Pokemon {
         createInstanceMappings(maximizeStats, baseStats, attacks);
     }
 
+    /*
+     * Helper method for the constructors. It is private so it can be ignored from the outside
+     */
     private void createInstanceMappings(boolean maximizeStats, int[] baseStats, EnumSet<Attack> attacks) {
         calculateStats(maximizeStats, baseStats);
         for (Attack a: attacks) {
@@ -155,7 +175,9 @@ public class Pokemon {
         this.currentHP = statToValue.get(Stat.HP);
     }
 
-    //Maximizing stats will cause speed and one of the attack stats to be maximized
+    /*
+     * Helper method for the constructors. It is private so it can be ignored from the outside
+     */
     private void calculateStats(boolean maximizeStats, int[] baseStats) {
         Stat attackStatToMaximize = !maximizeStats ? null: baseStats[Stat.ATTACK.ordinal()] >= baseStats[Stat.SPECIAL_ATTACK.ordinal()] 
             ? Stat.ATTACK: Stat.SPECIAL_ATTACK;
@@ -177,7 +199,10 @@ public class Pokemon {
         }
     }
 
-    private static void displayPokemon() {
+    /*
+     * Displays a list of non-hidden Pokemon
+     */
+    public static void displayPokemon() {
         System.out.println("\nAvailable Pokemon");
         for (PokemonEnum poke: PokemonEnum.values()) {
             int baseStatTotal = 0;
@@ -197,7 +222,10 @@ public class Pokemon {
         System.out.println();
     }
 
-    private static Pokemon askForPokemon(Scanner scan) {
+    /*
+     * Asks the user for a Pokemon and returns it
+     */
+    public static Pokemon askForPokemon(Scanner scan) {
         try {
             String choice = scan.nextLine().trim().toUpperCase();
             if (choice.equals("CUSTOM")) {
@@ -237,6 +265,9 @@ public class Pokemon {
         }
     }
 
+    /*
+     * Performs a turn where each Pokemon attacks each other
+     */
     public static void doTurn(Pokemon p1, Pokemon p2) {
         if (p1 == null || p2 == null || p1.currentHP == 0 || p2.currentHP == 0) {
             throw new IllegalStateException("Combatants must not be null and must have positive HP");
@@ -263,9 +294,11 @@ public class Pokemon {
         }
     }
 
-    //AI that determines which Attack to choose
-    //Each move recieves a score by multiplying damage with accuracy
-    //returns STRUGGLE if no move is available
+    /*
+     * Determines which of this Pokemons attacks is best - example of AI
+     * Each move recieves a score by multiplying damage with accuracy
+     * returns STRUGGLE if no move is available
+     */
     public Attack getBestAttack(Pokemon opponent) {
         if (opponent == null || opponent.currentHP == 0) {
             throw new IllegalStateException("Opponent must not be null and must have positive HP");
@@ -283,6 +316,9 @@ public class Pokemon {
         return attack;
     }
 
+    /*
+     * Uses the attack on the opponent
+     */
     public void useAttack(Attack attack, Pokemon opponent) {
         if (opponent == null || this.currentHP == 0 || opponent.currentHP == 0) {
             throw new IllegalStateException("Combatants must not be null and must have positive HP");
@@ -332,7 +368,9 @@ public class Pokemon {
         System.out.println(opponent.name + " has " + opponent.currentHP + " hp left\n" + (opponentFainted ? opponent.name + " fainted!\n": ""));
     }
 
-    //If this Pokemon doesn't know the move or the move has no PP, then this calculates damage of STRUGGLE
+    /*
+     * Calculates the damage the attack will do on the opponent, not factoring in critical hits and random pertubation
+     */
     public double attackDamage(Attack att, Pokemon opponent) {
         if (opponent == null) {
             throw new IllegalStateException("Opponent must not be null and must have positive HP");
@@ -349,14 +387,23 @@ public class Pokemon {
         return damageDealt;
     }
 
+    /*
+     * Returns the numerical value of a given stat
+     */
     public int getStat(Stat s) {
         return this.statToValue.get(s);
     }
 
+    /*
+     * Returns the current number of hitpoints of a pokemon
+     */
     public int getCurrentHP() {
         return this.currentHP;
     }
 
+    /*
+     * Returns an array of the attacks this Pokemon knows
+     */
     public Attack[] getAttacks() {
         Attack[] attks = new Attack[attackToPP.keySet().size()];
         int i = 0;
@@ -366,16 +413,38 @@ public class Pokemon {
         return attks;
     }
 
-    //Returns the number of PP of the given Attack, or 0 if this Pokemon does not know the Attack
+    /*
+     * Returns the number of remaining uses for the given Attack, or 0 if this Pokemon does not know the Attack
+     */
     public int getAttackPP(Attack a) {
         Integer pp = attackToPP.get(a);
         return pp != null ? pp: 0;
     }
 
+    /*
+     * Prints a String representation of this Pokemon
+     */
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(String.format(this.name + ": %-1s %-1s%n", type1.name(), (type2 != null ? type2.name(): "")));
+        sb.append("Stats: ");
+        for (Stat s: statToValue.keySet()) {
+            sb.append(String.format("%-5s ", s.name() + "(" + statToValue.get(s) + ")"));
+        }
+        sb.append('\n');
+        sb.append("Attacks: ");
+        for (Attack a: attackToPP.keySet()) {
+            sb.append(a.name() + ' ');
+        }
+        sb.append('\n');
+        return sb.toString();
+    }
+
 }
 
 enum PokemonEnum {
-    //Add new pokemon here. A Pokemon's stats get maximized if it is created with an underscore before its name
+    //Add new pokemon here
     ZAPDOS(Type.ELECTRIC, Type.FLYING, new int[]{90,90,85,125,90,100}, EnumSet.of(Attack.THUNDER_BOLT, Attack.DRILL_PECK)), 
     DRAGONITE(Type.DRAGON, Type.FLYING, new int[]{91, 134, 95, 100, 100, 80}, EnumSet.of(Attack.DRAGON_CLAW)), 
     MEWTWO(Type.PSYCHIC, null, new int[]{106,110,90,154,90,130}, EnumSet.of(Attack.PSYSTRIKE, Attack.SHADOW_BALL, Attack.BLIZZARD)), 
@@ -483,7 +552,7 @@ enum Attack {
     //SOLARBEAM (accuracy)
     //AURA_SPHERE (accuracy)
     //HYPER_BEAM (accuracy)
-    //STRUGGLE (acuracy)
+    //STRUGGLE (accuracy)
     
     public final int baseDamage;
     public final int baseAccuracy;
@@ -606,7 +675,10 @@ enum Type {
 
     }
 
-    //Given the users types and opponents types, returns the effectiveness of using an Attack of this type
+    /*
+     * Return scale factor of using a move of this Type on the opponent. This depends on Same Type Attack Bonus, 
+     * and how effective the move is against the opponent's types
+     */
     public double getEffectiveness(Type userType1, Type userType2, Type opponentType1, Type opponentType2) {
         double scaleFactor =  this == userType1 || this == userType2 ? 1.5: 1;
 
