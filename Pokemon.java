@@ -25,8 +25,12 @@ public class Pokemon {
             p2 = new Pokemon(args[1].toUpperCase());
         }
         else {
-            battleMusic = new AePlayWave("prime-cup1-3.wav", AePlayWave.BATTLE_MUSIC_BUFFER_SIZE);
-            battleMusic.start();
+            System.out.println("\nMusic? [y] - yes, [anything else] - no");
+            String response = scan.nextLine();
+            if (response != null && response.length() > 0 && response.charAt(0) == 'y') {
+                battleMusic = new AePlayWave("prime-cup1-3.wav", AePlayWave.BATTLE_MUSIC_BUFFER_SIZE);
+                battleMusic.start();
+            }
             displayPokemon();
             System.out.println("Choose player 1's Pokemon");
             p1 = askForPokemon(scan);
@@ -459,18 +463,19 @@ public class Pokemon {
 enum PokemonEnum {
     //Add new pokemon here
     ZAPDOS(Type.ELECTRIC, Type.FLYING, new int[]{90,90,85,125,90,100}, EnumSet.of(Attack.THUNDER_BOLT, Attack.DRILL_PECK)), 
-    DRAGONITE(Type.DRAGON, Type.FLYING, new int[]{91, 134, 95, 100, 100, 80}, EnumSet.of(Attack.DRAGON_CLAW)), 
+    DRAGONITE(Type.DRAGON, Type.FLYING, new int[]{91, 134, 95, 100, 100, 80}, EnumSet.of(Attack.DRAGON_CLAW, Attack.AERIAL_ACE)), 
     MEWTWO(Type.PSYCHIC, null, new int[]{106,110,90,154,90,130}, EnumSet.of(Attack.PSYSTRIKE, Attack.SHADOW_BALL, Attack.BLIZZARD)), 
     MEW(Type.PSYCHIC, null, new int[]{100,100,100,100,100,100}, EnumSet.complementOf(EnumSet.of(Attack.STRUGGLE))), 
     SHEDINJA(Type.NONE, null, new int[]{1, 90, 45, 30, 30, 40}, EnumSet.of(Attack.X_SCISSOR, Attack.SHADOW_BALL)), 
     METAGROSS(Type.STEEL, Type.PSYCHIC, new int[]{80, 135, 130, 95, 90, 70}, EnumSet.of(Attack.IRON_HEAD, Attack.PSYCHIC)), 
     GARCHOMP(Type.DRAGON, Type.GROUND, new int[]{108, 130, 95, 80, 85, 102}, EnumSet.of(Attack.DRAGON_CLAW, Attack.EARTHQUAKE)), 
-    REGIGIGAS(Type.NORMAL, null, new int[]{110,160,110,80,110,100}, EnumSet.of(Attack.DIZZY_PUNCH)), 
+    REGIGIGAS(Type.NORMAL, null, new int[]{110,160,110,80,110,100}, EnumSet.of(Attack.DIZZY_PUNCH, Attack.BRICK_BREAK)), 
+    VICTINI(Type.PSYCHIC, Type.FIRE, new int[]{100, 100, 100, 100, 100, 100}, EnumSet.of(Attack.FLARE_BLITZ, Attack.PSYCHIC)), 
 
     MEGA_VENUSAUR(Type.GRASS, Type.POISON, new int[]{80,100,123,122,120,80}, 
     	EnumSet.of(Attack.ENERGY_BALL, Attack.SLUDGE_BOMB, Attack.EARTHQUAKE, Attack.BODY_SLAM)),
     MEGA_CHARIZARD_X(Type.FIRE, Type.DRAGON, new int[]{78, 130, 111, 130, 85, 100}, 
-        EnumSet.of(Attack.FLAMETHROWER, Attack.DRAGON_CLAW, Attack.EARTHQUAKE, Attack.SOLAR_BEAM)), 
+        EnumSet.of(Attack.FLARE_BLITZ, Attack.DRAGON_CLAW, Attack.EARTHQUAKE, Attack.STEEL_WING)), 
     MEGA_CHARIZARD_Y(Type.FIRE, Type.FLYING, new int[]{78, 104, 78, 159, 115, 100}, 
         EnumSet.of(Attack.FLAMETHROWER, Attack.DRAGON_PULSE, Attack.AIR_SLASH, Attack.SOLAR_BEAM)), 
     MEGA_BLASTOISE(Type.WATER, null, new int[]{79,103,120,135,115,78}, 
@@ -545,6 +550,8 @@ enum Attack {
     HURRICANE(110, 70, 10, Type.FLYING, false),
     BLIZZARD(110, 70, 5, Type.ICE, false), 
     HYPER_BEAM(150, 60, 5, Type.NORMAL, false), 
+    AERIAL_ACE(60, 100, 20, Type.FLYING, true), 
+    FLARE_BLITZ(120, 85, 15, Type.FIRE, true), 
 
     TACKLE(40, 100, 35, Type.NORMAL, true), 
     ENERGY_BALL(90, 100, 10, Type.GRASS, false), 
@@ -571,6 +578,7 @@ enum Attack {
     //SOLARBEAM (accuracy)
     //AURA_SPHERE (accuracy)
     //HYPER_BEAM (accuracy)
+    //AERIAL_ACE (accuracy)
     //STRUGGLE (accuracy)
     
     public final int baseDamage;
