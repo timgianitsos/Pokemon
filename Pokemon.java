@@ -338,7 +338,7 @@ enum PokemonEnum {
         EnumSet.of(Attack.FLAMETHROWER, Attack.DRAGON_CLAW, Attack.EARTHQUAKE, Attack.SOLAR_BEAM)), 
     MEGA_CHARIZARD_Y(Type.FIRE, Type.FLYING, new int[]{78, 104, 78, 159, 115, 100}, 
         EnumSet.of(Attack.FLAMETHROWER, Attack.DRAGON_PULSE, Attack.AIR_SLASH, Attack.SOLAR_BEAM)), 
-    MEGA_PIDGEOT(Type.NORMAL, Type.FLYING, new int[]{83, 80, 80, 135, 80, 121}, EnumSet.of(Attack.AIR_SLASH, Attack.HURRICANE)), 
+    MEGA_PIDGEOT(Type.NORMAL, Type.FLYING, new int[]{83, 80, 80, 135, 80, 121}, EnumSet.of(Attack.HYPER_BEAM, Attack.HURRICANE)), 
     MEGA_MEWTWO_X(Type.PSYCHIC, Type.FIGHTING, new int[]{106, 190, 100, 154, 100, 130}, EnumSet.of(Attack.PSYSTRIKE, Attack.AURA_SPHERE)), 
     MEGA_MEWTWO_Y(Type.PSYCHIC, null, new int[]{106, 150, 70, 194, 120, 140}, EnumSet.of(Attack.PSYSTRIKE, Attack.SHADOW_BALL)), 
     PRIMAL_KYOGRE(Type.WATER, null, new int[]{100, 150, 90, 180, 160, 90}, EnumSet.of(Attack.SURF, Attack.ICE_BEAM)), 
@@ -404,7 +404,8 @@ enum Attack {
     AIR_SLASH(75, 95, 20, Type.FLYING, false), 
     EARTHQUAKE(100, 100, 10, Type.GROUND, true), 
     HURRICANE(110, 70, 10, Type.FLYING, false),
-    BLIZZARD(110, 70, 5, Type.ICE, false),
+    BLIZZARD(110, 70, 5, Type.ICE, false), 
+    HYPER_BEAM(150, 60, 5, Type.NORMAL, false), 
 
     TACKLE(40, 100, 35, Type.NORMAL, true), 
     ENERGY_BALL(90, 100, 10, Type.GRASS, false), 
@@ -428,6 +429,7 @@ enum Attack {
     //List of attacks that differ from official
     //SOLARBEAM (accuracy)
     //AURA_SPHERE (accuracy)
+    //HYPER_BEAM (accuracy)
     //STRUGGLE (acuracy)
     
     public final int baseDamage;
