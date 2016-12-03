@@ -455,20 +455,25 @@ enum PokemonEnum {
     GARCHOMP(Type.DRAGON, Type.GROUND, new int[]{108, 130, 95, 80, 85, 102}, EnumSet.of(Attack.DRAGON_CLAW, Attack.EARTHQUAKE)), 
     REGIGIGAS(Type.NORMAL, null, new int[]{110,160,110,80,110,100}, EnumSet.of(Attack.DIZZY_PUNCH)), 
 
+    MEGA_VENUSAUR(Type.GRASS, Type.POISON, new int[]{80,100,123,122,120,80}, 
+    	EnumSet.of(Attack.ENERGY_BALL, Attack.SLUDGE_BOMB, Attack.EARTHQUAKE, Attack.BODY_SLAM)),
     MEGA_CHARIZARD_X(Type.FIRE, Type.DRAGON, new int[]{78, 130, 111, 130, 85, 100}, 
         EnumSet.of(Attack.FLAMETHROWER, Attack.DRAGON_CLAW, Attack.EARTHQUAKE, Attack.SOLAR_BEAM)), 
     MEGA_CHARIZARD_Y(Type.FIRE, Type.FLYING, new int[]{78, 104, 78, 159, 115, 100}, 
         EnumSet.of(Attack.FLAMETHROWER, Attack.DRAGON_PULSE, Attack.AIR_SLASH, Attack.SOLAR_BEAM)), 
+    MEGA_BLASTOISE(Type.WATER, null, new int[]{79,103,120,135,115,78}, 
+    	EnumSet.of(Attack.SURF, Attack.ICE_BEAM, Attack.AURA_SPHERE, Attack.DRAGON_PULSE)), 
     MEGA_PIDGEOT(Type.NORMAL, Type.FLYING, new int[]{83, 80, 80, 135, 80, 121}, EnumSet.of(Attack.HYPER_BEAM, Attack.HURRICANE)), 
     MEGA_MEWTWO_X(Type.PSYCHIC, Type.FIGHTING, new int[]{106, 190, 100, 154, 100, 130}, EnumSet.of(Attack.PSYSTRIKE, Attack.AURA_SPHERE)), 
     MEGA_MEWTWO_Y(Type.PSYCHIC, null, new int[]{106, 150, 70, 194, 120, 140}, EnumSet.of(Attack.PSYSTRIKE, Attack.SHADOW_BALL)), 
+    MEGA_SCIZOR(Type.BUG, Type.STEEL, new int[]{70,150,140,65,100,75}, EnumSet.of(Attack.X_SCISSOR, Attack.IRON_HEAD)), 
     PRIMAL_KYOGRE(Type.WATER, null, new int[]{100, 150, 90, 180, 160, 90}, EnumSet.of(Attack.SURF, Attack.ICE_BEAM)), 
     PRIMAL_GROUDON(Type.GROUND, Type.FIRE, new int[]{100, 180, 160, 150, 90, 90}, EnumSet.of(Attack.EARTHQUAKE, Attack.FLAMETHROWER)), 
 
-    VENUSAUR(Type.GRASS, Type.POISON, new int[]{80, 82, 83, 100, 100, 80}, EnumSet.of(Attack.ENERGY_BALL, Attack.BODY_SLAM)), 
+    VENUSAUR(Type.GRASS, Type.POISON, new int[]{80, 82, 83, 100, 100, 80}, EnumSet.of(Attack.ENERGY_BALL, Attack.SLUDGE_BOMB)), 
     CHARIZARD(Type.FIRE, Type.FLYING, new int[]{78, 84, 78, 109, 85, 100}, EnumSet.of(Attack.FLAMETHROWER, Attack.DRAGON_PULSE, 
         Attack.AIR_SLASH, Attack.SOLAR_BEAM)), 
-    BLASTOISE(Type.WATER, null, new int[]{79, 83, 100, 85, 105, 78}, EnumSet.of(Attack.SURF, Attack.BRICK_BREAK)), 
+    BLASTOISE(Type.WATER, null, new int[]{79, 83, 100, 85, 105, 78}, EnumSet.of(Attack.SURF, Attack.ICE_BEAM)), 
     PIDGEOT(Type.NORMAL, Type.FLYING, new int[]{83, 80, 75, 70, 70, 101}, EnumSet.of(Attack.AIR_SLASH, Attack.STEEL_WING)), 
     RAICHU(Type.ELECTRIC, null, new int[]{60, 90, 55, 90, 80, 110}, EnumSet.of(Attack.THUNDER_BOLT, Attack.IRON_TAIL)), 
     ALAKAZAM(Type.PSYCHIC, null, new int[]{55, 50, 45, 135, 95, 120}, EnumSet.of(Attack.PSYCHIC)), 
@@ -546,6 +551,7 @@ enum Attack {
     IRON_HEAD(80, 100, 15, Type.STEEL, true), 
     X_SCISSOR(80, 100, 15, Type.BUG, true), 
     STEEL_WING(70, 90, 25, Type.STEEL, true), 
+    SLUDGE_BOMB(90, 100, 10, Type.POISON, false), 
 
     STRUGGLE(50, 100, 1, Type.NONE, true);
 
