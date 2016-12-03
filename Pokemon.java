@@ -579,6 +579,7 @@ enum Attack {
     //AURA_SPHERE (accuracy)
     //HYPER_BEAM (accuracy)
     //AERIAL_ACE (accuracy)
+    //FLARE_BLITZ (accuracy)
     //STRUGGLE (accuracy)
     
     public final int baseDamage;
