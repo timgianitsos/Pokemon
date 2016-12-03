@@ -6,7 +6,8 @@ import java.util.EnumSet;
  */
 class TrainerBattle {
 	public static void main(String[] args) {
-		testCode();
+		//testCode();
+		practice();
 	}
 
 	public static void testCode() {
@@ -77,4 +78,22 @@ class TrainerBattle {
 		//This makes sense - displaying a list of all Pokemon should be a behavior of the whole class, not an instance of the class
 		Pokemon.displayPokemon();
 	}
+
+	public static void practice() {
+		Scanner scan = new Scanner(System.in);
+
+		Pokemon p1 = new Pokemon(PokemonEnum.CHARIZARD);
+		System.out.println(p1.toString());
+		scan.nextLine();
+
+		Pokemon p2 = new Pokemon("_ARCANINE", Type.FIRE, null, new int[]{5,5,5,5,5,5}, EnumSet.of(Attack.THUNDER_BOLT));
+		System.out.println(p2.toString());
+		scan.nextLine();
+
+		Pokemon.doTurn(p1, p2);
+		scan.nextLine();
+	}
+
+
+
 }
