@@ -69,8 +69,9 @@ public class Pokemon {
     public static final PokemonEnum DEFAULT_POKEMON = PokemonEnum.MAGIKARP;
     public static final int LEVEL = 50;
     public static final double CRITICAL_HIT_PROBABILITY = 0.0625;
+    public static final int BASE_STAT_TOTAL_DISPLAY_THRESHHOLD = 580;
+    public static final String STAT_MAXIMIZER_PREFIX = "_";
     public static boolean SKIP_SOUND = false;
-    private static final int BASE_STAT_TOTAL_DISPLAY_THRESHHOLD = 580;
 
     public Pokemon(PokemonEnum poke) {
         this(poke.name(), poke.type1, poke.type2, poke.baseStats, poke.attacks);
@@ -100,7 +101,15 @@ public class Pokemon {
             attacks = DEFAULT_POKEMON.attacks;
         }
 
-        this.name = name;
+        boolean maximizeStats = false;
+        if (name.startsWith(STAT_MAXIMIZER_PREFIX)) {
+            maximizeStats = true;
+            this.name = name.substring(1, name.length());
+        }
+        else {
+            this.name = name;
+        }
+
         if (!SKIP_SOUND && new File("cries/" + this.name + ".wav").exists()) {
             soundPlayer = new AePlayWave("cries/" + this.name + ".wav");
             soundPlayer.start();
@@ -111,20 +120,35 @@ public class Pokemon {
 
         this.type1 = type1;
         this.type2 = type2;
-        for (int i = 0; i < baseStats.length; i++) {
-            if (Stat.values()[i] == Stat.HP) {
-                this.statToValue.put(Stat.HP, baseStats[i] == 1 ? 1: 
-                    (int)(((2.0 * baseStats[i] + (int)(Math.random() * 32) + 0 / 4) * LEVEL / 100) + LEVEL + 10));
-            }
-            else {
-                this.statToValue.put(Stat.values()[i], 
-                    (int)((((2.0 * baseStats[i] + (int)(Math.random() * 32) + 0 / 4) * LEVEL / 100) + 5) * 1));
-            }
-        }
+
+        calculateStats(maximizeStats, baseStats);
+
         for (Attack a: attacks) {
             this.attackToPP.put(a, a.basePP);
         }
         currentHP = statToValue.get(Stat.HP);
+    }
+
+    //Maximizing stats will cause SPEED and one of the attacks to be maximized
+    private void calculateStats(boolean maximizeStats, int[] baseStats) {
+        Stat attackStatToMaximize = !maximizeStats ? null: baseStats[Stat.ATTACK.ordinal()] >= baseStats[Stat.SPECIAL_ATTACK.ordinal()] 
+            ? Stat.ATTACK: Stat.SPECIAL_ATTACK;
+        Stat attackStatToMinimize = !maximizeStats ? null: baseStats[Stat.ATTACK.ordinal()] < baseStats[Stat.SPECIAL_ATTACK.ordinal()] 
+            ? Stat.ATTACK: Stat.SPECIAL_ATTACK;
+        for (int i = 0; i < baseStats.length; i++) {
+            Stat s = Stat.values()[i];
+            if (s == Stat.HP) {
+                this.statToValue.put(Stat.HP, baseStats[i] == 1 ? 1: 
+                    (int)(((2.0 * baseStats[i] + (maximizeStats ? 31.0: (int)(Math.random() * 32.0)) 
+                    + (maximizeStats ? 4.0: 0.0) / 4.0) * LEVEL / 100.0) + LEVEL + 10.0));
+            }
+            else {
+                this.statToValue.put(s, 
+                    (int)((((2.0 * baseStats[i] + (maximizeStats ? 31.0: (int)(Math.random() * 32.0)) 
+                    + (maximizeStats && (s == Stat.SPEED || s == attackStatToMaximize) ? 252.0: 0.0) 
+                    / 4.0) * LEVEL / 100.0) + 5.0) * (s == Stat.SPEED ? 1.1: s == attackStatToMinimize ? 0.9: 1.0)));
+            }
+        }
     }
 
     private static void displayPokemon() {
@@ -134,7 +158,8 @@ public class Pokemon {
             for (int i = 0; i < poke.baseStats.length; i++) {
                 baseStatTotal += poke.baseStats[i];
             }
-            if (baseStatTotal < BASE_STAT_TOTAL_DISPLAY_THRESHHOLD && !poke.name().contains("MEGA_") && poke.type1 != Type.NONE) {
+            if (baseStatTotal < BASE_STAT_TOTAL_DISPLAY_THRESHHOLD && !poke.name().contains("MEGA_") && poke.type1 != Type.NONE 
+                    && !poke.name().startsWith(STAT_MAXIMIZER_PREFIX)) {
                 System.out.printf("%-12s Type 1:%-12s Type 2:%-12s Attacks:", poke.name(), poke.type1.name(), 
                         (poke.type2 == null ? "": poke.type2.name()));
                 for (Attack a: poke.attacks) {
@@ -275,7 +300,7 @@ public class Pokemon {
         }
 
         boolean opponentFainted = opponent.currentHP <= 0;
-        if (opponentFainted && soundPlayer != null) {
+        if (opponentFainted && opponent.soundPlayer != null) {
             opponent.soundPlayer.quit();
         }
         System.out.println(opponent.name + " has " + opponent.currentHP + " hp left\n" + (opponentFainted ? opponent.name + " fainted!\n": ""));
@@ -324,7 +349,15 @@ public class Pokemon {
 }
 
 enum PokemonEnum {
-    //Add new pokemon here
+    //Add new pokemon here. An underscore before a name means its stats get maximized
+    _CHARIZARD(Type.FIRE, Type.FLYING, new int[]{78, 84, 78, 109, 85, 100}, EnumSet.of(Attack.FLAMETHROWER, Attack.DRAGON_PULSE)), 
+    _MEGA_CHARIZARD_X(Type.FIRE, Type.DRAGON, new int[]{78, 130, 111, 130, 85, 100}, 
+        EnumSet.of(Attack.FLAMETHROWER, Attack.DRAGON_CLAW, Attack.EARTHQUAKE, Attack.SOLAR_BEAM)), 
+    _MEGA_CHARIZARD_Y(Type.FIRE, Type.FLYING, new int[]{78, 104, 78, 159, 115, 100}, 
+        EnumSet.of(Attack.FLAMETHROWER, Attack.DRAGON_PULSE, Attack.AIR_SLASH, Attack.SOLAR_BEAM)), 
+    _VENUSAUR(Type.GRASS, Type.POISON, new int[]{80, 82, 83, 100, 100, 80}, EnumSet.of(Attack.ENERGY_BALL, Attack.BODY_SLAM)), 
+    _BLASTOISE(Type.WATER, null, new int[]{79, 83, 100, 85, 105, 78}, EnumSet.of(Attack.SURF, Attack.BRICK_BREAK)), 
+
     ZAPDOS(Type.ELECTRIC, Type.FLYING, new int[]{90,90,85,125,90,100}, EnumSet.of(Attack.THUNDER_BOLT, Attack.DRILL_PECK)), 
     DRAGONITE(Type.DRAGON, Type.FLYING, new int[]{91, 134, 95, 100, 100, 80}, EnumSet.of(Attack.DRAGON_CLAW)), 
     MEWTWO(Type.PSYCHIC, null, new int[]{106,110,90,154,90,130}, EnumSet.of(Attack.PSYSTRIKE, Attack.SHADOW_BALL, Attack.BLIZZARD)), 
