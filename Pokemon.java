@@ -239,7 +239,6 @@ public class Pokemon {
                     System.out.print(String.format("%-19s ", s.name() + ":" + poke.getBaseStat(s)));
                 }
                 System.out.println();
-                // System.out.println();
             }
         }
         System.out.println();
