@@ -31,27 +31,13 @@ public class Pokemon {
             skipSteps = args.length >= 3 && args[2].equalsIgnoreCase("skip");
             SKIP_SOUND = skipSteps;
             if (!skipSteps) {
-                double random = Math.random();
-                System.out.println(random < 0.25 ? machamp: random < 0.5 ? scyther: random < 0.75 ? alakazam: charizard);
-                System.out.println("\nMusic? [y] - yes, [blank] - no");
-                String response = scan.nextLine();
-                if (response != null && response.length() > 0 && response.charAt(0) == 'y') {
-                    battleMusic = new AePlayWave("prime-cup1-3.wav", AePlayWave.BATTLE_MUSIC_BUFFER_SIZE);
-                    battleMusic.start();
-                }
+                battleMusic = intro(scan);
             }
             p1 = new Pokemon(args[0].toUpperCase());
             p2 = new Pokemon(args[1].toUpperCase());
         }
         else {
-            double random = Math.random();
-            System.out.println(random < 0.25 ? machamp: random < 0.5 ? scyther: random < 0.75 ? alakazam: charizard);
-            System.out.println("\nMusic? [y] - yes, [blank] - no");
-            String response = scan.nextLine();
-            if (response != null && response.length() > 0 && response.charAt(0) == 'y') {
-                battleMusic = new AePlayWave("prime-cup1-3.wav", AePlayWave.BATTLE_MUSIC_BUFFER_SIZE);
-                battleMusic.start();
-            }
+            battleMusic = intro(scan);
             displayPokemon();
             System.out.println("Choose player 1's Pokemon");
             p1 = askForPokemon(scan);
@@ -82,6 +68,19 @@ public class Pokemon {
         if (battleMusic != null) {
             battleMusic.quit();
         }
+    }
+
+    static AePlayWave intro(Scanner scan) {
+        AePlayWave battleMusic = null;
+        double random = Math.random();
+        System.out.println(random < 0.25 ? machamp: random < 0.5 ? scyther: random < 0.75 ? alakazam: charizard);
+        System.out.println("\nMusic? [y] - yes, [blank] - no");
+        String response = scan.nextLine();
+        if (response != null && response.length() > 0 && response.charAt(0) == 'y') {
+            battleMusic = new AePlayWave("prime-cup1-3.wav", AePlayWave.BATTLE_MUSIC_BUFFER_SIZE);
+            battleMusic.start();
+        }
+        return battleMusic;
     }
 
     /*
