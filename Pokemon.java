@@ -31,10 +31,14 @@ public class Pokemon {
             skipSteps = args.length >= 3 && args[2].equalsIgnoreCase("skip");
             SKIP_SOUND = skipSteps;
             if (!skipSteps) {
-                battleMusic = new AePlayWave("prime-cup1-3.wav", AePlayWave.BATTLE_MUSIC_BUFFER_SIZE);
-                battleMusic.start();
                 double random = Math.random();
                 System.out.println(random < 0.25 ? machamp: random < 0.5 ? scyther: random < 0.75 ? alakazam: charizard);
+                System.out.println("\nMusic? [y] - yes, [blank] - no");
+                String response = scan.nextLine();
+                if (response != null && response.length() > 0 && response.charAt(0) == 'y') {
+                    battleMusic = new AePlayWave("prime-cup1-3.wav", AePlayWave.BATTLE_MUSIC_BUFFER_SIZE);
+                    battleMusic.start();
+                }
             }
             p1 = new Pokemon(args[0].toUpperCase());
             p2 = new Pokemon(args[1].toUpperCase());
