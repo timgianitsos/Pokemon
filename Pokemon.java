@@ -383,7 +383,7 @@ public class Pokemon {
             //Scale factor includes critical hits and random scaling between 85-100%
             double scaleFactor = effectiveness == 0 ? 0: 1;
             if (effectiveness != 0 && Math.random() < CRITICAL_HIT_PROBABILITY) {
-                System.out.println("It's a critical hit!");
+                System.out.println(ANSI_YELLOW + "It's a critical hit!" + ANSI_RESET);
                 scaleFactor *= 2;
             }
             scaleFactor *= (100 - (int)(Math.random() * 16)) / 100.0;
@@ -404,7 +404,7 @@ public class Pokemon {
         if (opponentFainted && opponent.soundPlayer != null) {
             opponent.soundPlayer.quit();
         }
-        System.out.println(opponent.name + " has " + ANSI_GREEN + opponent.currentHP + ANSI_RESET + " hp left\n" + 
+        System.out.println(opponent.name + " has " + ANSI_GREEN + opponent.currentHP + " hp " + ANSI_RESET + "left\n" + 
             (opponentFainted ? opponent.name + " fainted!\n": ""));
     }
 
