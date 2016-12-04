@@ -377,7 +377,7 @@ public class Pokemon {
             System.out.println(
                 effectiveness >= 2 ? ANSI_CYAN +  "It's super effective!" + ANSI_RESET: 
                 effectiveness < 1 && effectiveness > 0 ? ANSI_RED +  "It's not very effective.." + ANSI_RESET: 
-                effectiveness == 0 ? (opponent.name + " is unaffected!"): 
+                effectiveness == 0 ? (ANSI_PURPLE +  opponent.name + " is unaffected!" + ANSI_RESET): 
                 (opponent.name + " was hit"));
 
             //Scale factor includes critical hits and random scaling between 85-100%
@@ -527,7 +527,9 @@ enum PokemonEnum {
     SNORLAX(Type.NORMAL, null, new int[]{160, 110, 65, 65, 110, 30}, EnumSet.of(Attack.BODY_SLAM)), 
     STEELIX(Type.STEEL, Type.GROUND, new int[]{75, 85, 200, 55, 65, 30}, EnumSet.of(Attack.IRON_HEAD)), 
     SPIRITOMB(Type.GHOST, Type.DARK, new int[]{50, 92, 108, 92, 108, 35}, EnumSet.of(Attack.SHADOW_BALL)), 
-    GLACEON(Type.ICE, null, new int[]{65, 60, 110, 130, 95, 65}, EnumSet.of(Attack.ICE_BEAM));
+    TOGEKISS(Type.FAIRY, Type.FLYING, new int[]{85,50,95,120,115,80}, EnumSet.of(Attack.DAZZLING_GLEAM)), 
+    GLACEON(Type.ICE, null, new int[]{65, 60, 110, 130, 95, 65}, EnumSet.of(Attack.ICE_BEAM)), 
+    ZOROARK(Type.DARK, null, new int[]{60,105,60,120,60,105}, EnumSet.of(Attack.DARK_PULSE));
 
     public final Type type1;
     public final Type type2;
@@ -595,6 +597,8 @@ enum Attack {
     X_SCISSOR(80, 100, 15, Type.BUG, true), 
     STEEL_WING(70, 90, 25, Type.STEEL, true), 
     SLUDGE_BOMB(90, 100, 10, Type.POISON, false), 
+    DAZZLING_GLEAM(80, 100, 10, Type.FAIRY, false), 
+    DARK_PULSE(80, 100, 15, Type.DARK, false), 
 
     STRUGGLE(50, 100, 1, Type.NONE, true);
 
