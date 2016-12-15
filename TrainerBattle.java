@@ -86,7 +86,7 @@ class TrainerBattle {
 		System.out.println(p1.toString());
 		scan.nextLine();
 
-		Pokemon p2 = new Pokemon("_ARCANINE", Type.FIRE, null, new int[]{5,5,5,5,5,5}, EnumSet.of(Attack.THUNDER_BOLT));
+		Pokemon p2 = new Pokemon("_ARCANINE", Type.FIRE, null, new int[]{5,5,5,5,5,5}, EnumSet.of(Attack.THUNDERBOLT));
 		System.out.println(p2.toString());
 		scan.nextLine();
 
@@ -94,7 +94,7 @@ class TrainerBattle {
 		scan.nextLine();
 
 		System.out.println("Press enter to stop the music (it may delay a few seconds before stopping - use \"command C\" to stop immediately)");
-		AePlayWave battleMusic = new AePlayWave("prime-cup1-3.wav", AePlayWave.BATTLE_MUSIC_BUFFER_SIZE);
+		AePlayWave battleMusic = new AePlayWave(AePlayWave.BATTLE_MUSIC, AePlayWave.BATTLE_MUSIC_BUFFER_SIZE);
 		battleMusic.start();
 		scan.nextLine();
 		battleMusic.quit();

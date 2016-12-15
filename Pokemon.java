@@ -59,12 +59,6 @@ public class Pokemon {
                 scan.nextLine();
             }
         }
-        if (p1.soundPlayer != null) {
-            p1.soundPlayer.quit();
-        }
-        if (p2.soundPlayer != null) {
-            p2.soundPlayer.quit();
-        }
         if (battleMusic != null) {
             battleMusic.quit();
         }
@@ -77,7 +71,7 @@ public class Pokemon {
         System.out.println("\nMusic? [y] - yes, [blank] - no");
         String response = scan.nextLine();
         if (response != null && response.length() > 0 && response.charAt(0) == 'y') {
-            battleMusic = new AePlayWave("prime-cup1-3.wav", AePlayWave.BATTLE_MUSIC_BUFFER_SIZE);
+            battleMusic = new AePlayWave(AePlayWave.BATTLE_MUSIC, AePlayWave.BATTLE_MUSIC_BUFFER_SIZE);
             battleMusic.start();
         }
         return battleMusic;
@@ -91,7 +85,6 @@ public class Pokemon {
     public final Type type2;
     private final EnumMap<Stat, Integer> statToValue = new EnumMap<Stat, Integer>(Stat.class);
     private final EnumMap<Attack, Integer> attackToPP = new EnumMap<Attack, Integer>(Attack.class);
-    private final AePlayWave soundPlayer;
     private int currentHP;
 
     /*
@@ -100,8 +93,8 @@ public class Pokemon {
     public static final PokemonEnum DEFAULT_POKEMON = PokemonEnum.MAGIKARP;
     public static final int LEVEL = 50;
     public static final double CRITICAL_HIT_PROBABILITY = 0.0625;
-    public static final int BASE_STAT_TOTAL_DISPLAY_THRESHHOLD = 580;
     public static final String STAT_MAXIMIZER_PREFIX = "_";
+    public static int BASE_STAT_TOTAL_DISPLAY_THRESHHOLD = 580;
     public static boolean SKIP_SOUND = false;
 
     /*
@@ -138,11 +131,7 @@ public class Pokemon {
         EnumSet<Attack> attacks = p.attacks;
 
         if (!SKIP_SOUND && new File("cries/" + this.name + ".wav").exists()) {
-            this.soundPlayer = new AePlayWave("cries/" + this.name + ".wav");
-            this.soundPlayer.start();
-        }
-        else {
-            this.soundPlayer = null;
+            new AePlayWave("cries/" + this.name + ".wav", AePlayWave.DEFAULT_BUFFER_SIZE).start();
         }
 
         createInstanceMappings(maximizeStats, baseStats, attacks);
@@ -191,11 +180,7 @@ public class Pokemon {
         this.type2 = type2;
 
         if (!SKIP_SOUND && new File("cries/" + this.name + ".wav").exists()) {
-            this.soundPlayer = new AePlayWave("cries/" + this.name + ".wav");
-            this.soundPlayer.start();
-        }
-        else {
-            this.soundPlayer = null;
+            new AePlayWave("cries/" + this.name + ".wav", AePlayWave.DEFAULT_BUFFER_SIZE).start();
         }
 
         createInstanceMappings(maximizeStats, baseStats, attacks);
@@ -329,7 +314,7 @@ public class Pokemon {
             first = p2;
             second = p1;
         }
-        assert (first != second);
+        assert first != second;
         first.useAttack(first.getBestAttack(second), second);
         if (second.currentHP != 0) {
             second.useAttack(second.getBestAttack(first), first);
@@ -349,7 +334,7 @@ public class Pokemon {
         double bestAttackScore = -1;
         for (Attack a: this.attackToPP.keySet()) {
             double attackScore = this.attackDamage(a, opponent) * a.baseAccuracy;
-            assert (attackScore >= 0);
+            assert attackScore >= 0;
             if (this.attackToPP.get(a) > 0 && attackScore > bestAttackScore) {
                 attack = a;
                 bestAttackScore = attackScore;
@@ -379,18 +364,18 @@ public class Pokemon {
             double effectiveness = attack.type.getEffectiveness(this.type1, this.type2, opponent.type1, opponent.type2);
             assert effectiveness >= 0;
             if (effectiveness >= 2) {
-                if (!SKIP_SOUND) {new AePlayWave("super_effective.wav", AePlayWave.DEFAULT_BUFFER_SIZE).start();}
+                if (!SKIP_SOUND) {new AePlayWave(AePlayWave.SUPER_EFFECTIVE, AePlayWave.DEFAULT_BUFFER_SIZE).start();}
                 System.out.println(ANSI_CYAN +  "It's super effective!" + ANSI_RESET);
             }
             else if (effectiveness < 1 && effectiveness > 0) {
-                if (!SKIP_SOUND) {new AePlayWave("not_effective.wav", AePlayWave.DEFAULT_BUFFER_SIZE).start();}
+                if (!SKIP_SOUND) {new AePlayWave(AePlayWave.NOT_EFFECTIVE, AePlayWave.DEFAULT_BUFFER_SIZE).start();}
                 System.out.println(ANSI_RED +  "It's not very effective.." + ANSI_RESET);
             }
             else if (effectiveness == 0) {
                 System.out.println(ANSI_PURPLE +  opponent.name + " is unaffected!" + ANSI_RESET);
             }
             else {
-                if (!SKIP_SOUND) {new AePlayWave("normal_effective.wav", AePlayWave.DEFAULT_BUFFER_SIZE).start();}
+                if (!SKIP_SOUND) {new AePlayWave(AePlayWave.NORMAL_EFFECTIVE, AePlayWave.DEFAULT_BUFFER_SIZE).start();}
                 System.out.println(opponent.name + " was hit");
             }
 
@@ -410,16 +395,13 @@ public class Pokemon {
         }
 
         if (this.attackToPP.get(attack) != null) {
-            assert (this.attackToPP.get(attack) > 0);
+            assert this.attackToPP.get(attack) > 0;
             this.attackToPP.put(attack, this.attackToPP.get(attack) - 1);
         }
 
-        boolean opponentFainted = opponent.currentHP <= 0;
-        if (opponentFainted && opponent.soundPlayer != null) {
-            opponent.soundPlayer.quit();
-        }
+        assert opponent.currentHP >= 0: "Cannot allow negative HP";
         System.out.println(opponent.name + " has " + ANSI_GREEN + opponent.currentHP + " hp " + ANSI_RESET + "left\n" + 
-            (opponentFainted ? opponent.name + " fainted!\n": ""));
+            (opponent.currentHP <= 0 ? opponent.name + " fainted!\n": ""));
     }
 
     /*
