@@ -15,7 +15,7 @@ public class Pokemon {
         boolean skipSteps = false;
         if (args!= null && args.length >= 2) {
             skipSteps = args.length >= 3 && args[2].equalsIgnoreCase("skip");
-            SKIP_SOUND = skipSteps;
+            PLAY_SOUND = !skipSteps;
             if (!skipSteps) {
                 battleMusic = intro(scan);
             }
@@ -81,7 +81,7 @@ public class Pokemon {
     public static final double CRITICAL_HIT_PROBABILITY = 0.0625;
     public static final String STAT_MAXIMIZER_PREFIX = "_";
     public static int BASE_STAT_TOTAL_DISPLAY_THRESHHOLD = 580;
-    public static boolean SKIP_SOUND = false;
+    public static boolean PLAY_SOUND = true;
 
     /*
      * Create a Pokemon by using a predefined enumeration from PokemonEnum
@@ -116,7 +116,7 @@ public class Pokemon {
         int[] baseStats = p.baseStats;
         EnumSet<Attack> attacks = p.attacks;
 
-        if (!SKIP_SOUND && new File("cries/" + this.name + ".wav").exists()) {
+        if (PLAY_SOUND && new File("cries/" + this.name + ".wav").exists()) {
             new AePlayWave("cries/" + this.name + ".wav", AePlayWave.DEFAULT_BUFFER_SIZE).start();
         }
 
@@ -165,7 +165,7 @@ public class Pokemon {
         this.type1 = type1;
         this.type2 = type2;
 
-        if (!SKIP_SOUND && new File("cries/" + this.name + ".wav").exists()) {
+        if (PLAY_SOUND && new File("cries/" + this.name + ".wav").exists()) {
             new AePlayWave("cries/" + this.name + ".wav", AePlayWave.DEFAULT_BUFFER_SIZE).start();
         }
 
@@ -218,14 +218,14 @@ public class Pokemon {
                 baseStatTotal += poke.baseStats[i];
             }
             if (baseStatTotal < BASE_STAT_TOTAL_DISPLAY_THRESHHOLD && !poke.name().contains("MEGA_") && poke.type1 != Type.NONE 
-                    && !poke.name().startsWith(STAT_MAXIMIZER_PREFIX)) {
+                    && poke.type2 != Type.NONE) {
                 System.out.printf("%-12s Type 1:%-12s Type 2:%-12s Attacks:", poke.name(), poke.type1.name(), 
                         (poke.type2 == null ? "": poke.type2.name()));
                 for (Attack a: poke.attacks) {
                     System.out.print(a.name() + " ");
                 }
                 System.out.println();
-                System.out.print("\t");
+                System.out.print("\t\t");
                 for (Stat s: Stat.values()) {
                     System.out.print(String.format("%-19s ", s.name() + ":" + poke.getBaseStat(s)));
                 }
@@ -292,15 +292,11 @@ public class Pokemon {
             first = randomNumber >= 0.5 ? p1: p2;
             second = randomNumber >= 0.5 ? p2: p1;
         }
-        else if (p1.getStat(Stat.SPEED) > p2.getStat(Stat.SPEED)) {
-            first = p1;
-            second = p2;
-        }
         else {
-            first = p2;
-            second = p1;
+            first = p1.getStat(Stat.SPEED) > p2.getStat(Stat.SPEED) ? p1: p2;
+            second = p1.getStat(Stat.SPEED) > p2.getStat(Stat.SPEED) ? p2: p1;
         }
-        assert first != second;
+        assert first != second: "Error attempting turn";
         first.useAttack(first.getBestAttack(second), second);
         if (second.currentHP != 0) {
             second.useAttack(second.getBestAttack(first), first);
@@ -320,7 +316,7 @@ public class Pokemon {
         double bestAttackScore = -1;
         for (Attack a: this.attackToPP.keySet()) {
             double attackScore = this.attackDamage(a, opponent) * a.baseAccuracy;
-            assert attackScore >= 0;
+            assert attackScore >= 0: "Attack score should never be negative";
             if (this.attackToPP.get(a) > 0 && attackScore > bestAttackScore) {
                 attack = a;
                 bestAttackScore = attackScore;
@@ -348,20 +344,19 @@ public class Pokemon {
         System.out.println(this.name + " used " + attack.name());
         if (Math.random() * 100 < attack.baseAccuracy) {
             double effectiveness = attack.type.getEffectiveness(this.type1, this.type2, opponent.type1, opponent.type2);
-            assert effectiveness >= 0;
             if (effectiveness >= 2) {
-                if (!SKIP_SOUND) {new AePlayWave(AePlayWave.SUPER_EFFECTIVE, AePlayWave.DEFAULT_BUFFER_SIZE).start();}
+                if (PLAY_SOUND) {new AePlayWave(AePlayWave.SUPER_EFFECTIVE, AePlayWave.DEFAULT_BUFFER_SIZE).start();}
                 System.out.println(ANSI_CYAN +  "It's super effective!" + ANSI_RESET);
             }
             else if (effectiveness < 1 && effectiveness > 0) {
-                if (!SKIP_SOUND) {new AePlayWave(AePlayWave.NOT_EFFECTIVE, AePlayWave.DEFAULT_BUFFER_SIZE).start();}
+                if (PLAY_SOUND) {new AePlayWave(AePlayWave.NOT_EFFECTIVE, AePlayWave.DEFAULT_BUFFER_SIZE).start();}
                 System.out.println(ANSI_RED +  "It's not very effective.." + ANSI_RESET);
             }
             else if (effectiveness == 0) {
                 System.out.println(ANSI_PURPLE +  opponent.name + " is unaffected!" + ANSI_RESET);
             }
             else {
-                if (!SKIP_SOUND) {new AePlayWave(AePlayWave.NORMAL_EFFECTIVE, AePlayWave.DEFAULT_BUFFER_SIZE).start();}
+                if (PLAY_SOUND) {new AePlayWave(AePlayWave.NORMAL_EFFECTIVE, AePlayWave.DEFAULT_BUFFER_SIZE).start();}
                 System.out.println(opponent.name + " was hit");
             }
 
@@ -381,7 +376,7 @@ public class Pokemon {
         }
 
         if (this.attackToPP.get(attack) != null) {
-            assert this.attackToPP.get(attack) > 0;
+            assert this.attackToPP.get(attack) > 0: "Cannot use an attack with non-positive PP";
             this.attackToPP.put(attack, this.attackToPP.get(attack) - 1);
         }
 
@@ -862,7 +857,7 @@ enum Type {
         else if (noEffect.contains(opponentType2)) {
             scaleFactor *= 0;
         }
-        
+        assert scaleFactor >= 0: "Attack effectiveness should never be negative";
         return scaleFactor;
     }
 
