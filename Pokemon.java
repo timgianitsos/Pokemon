@@ -377,11 +377,22 @@ public class Pokemon {
         System.out.println(this.name + " used " + attack.name());
         if (Math.random() * 100 < attack.baseAccuracy) {
             double effectiveness = attack.type.getEffectiveness(this.type1, this.type2, opponent.type1, opponent.type2);
-            System.out.println(
-                effectiveness >= 2 ? ANSI_CYAN +  "It's super effective!" + ANSI_RESET: 
-                effectiveness < 1 && effectiveness > 0 ? ANSI_RED +  "It's not very effective.." + ANSI_RESET: 
-                effectiveness == 0 ? (ANSI_PURPLE +  opponent.name + " is unaffected!" + ANSI_RESET): 
-                (opponent.name + " was hit"));
+            assert effectiveness >= 0;
+            if (effectiveness >= 2) {
+                if (!SKIP_SOUND) {new AePlayWave("super_effective.wav", AePlayWave.DEFAULT_BUFFER_SIZE).start();}
+                System.out.println(ANSI_CYAN +  "It's super effective!" + ANSI_RESET);
+            }
+            else if (effectiveness < 1 && effectiveness > 0) {
+                if (!SKIP_SOUND) {new AePlayWave("not_effective.wav", AePlayWave.DEFAULT_BUFFER_SIZE).start();}
+                System.out.println(ANSI_RED +  "It's not very effective.." + ANSI_RESET);
+            }
+            else if (effectiveness == 0) {
+                System.out.println(ANSI_PURPLE +  opponent.name + " is unaffected!" + ANSI_RESET);
+            }
+            else {
+                if (!SKIP_SOUND) {new AePlayWave("normal_effective.wav", AePlayWave.DEFAULT_BUFFER_SIZE).start();}
+                System.out.println(opponent.name + " was hit");
+            }
 
             //Scale factor includes critical hits and random scaling between 85-100%
             double scaleFactor = effectiveness == 0 ? 0: 1;
@@ -488,7 +499,7 @@ public class Pokemon {
 
 enum PokemonEnum {
     //Add new pokemon here
-    ZAPDOS(Type.ELECTRIC, Type.FLYING, new int[]{90,90,85,125,90,100}, EnumSet.of(Attack.THUNDER_BOLT, Attack.DRILL_PECK)), 
+    ZAPDOS(Type.ELECTRIC, Type.FLYING, new int[]{90,90,85,125,90,100}, EnumSet.of(Attack.THUNDERBOLT, Attack.DRILL_PECK)), 
     DRAGONITE(Type.DRAGON, Type.FLYING, new int[]{91, 134, 95, 100, 100, 80}, EnumSet.of(Attack.DRAGON_CLAW, Attack.AERIAL_ACE)), 
     MEWTWO(Type.PSYCHIC, null, new int[]{106,110,90,154,90,130}, EnumSet.of(Attack.PSYSTRIKE, Attack.SHADOW_BALL, Attack.BLIZZARD)), 
     MEW(Type.PSYCHIC, null, new int[]{100,100,100,100,100,100}, EnumSet.complementOf(EnumSet.of(Attack.STRUGGLE))), 
@@ -518,13 +529,13 @@ enum PokemonEnum {
         Attack.AIR_SLASH, Attack.SOLAR_BEAM)), 
     BLASTOISE(Type.WATER, null, new int[]{79, 83, 100, 85, 105, 78}, EnumSet.of(Attack.SURF, Attack.ICE_BEAM)), 
     PIDGEOT(Type.NORMAL, Type.FLYING, new int[]{83, 80, 75, 70, 70, 101}, EnumSet.of(Attack.AIR_SLASH, Attack.STEEL_WING)), 
-    RAICHU(Type.ELECTRIC, null, new int[]{60, 90, 55, 90, 80, 110}, EnumSet.of(Attack.THUNDER_BOLT, Attack.IRON_TAIL)), 
+    RAICHU(Type.ELECTRIC, null, new int[]{60, 90, 55, 90, 80, 110}, EnumSet.of(Attack.THUNDERBOLT, Attack.IRON_TAIL)), 
     ALAKAZAM(Type.PSYCHIC, null, new int[]{55, 50, 45, 135, 95, 120}, EnumSet.of(Attack.PSYCHIC)), 
     MACHAMP(Type.FIGHTING, null, new int[]{90, 130, 80, 65, 85, 55}, EnumSet.of(Attack.BRICK_BREAK)), 
     GOLEM(Type.ROCK, Type.GROUND, new int[]{80, 120, 130, 55, 65, 45}, EnumSet.of(Attack.ROCK_SLIDE)), 
     GENGAR(Type.GHOST, Type.POISON, new int[]{60, 65, 60, 130, 75, 110}, EnumSet.of(Attack.SHADOW_BALL)), 
     SCYTHER(Type.BUG, Type.FLYING, new int[]{70,110,80,55,80,105}, EnumSet.of(Attack.X_SCISSOR)), 
-    ELECTABUZZ(Type.ELECTRIC, null, new int[]{65, 83, 57, 95, 85, 105}, EnumSet.of(Attack.THUNDER_BOLT)), 
+    ELECTABUZZ(Type.ELECTRIC, null, new int[]{65, 83, 57, 95, 85, 105}, EnumSet.of(Attack.THUNDERBOLT)), 
     MAGMAR(Type.FIRE, null, new int[]{65, 95, 57, 100, 85, 93}, EnumSet.of(Attack.FLAMETHROWER)), 
     MAGIKARP(Type.WATER, null, new int[]{20, 10, 55, 15, 20, 80}, EnumSet.of(Attack.TACKLE)), 
     SNORLAX(Type.NORMAL, null, new int[]{160, 110, 65, 65, 110, 30}, EnumSet.of(Attack.BODY_SLAM)), 
@@ -586,7 +597,7 @@ enum Attack {
     ENERGY_BALL(90, 100, 10, Type.GRASS, false), 
     FLAMETHROWER(90, 100, 15, Type.FIRE, false), 
     SURF(90, 100, 15, Type.WATER, false), 
-    THUNDER_BOLT(90, 100, 15, Type.ELECTRIC, false), 
+    THUNDERBOLT(90, 100, 15, Type.ELECTRIC, false), 
     ICE_BEAM(90, 100, 10, Type.ICE, false), 
     DRILL_PECK(80, 100, 20, Type.FLYING, true), 
     ROCK_SLIDE(75, 90, 10, Type.ROCK, true), 
