@@ -1,9 +1,11 @@
-import java.util.*;
+import java.util.Scanner;
+import java.util.EnumSet;
+import java.util.EnumMap;
 import java.io.File;
-import java.net.URL;
 
+//TODO parameterized print, improve stat calculation for slow Pokemon, AI for trainer battle opponent, better method names
 public class Pokemon {
-
+    
     /*
      * This main method allows us to test Pokemon objects
      */
@@ -12,11 +14,11 @@ public class Pokemon {
         Pokemon p1;
         Pokemon p2;
         AePlayWave battleMusic = null;
-        boolean skipSteps = false;
+        boolean pauseEachStep = true;
         if (args!= null && args.length >= 2) {
-            skipSteps = args.length >= 3 && args[2].equalsIgnoreCase("skip");
-            PLAY_SOUND = !skipSteps;
-            if (!skipSteps) {
+            pauseEachStep = args.length < 3 || !args[2].equalsIgnoreCase("skip");
+            PLAY_SOUND = pauseEachStep;
+            if (pauseEachStep) {
                 battleMusic = intro(scan);
             }
             p1 = new Pokemon(args[0].toUpperCase());
@@ -33,7 +35,7 @@ public class Pokemon {
 
         System.out.println("\n" + p1.name + " with HP:" + p1.getCurrentHP() + "   vs   " 
                     + p2.name + " with HP:" + p2.getCurrentHP() + "\n");
-        if (!skipSteps) {
+        if (pauseEachStep) {
             scan.nextLine();
         }
 
@@ -41,7 +43,7 @@ public class Pokemon {
         while (p1.currentHP != 0 && p2.currentHP != 0) {
             System.out.println("Turn " + (i++) + " ---------------------------");
             doTurn(p1, p2);
-            if (!skipSteps && p1.currentHP != 0 && p2.currentHP != 0) {
+            if (pauseEachStep && p1.currentHP != 0 && p2.currentHP != 0) {
                 scan.nextLine();
             }
         }
