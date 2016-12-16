@@ -14,9 +14,9 @@ public class AePlayWave extends Thread {
     public static final int DEFAULT_BUFFER_SIZE = 524288; // 128Kb 
     public static final int BATTLE_MUSIC_BUFFER_SIZE = 11534336;
     public static final String BATTLE_MUSIC = "prime-cup1-3.wav";
-    public static final String SUPER_EFFECTIVE = "super_effective.wav";
-    public static final String NOT_EFFECTIVE = "not_effective.wav";
-    public static final String NORMAL_EFFECTIVE = "normal_effective.wav";
+    public static final String SUPER_EFFECTIVE = "sfx/super_effective.wav";
+    public static final String NOT_EFFECTIVE = "sfx/not_effective.wav";
+    public static final String NORMAL_EFFECTIVE = "sfx/normal_effective.wav";
     private String filename;
     private Position curPosition;
     private final int EXTERNAL_BUFFER_SIZE; 
