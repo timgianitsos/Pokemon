@@ -11,7 +11,7 @@ class TrainerBattle {
         //testCode();
         // practice();
         // simulation("_mega_charizard_y", "_mega_charizard_x", 10000);
-        simulateAll(200);
+        simulateAll(5000);
     }
 
     static void testCode() {
