@@ -84,6 +84,7 @@ public class Pokemon {
     public static final double CRITICAL_HIT_PROBABILITY = 0.0625;
     public static final String STAT_MAXIMIZER_PREFIX = "_";
     public static int BASE_STAT_TOTAL_DISPLAY_THRESHHOLD = 580;
+    public static int MOVE_QUANTITY_DISPLAY_THRESHOLD = 5;
     public static boolean PLAY_SOUND = true;
     public static boolean DISPLAY_BATTLE_TEXT = true;
 
@@ -144,9 +145,9 @@ public class Pokemon {
             display("A Pokemon may not have two identical types " + type1.name() + ". Generating default..\n");
             invalidArguments = true;
         }
-        else if (baseStats.length != Stat.values().length) {
+        else if (baseStats.length != Stat.numberOfStats()) {
             display("Attempted to construct Pokemon with " + baseStats.length 
-                + " stats when " + Stat.values().length + " stats are required. Generating default..\n");
+                + " stats when " + Stat.numberOfStats() + " stats are required. Generating default..\n");
             invalidArguments = true;
         }
         if (invalidArguments) {
@@ -196,7 +197,7 @@ public class Pokemon {
         Stat attackStatToMinimize = !maximizeStats ? null: baseStats[Stat.ATTACK.ordinal()] < baseStats[Stat.SPECIAL_ATTACK.ordinal()] 
             ? Stat.ATTACK: Stat.SPECIAL_ATTACK;
         for (int i = 0; i < baseStats.length; i++) {
-            Stat s = Stat.values()[i];
+            Stat s = Stat.getStatAtIndex(i);
             if (s == Stat.HP) {
                 this.statToValue.put(Stat.HP, baseStats[i] == 1 ? 1: 
                     (int)(((2.0 * baseStats[i] + (maximizeStats ? 31.0: (int)(Math.random() * 32.0)) 
@@ -225,13 +226,14 @@ public class Pokemon {
      */
     public static void displayPokemon() {
         System.out.println("\nAvailable Pokemon");
-        for (PokemonEnum poke: PokemonEnum.values()) {
+        for (int pokeEnumIndex = 0; pokeEnumIndex < PokemonEnum.numberOfPokemonEnums(); pokeEnumIndex++) {
+            PokemonEnum poke = PokemonEnum.getPokemonEnumAtIndex(pokeEnumIndex);
             int baseStatTotal = 0;
             for (int i = 0; i < poke.baseStats.length; i++) {
                 baseStatTotal += poke.baseStats[i];
             }
             if (baseStatTotal < BASE_STAT_TOTAL_DISPLAY_THRESHHOLD && !poke.name().contains("MEGA_") && poke.type1 != Type.NONE 
-                    && poke.type2 != Type.NONE && poke.attacks.size() < Attack.values().length - 1) {
+                    && poke.type2 != Type.NONE && poke.attacks.size() < MOVE_QUANTITY_DISPLAY_THRESHOLD) {
                 System.out.printf("%-12s Type 1:%-12s Type 2:%-12s Attacks:", poke.name(), poke.type1.name(), 
                         (poke.type2 == null ? "": poke.type2.name()));
                 for (Attack a: poke.attacks) {
@@ -239,7 +241,8 @@ public class Pokemon {
                 }
                 System.out.println();
                 System.out.print("\t\t");
-                for (Stat s: Stat.values()) {
+                for (int statIndex = 0; statIndex < Stat.numberOfStats(); statIndex++) {
+                    Stat s = Stat.getStatAtIndex(statIndex);
                     System.out.print(String.format("%-19s ", s.name() + ":" + poke.getBaseStat(s)));
                 }
                 System.out.println();
@@ -265,10 +268,10 @@ public class Pokemon {
                 Type type1 = Type.valueOf(specs[1].toUpperCase());
                 Type type2 = specs.length == 3 ? Type.valueOf(specs[2].toUpperCase()): null;
 
-                System.out.println("Enter the " + Stat.values().length + " base stats separated by commas or spaces");
+                System.out.println("Enter the " + Stat.numberOfStats() + " base stats separated by commas or spaces");
                 Scanner statScan = new Scanner(scan.nextLine());
                 statScan.useDelimiter("[,\\s]+");
-                int[] customBaseStats = new int[Stat.values().length];
+                int[] customBaseStats = new int[Stat.numberOfStats()];
                 for (int i = 0; i < customBaseStats.length; i++) {
                     customBaseStats[i] = statScan.nextInt();
                 }
@@ -615,6 +618,7 @@ enum PokemonEnum {
     TYRANITAR(Type.ROCK, Type.DARK, new int[]{100,134,110,95,100,61}, EnumSet.of(Attack.ROCK_SLIDE, Attack.CRUNCH)), 
     SHEDINJA(Type.NONE, null, new int[]{1, 90, 45, 30, 30, 40}, EnumSet.of(Attack.X_SCISSOR, Attack.SHADOW_BALL)), 
     METAGROSS(Type.STEEL, Type.PSYCHIC, new int[]{80, 135, 130, 95, 90, 70}, EnumSet.of(Attack.IRON_HEAD, Attack.PSYCHIC)), 
+    RAYQUAZA(Type.DRAGON, Type.FLYING, new int[]{105,150,90,150,90,95}, EnumSet.of(Attack.DRAGON_CLAW, Attack.AERIAL_ACE)), 
     GARCHOMP(Type.DRAGON, Type.GROUND, new int[]{108, 130, 95, 80, 85, 102}, EnumSet.of(Attack.DRAGON_CLAW, Attack.EARTHQUAKE)), 
     REGIGIGAS(Type.NORMAL, null, new int[]{110,160,110,80,110,100}, EnumSet.of(Attack.DIZZY_PUNCH, Attack.BRICK_BREAK)), 
     ARCEUS(Type.NORMAL, null, new int[]{120,120,120,120,120,120}, EnumSet.of(Attack.BODY_SLAM, Attack.EARTHQUAKE)), 
@@ -641,7 +645,7 @@ enum PokemonEnum {
         Attack.AIR_SLASH, Attack.SOLAR_BEAM)), 
     BLASTOISE(Type.WATER, null, new int[]{79, 83, 100, 85, 105, 78}, EnumSet.of(Attack.SURF, Attack.ICE_BEAM)), 
     PIDGEOT(Type.NORMAL, Type.FLYING, new int[]{83, 80, 75, 70, 70, 101}, EnumSet.of(Attack.BRAVE_BIRD, Attack.STEEL_WING)), 
-    RAICHU(Type.ELECTRIC, null, new int[]{60, 90, 55, 90, 80, 110}, EnumSet.of(Attack.THUNDERBOLT, Attack.IRON_TAIL)), 
+    RAICHU(Type.ELECTRIC, null, new int[]{60, 90, 55, 90, 80, 110}, EnumSet.of(Attack.VOLT_TACKLE, Attack.IRON_TAIL)), 
     ALAKAZAM(Type.PSYCHIC, null, new int[]{55, 50, 45, 135, 95, 120}, EnumSet.of(Attack.PSYCHIC)), 
     MACHAMP(Type.FIGHTING, null, new int[]{90, 130, 80, 65, 85, 55}, EnumSet.of(Attack.BRICK_BREAK)), 
     GOLEM(Type.ROCK, Type.GROUND, new int[]{80, 120, 130, 55, 65, 45}, EnumSet.of(Attack.ROCK_SLIDE)), 
@@ -671,6 +675,11 @@ enum PokemonEnum {
     public final Type type2;
     protected final int[] baseStats;
     protected final EnumSet<Attack> attacks;
+    private static final PokemonEnum[] pokemonEnumArray;
+
+    static {
+        pokemonEnumArray = values();
+    }
 
     PokemonEnum(Type type1, Type type2, int[] baseStats, EnumSet<Attack> attacks) {
         if (type1 == null) {
@@ -679,9 +688,9 @@ enum PokemonEnum {
         if (type1 == type2) {
             throw new IllegalStateException(this.name() + " may not have two identical types " + type1.name());
         }
-        if (baseStats.length != Stat.values().length) {
+        if (baseStats.length != Stat.numberOfStats()) {
             throw new IllegalStateException("Attempted to construct " + this.name() + " with " + baseStats.length 
-                + " stats when " + Stat.values().length + " stats are required.");
+                + " stats when " + Stat.numberOfStats() + " stats are required.");
         }
         this.type1 = type1;
         this.type2 = type2;
@@ -693,10 +702,35 @@ enum PokemonEnum {
         return this.baseStats[s.ordinal()];
     }
 
+    /*
+     * Returns the PokemonEnum at the index specified by the explicit ordering of this enum
+     */
+    public static PokemonEnum getPokemonEnumAtIndex(int i) {
+        return pokemonEnumArray[i];
+    }
+
+    public static int numberOfPokemonEnums() {
+        return pokemonEnumArray.length;
+    }
+
 }
 
 enum Stat {
     HP, ATTACK, DEFENCE, SPECIAL_ATTACK, SPECIAL_DEFENCE, SPEED;
+
+    private static final Stat[] statArray;
+
+    static {
+        statArray = values();
+    }
+
+    public static Stat getStatAtIndex(int i) {
+        return statArray[i];
+    }
+
+    public static int numberOfStats() {
+        return statArray.length;
+    }
 }
 
 enum Attack {
@@ -715,6 +749,7 @@ enum Attack {
     AERIAL_ACE(60, 100, 20, Type.FLYING, true), 
     FLARE_BLITZ(120, 80, 15, Type.FIRE, true), 
     BRAVE_BIRD(120, 80, 15, Type.FLYING, true), 
+    VOLT_TACKLE(120, 80, 15, Type.ELECTRIC, true), 
 
     TACKLE(40, 100, 35, Type.NORMAL, true), 
     ENERGY_BALL(90, 100, 10, Type.GRASS, false), 
@@ -749,6 +784,7 @@ enum Attack {
     //FLARE_BLITZ (accuracy)
     //STRUGGLE (accuracy)
     //BRAVE_BIRD (accuracy)
+    //VOLT_TACKLE (accuracy)
     
     public final int baseDamage;
     public final int baseAccuracy;

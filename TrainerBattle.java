@@ -6,11 +6,14 @@ import java.util.EnumMap;
  * A class to simulate a Trainer battle using Pokemon objects
  */
 class TrainerBattle {
+
+    private static final pokemonEnumArray = PokemonEnum.values(); //Cached value of Pokemon enums. Should NOT be modified
+
     public static void main(String[] args) {
         //testCode();
         // practice();
         // simulation("_mega_charizard_y", "_mega_charizard_x", 10000);
-        simulateAll(100);
+        simulateAll(200);
     }
 
     static void testCode() {
@@ -134,21 +137,21 @@ class TrainerBattle {
         Pokemon.DISPLAY_BATTLE_TEXT = false;
         Pokemon.PLAY_SOUND = false;
         EnumMap<PokemonEnum, Integer> pokeToWins = new EnumMap<PokemonEnum, Integer>(PokemonEnum.class);
-        for (PokemonEnum pe: PokemonEnum.values()) {
+        for (PokemonEnum pe: pokemonEnumArray) {
             pokeToWins.put(pe, 0);
         }
-        for (int i = 0; i < PokemonEnum.values().length - 1; i++) {
-            Pokemon p1 = new Pokemon("_" + PokemonEnum.values()[i].name());
-            for (int j = i + 1; j < PokemonEnum.values().length; j++) {
+        for (int i = 0; i < pokemonEnumArray.length - 1; i++) {
+            Pokemon p1 = new Pokemon("_" + pokemonEnumArray[i].name());
+            for (int j = i + 1; j < pokemonEnumArray.length; j++) {
                 int p1Wins = 0;
                 int p2Wins = 0;
                 for (int k = 0; k < simulationPerPokemon; k++) {
-                    Pokemon p2 = new Pokemon("_" + PokemonEnum.values()[j].name());
+                    Pokemon p2 = new Pokemon("_" + pokemonEnumArray[j].name());
                     while (p1.getCurrentHP() != 0 && p2.getCurrentHP() != 0) {
                         Pokemon.doTurn(p1, p2);
                     }
                     if (p1.getCurrentHP() == 0) {
-                        assert p2.getCurrentHP() != 0 : "Both Pokemon should not be able to faint";
+                        assert p2.getCurrentHP() != 0 : "Both combatant Pokemon should not be able to faint";
                         p2Wins++;
                     }
                     else {
@@ -157,11 +160,11 @@ class TrainerBattle {
                     p1.heal();
                     p2.heal();
                 }
-                pokeToWins.put(PokemonEnum.values()[i], pokeToWins.get(PokemonEnum.values()[i]) + p1Wins);
-                pokeToWins.put(PokemonEnum.values()[j], pokeToWins.get(PokemonEnum.values()[j]) + p2Wins);
+                pokeToWins.put(pokemonEnumArray[i], pokeToWins.get(pokemonEnumArray[i]) + p1Wins);
+                pokeToWins.put(pokemonEnumArray[j], pokeToWins.get(pokemonEnumArray[j]) + p2Wins);
             }
         }
-        double numberOfBattlesPerPokemon = simulationPerPokemon * (PokemonEnum.values().length - 1);
+        double numberOfBattlesPerPokemon = simulationPerPokemon * (pokemonEnumArray.length - 1);
         for (PokemonEnum p: pokeToWins.keySet()) {
             System.out.println(String.format("%-18s %.2f%%", p.name() + ":", ((double)pokeToWins.get(p) / numberOfBattlesPerPokemon * 100.0)));
         }
