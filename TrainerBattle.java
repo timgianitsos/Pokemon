@@ -7,8 +7,6 @@ import java.util.EnumMap;
  */
 class TrainerBattle {
 
-    private static final pokemonEnumArray = PokemonEnum.values(); //Cached value of Pokemon enums. Should NOT be modified
-
     public static void main(String[] args) {
         //testCode();
         // practice();
@@ -137,16 +135,17 @@ class TrainerBattle {
         Pokemon.DISPLAY_BATTLE_TEXT = false;
         Pokemon.PLAY_SOUND = false;
         EnumMap<PokemonEnum, Integer> pokeToWins = new EnumMap<PokemonEnum, Integer>(PokemonEnum.class);
-        for (PokemonEnum pe: pokemonEnumArray) {
+        for (int pokeEnumIndex = 0; pokeEnumIndex < PokemonEnum.numberOfPokemonEnums(); pokeEnumIndex++) {
+            PokemonEnum pe = PokemonEnum.getPokemonEnumAtIndex(pokeEnumIndex);
             pokeToWins.put(pe, 0);
         }
-        for (int i = 0; i < pokemonEnumArray.length - 1; i++) {
-            Pokemon p1 = new Pokemon("_" + pokemonEnumArray[i].name());
-            for (int j = i + 1; j < pokemonEnumArray.length; j++) {
+        for (int i = 0; i < PokemonEnum.numberOfPokemonEnums() - 1; i++) {
+            Pokemon p1 = new Pokemon("_" + PokemonEnum.getPokemonEnumAtIndex(i).name());
+            for (int j = i + 1; j < PokemonEnum.numberOfPokemonEnums(); j++) {
                 int p1Wins = 0;
                 int p2Wins = 0;
                 for (int k = 0; k < simulationPerPokemon; k++) {
-                    Pokemon p2 = new Pokemon("_" + pokemonEnumArray[j].name());
+                    Pokemon p2 = new Pokemon("_" + PokemonEnum.getPokemonEnumAtIndex(j).name());
                     while (p1.getCurrentHP() != 0 && p2.getCurrentHP() != 0) {
                         Pokemon.doTurn(p1, p2);
                     }
@@ -160,11 +159,11 @@ class TrainerBattle {
                     p1.heal();
                     p2.heal();
                 }
-                pokeToWins.put(pokemonEnumArray[i], pokeToWins.get(pokemonEnumArray[i]) + p1Wins);
-                pokeToWins.put(pokemonEnumArray[j], pokeToWins.get(pokemonEnumArray[j]) + p2Wins);
+                pokeToWins.put(PokemonEnum.getPokemonEnumAtIndex(i), pokeToWins.get(PokemonEnum.getPokemonEnumAtIndex(i)) + p1Wins);
+                pokeToWins.put(PokemonEnum.getPokemonEnumAtIndex(j), pokeToWins.get(PokemonEnum.getPokemonEnumAtIndex(j)) + p2Wins);
             }
         }
-        double numberOfBattlesPerPokemon = simulationPerPokemon * (pokemonEnumArray.length - 1);
+        double numberOfBattlesPerPokemon = simulationPerPokemon * (PokemonEnum.numberOfPokemonEnums() - 1);
         for (PokemonEnum p: pokeToWins.keySet()) {
             System.out.println(String.format("%-18s %.2f%%", p.name() + ":", ((double)pokeToWins.get(p) / numberOfBattlesPerPokemon * 100.0)));
         }
