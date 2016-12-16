@@ -1,5 +1,6 @@
 import java.util.Scanner;
 import java.util.EnumSet;
+import java.util.EnumMap;
 
 /*
  * A class to simulate a Trainer battle using Pokemon objects
@@ -7,17 +8,20 @@ import java.util.EnumSet;
 class TrainerBattle {
 	public static void main(String[] args) {
 		//testCode();
-		practice();
+		// practice();
+		// simulation("_mega_charizard_y", "_mega_charizard_x", 10000);
+		simulateAll(100);
 	}
 
-	public static void testCode() {
+	static void testCode() {
 		Scanner scan = new Scanner(System.in);
 
 		//Makes a few pokemon
 		System.out.println("\nLets make some pokemon\n");
 		
 		//--------------------------------------------------------------------------------
-		//Here are three different ways of making a pokemon - firstly you can just use a string name. If you use this method, the name must exist as an enum or else it will default to magikarp
+		//Here are three different ways of making a pokemon - firstly you can just use a string name. 
+		//If you use this method, the name must exist as an enum or else it will default to magikarp
 		Pokemon p1 = new Pokemon("_steelix"); //the underscore at the beginning is a secret that maxes out IVs - this Pokemon is way better than any random one
 		System.out.println(p1.toString()); //Calling toString on a pokemon prints out the info for it
 		scan.nextLine(); //Press enter to proceed
@@ -79,7 +83,7 @@ class TrainerBattle {
 		Pokemon.displayPokemon();
 	}
 
-	public static void practice() {
+	static void practice() {
 		Scanner scan = new Scanner(System.in);
 
 		Pokemon p1 = new Pokemon(PokemonEnum.CHARIZARD);
@@ -100,6 +104,69 @@ class TrainerBattle {
 		battleMusic.quit();
 	}
 
+	static void simulation(String p1String, String p2String, int numberOfSimulations) {
+		Pokemon.DISPLAY_BATTLE_TEXT = false;
+		Pokemon.PLAY_SOUND = false;
+		Pokemon p1 = new Pokemon(p1String);
+		Pokemon p2 = new Pokemon(p2String);
+		int p1Wins = 0;
+		int p2Wins = 0;
+		for (int i = 0; i < numberOfSimulations; i++){
+			while (p1.getCurrentHP() != 0 && p2.getCurrentHP() != 0) {
+				Pokemon.doTurn(p1, p2);
+			}
+			if (p1.getCurrentHP() == 0) {
+				assert p2.getCurrentHP() != 0 : "Both Pokemon should not be able to faint";
+				p2Wins++;
+			}
+			else {
+				p1Wins++;
+			}
+			p1.heal();
+			p2.heal();
+		}
+		System.out.println(p1.name + "'s wins: " + p1Wins + "\n" + p2.name + "'s wins: " + p2Wins);
+		Pokemon.PLAY_SOUND = true;
+		Pokemon.DISPLAY_BATTLE_TEXT = true;
+	}
 
+	static void simulateAll(int simulationPerPokemon) {
+		Pokemon.DISPLAY_BATTLE_TEXT = false;
+		Pokemon.PLAY_SOUND = false;
+		EnumMap<PokemonEnum, Integer> pokeToWins = new EnumMap<PokemonEnum, Integer>(PokemonEnum.class);
+		for (PokemonEnum pe: PokemonEnum.values()) {
+			pokeToWins.put(pe, 0);
+		}
+		for (int i = 0; i < PokemonEnum.values().length - 1; i++) {
+			Pokemon p1 = new Pokemon("_" + PokemonEnum.values()[i].name());
+			for (int j = i + 1; j < PokemonEnum.values().length; j++) {
+				int p1Wins = 0;
+				int p2Wins = 0;
+				for (int k = 0; k < simulationPerPokemon; k++) {
+					Pokemon p2 = new Pokemon("_" + PokemonEnum.values()[j].name());
+					while (p1.getCurrentHP() != 0 && p2.getCurrentHP() != 0) {
+						Pokemon.doTurn(p1, p2);
+					}
+					if (p1.getCurrentHP() == 0) {
+						assert p2.getCurrentHP() != 0 : "Both Pokemon should not be able to faint";
+						p2Wins++;
+					}
+					else {
+						p1Wins++;	
+					}
+					p1.heal();
+					p2.heal();
+				}
+				pokeToWins.put(PokemonEnum.values()[i], pokeToWins.get(PokemonEnum.values()[i]) + p1Wins);
+				pokeToWins.put(PokemonEnum.values()[j], pokeToWins.get(PokemonEnum.values()[j]) + p2Wins);
+			}
+		}
+		double numberOfBattlesPerPokemon = simulationPerPokemon * (PokemonEnum.values().length - 1);
+		for (PokemonEnum p: pokeToWins.keySet()) {
+			System.out.println(String.format("%-18s %.2f%%", p.name() + ":", ((double)pokeToWins.get(p) / numberOfBattlesPerPokemon * 100.0)));
+		}
+		Pokemon.PLAY_SOUND = true;
+		Pokemon.DISPLAY_BATTLE_TEXT = true;
+	}
 
 }

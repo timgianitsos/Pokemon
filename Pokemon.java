@@ -3,7 +3,8 @@ import java.util.EnumSet;
 import java.util.EnumMap;
 import java.io.File;
 
-//TODO parameterized print, improve stat calculation for slow Pokemon, AI for trainer battle opponent, better method names
+//TODO parameterized print, improve stat calculation for slow Pokemon, AI for trainer battle opponent
+//put sound effects into a file
 public class Pokemon {
     
     /*
@@ -55,7 +56,7 @@ public class Pokemon {
     static AePlayWave intro(Scanner scan) {
         AePlayWave battleMusic = null;
         double random = Math.random();
-        System.out.println(random < 0.25 ? machamp: random < 0.5 ? scyther: random < 0.75 ? alakazam: charizard);
+        System.out.println(random < 0.25 ? machampString: random < 0.5 ? scytherString: random < 0.75 ? alakazamString: charizardString);
         System.out.println("\nMusic? [y] - yes, [blank] - no");
         String response = scan.nextLine();
         if (response != null && response.length() > 0 && response.charAt(0) == 'y') {
@@ -84,6 +85,7 @@ public class Pokemon {
     public static final String STAT_MAXIMIZER_PREFIX = "_";
     public static int BASE_STAT_TOTAL_DISPLAY_THRESHHOLD = 580;
     public static boolean PLAY_SOUND = true;
+    public static boolean DISPLAY_BATTLE_TEXT = true;
 
     /*
      * Create a Pokemon by using a predefined enumeration from PokemonEnum
@@ -107,7 +109,7 @@ public class Pokemon {
             p = PokemonEnum.valueOf(name.toUpperCase());
         }
         catch (Exception e) {
-            System.out.println("Invalid Pokemon name" + (name == null ? "": " \"" + name + "\"") + ". Generating default..");
+            display("Invalid Pokemon name" + (name == null ? "": " \"" + name + "\"") + ". Generating default..\n");
             maximizeStats = false;
             p = DEFAULT_POKEMON;
         }
@@ -131,20 +133,20 @@ public class Pokemon {
     public Pokemon(String name, Type type1, Type type2, int[] baseStats, EnumSet<Attack> attacks) {
         boolean invalidArguments = false;
         if (name == null || name.length() == 0) {
-            System.out.println("Name must be non null and non empty. Generating default..");
+            display("Name must be non null and non empty. Generating default..\n");
             invalidArguments = true;
         }
         else if (type1 == null) {
-            System.out.println("A Pokemon must have a valid primary type. Generating default..");
+            display("A Pokemon must have a valid primary type. Generating default..\n");
             invalidArguments = true;
         }
         else if (type1 == type2) {
-            System.out.println("A Pokemon may not have two identical types " + type1.name() + ". Generating default..");
+            display("A Pokemon may not have two identical types " + type1.name() + ". Generating default..\n");
             invalidArguments = true;
         }
         else if (baseStats.length != Stat.values().length) {
-            System.out.println("Attempted to construct Pokemon with " + baseStats.length 
-                + " stats when " + Stat.values().length + " stats are required. Generating default..");
+            display("Attempted to construct Pokemon with " + baseStats.length 
+                + " stats when " + Stat.values().length + " stats are required. Generating default..\n");
             invalidArguments = true;
         }
         if (invalidArguments) {
@@ -210,6 +212,15 @@ public class Pokemon {
     }
 
     /*
+     * Private helper method to print Strings if configuration allows
+     */
+    private void display(String s) {
+        if (DISPLAY_BATTLE_TEXT) {
+            System.out.print(s);
+        }
+    }
+
+    /*
      * Displays a list of non-hidden Pokemon
      */
     public static void displayPokemon() {
@@ -220,7 +231,7 @@ public class Pokemon {
                 baseStatTotal += poke.baseStats[i];
             }
             if (baseStatTotal < BASE_STAT_TOTAL_DISPLAY_THRESHHOLD && !poke.name().contains("MEGA_") && poke.type1 != Type.NONE 
-                    && poke.type2 != Type.NONE) {
+                    && poke.type2 != Type.NONE && poke.attacks.size() < Attack.values().length - 1) {
                 System.out.printf("%-12s Type 1:%-12s Type 2:%-12s Attacks:", poke.name(), poke.type1.name(), 
                         (poke.type2 == null ? "": poke.type2.name()));
                 for (Attack a: poke.attacks) {
@@ -335,37 +346,37 @@ public class Pokemon {
             throw new IllegalStateException("Combatants must not be null and must have positive HP");
         }
         if (attack != Attack.STRUGGLE && this.attackToPP.get(attack) == null) {
-            System.out.println("Invalid attack!");
+            display("Invalid attack!\n");
             attack = Attack.STRUGGLE;
         }
         else if (attack == Attack.STRUGGLE || this.attackToPP.get(attack) <= 0) {
-            System.out.println(this.name + " has run out of attacks!");
+            display(this.name + " has run out of attacks!\n");
             attack = Attack.STRUGGLE;
         }
 
-        System.out.println(this.name + " used " + attack.name());
+        display(this.name + " used " + attack.name() + "\n");
         if (Math.random() * 100 < attack.baseAccuracy) {
             double effectiveness = attack.type.getEffectiveness(this.type1, this.type2, opponent.type1, opponent.type2);
             if (effectiveness >= 2) {
                 if (PLAY_SOUND) {new AePlayWave(AePlayWave.SUPER_EFFECTIVE, AePlayWave.DEFAULT_BUFFER_SIZE).start();}
-                System.out.println(ANSI_CYAN +  "It's super effective!" + ANSI_RESET);
+                display(ANSI_CYAN +  "It's super effective!" + ANSI_RESET + "\n");
             }
             else if (effectiveness < 1 && effectiveness > 0) {
                 if (PLAY_SOUND) {new AePlayWave(AePlayWave.NOT_EFFECTIVE, AePlayWave.DEFAULT_BUFFER_SIZE).start();}
-                System.out.println(ANSI_RED +  "It's not very effective.." + ANSI_RESET);
+                display(ANSI_RED +  "It's not very effective.." + ANSI_RESET + "\n");
             }
             else if (effectiveness == 0) {
-                System.out.println(ANSI_PURPLE +  opponent.name + " is unaffected!" + ANSI_RESET);
+                display(ANSI_PURPLE +  opponent.name + " is unaffected!" + ANSI_RESET + "\n");
             }
             else {
                 if (PLAY_SOUND) {new AePlayWave(AePlayWave.NORMAL_EFFECTIVE, AePlayWave.DEFAULT_BUFFER_SIZE).start();}
-                System.out.println(opponent.name + " was hit");
+                display(opponent.name + " was hit\n");
             }
 
             //Scale factor includes critical hits and random scaling between 85-100%
             double scaleFactor = effectiveness == 0 ? 0: 1;
             if (effectiveness != 0 && Math.random() < CRITICAL_HIT_PROBABILITY) {
-                System.out.println(ANSI_YELLOW + "It's a critical hit!" + ANSI_RESET);
+                display(ANSI_YELLOW + "It's a critical hit!" + ANSI_RESET + "\n");
                 scaleFactor *= 2;
             }
             scaleFactor *= (100 - (int)(Math.random() * 16)) / 100.0;
@@ -374,7 +385,7 @@ public class Pokemon {
             opponent.currentHP -= damageDealt <= opponent.currentHP ? damageDealt: opponent.currentHP;
         }
         else {
-            System.out.println("The attack missed!");
+            display("The attack missed!\n");
         }
 
         if (this.attackToPP.get(attack) != null) {
@@ -383,8 +394,8 @@ public class Pokemon {
         }
 
         assert opponent.currentHP >= 0: "Cannot allow negative HP";
-        System.out.println(opponent.name + " has " + ANSI_GREEN + opponent.currentHP + " hp " + ANSI_RESET + "left\n" + 
-            (opponent.currentHP <= 0 ? opponent.name + " fainted!\n": ""));
+        display(opponent.name + " has " + ANSI_GREEN + opponent.currentHP + " hp " + ANSI_RESET + "left\n" + 
+            (opponent.currentHP <= 0 ? opponent.name + " fainted!\n\n": "\n"));
     }
 
     /*
@@ -408,6 +419,7 @@ public class Pokemon {
 
     /*
      * Returns the numerical value of a given stat
+     * If the Stat is HP, this will return the max HP, not the current HP
      */
     public int getStat(Stat s) {
         return this.statToValue.get(s);
@@ -418,6 +430,16 @@ public class Pokemon {
      */
     public int getCurrentHP() {
         return this.currentHP;
+    }
+
+    /*
+     * Resores HP and PP of this Pokemon
+     */
+    protected void heal() {
+        this.currentHP = this.statToValue.get(Stat.HP);
+        for (Attack a: attackToPP.keySet()) {
+            this.attackToPP.put(a, a.basePP);
+        }
     }
 
     /*
@@ -469,7 +491,7 @@ public class Pokemon {
     private static final String ANSI_PURPLE = "\u001B[35m";
     private static final String ANSI_CYAN = "\u001B[36m";
     private static final String ANSI_WHITE = "\u001B[37m";
-    private static final String charizard = "                 .\"-,.__\n                 `.     `.  ,\n"
+    private static final String charizardString = "                 .\"-,.__\n                 `.     `.  ,\n"
             + "              .--'  .._,'\"-' `.\n             .    .'         `'\n             "
             + "`.   /          ,'\n               `  '--.   ,-\"'\n                `\"`   |  \\"
             + "\n                   -. \\, |\n                    `--Y.'      ___.\n           "
@@ -498,7 +520,7 @@ public class Pokemon {
             + "  __  /\n                .'        /\"'          |  \"'   '_\n               /_|"
             + ".-'\\ ,\".             '.'`__'-( \\\n                 / ,\"'\"\\,'              "
             + " `/  `-.|\" mh";
-    private static final String machamp = "                 __.\"`. .-.                    ,-..__\n    "
+    private static final String machampString = "                 __.\"`. .-.                    ,-..__\n    "
             + "          ,-.  \\  |-| |               ,-\"+' ,\"'  `.\n              \\  \\  \\"
             + "_' `.'             .'  .|_.|_.,--'.\n               \\.'`\"     `.              "
             + "`-' `.   .  _,'.\n                \\_     `\"\"\"-.             .\"--+\\   '\"  "
@@ -531,7 +553,7 @@ public class Pokemon {
             + "       |        `.\n                                                         (  "
             + " -..     .\n                                                          `\"\"\"' `"
             + "....' mh";
-    private static final String scyther = "           ______\n       _.-\"______`._             ,.\n   "
+    private static final String scytherString = "           ______\n       _.-\"______`._             ,.\n   "
             + "  ,\"_,\"'      `-.`._         /.|\n   ,',\"   ____      `-.`.___   // |\n  /.' "
             + ",-\"'    `-._     `.   | j.  |  /|\n // .'   __...._  `\"--.. `. ' |   | ' '\nj/"
             + "  _.-\"'       `._,.\"\".   |  |   |/ '\n|.-'                    `.'/| |   | /\n"
@@ -551,7 +573,7 @@ public class Pokemon {
             + "                            |`-'  \\     /  /.'\n                             ` "
             + "  _ ,.   / ,'/\n                              ||'.'`.  / /,'\n                  "
             + "             `      ' .'\n                                     /.' mh";
-    private static final String alakazam = "                                               _,'|\n      "
+    private static final String alakazamString = "                                               _,'|\n      "
             + "                                       .'  /\n                    __            "
             + "         ,'   '\n                   `  `.                 .'    '\n             "
             + "       \\   `.             ,'     '\n                     \\    `.          ,   "
@@ -589,11 +611,15 @@ enum PokemonEnum {
     DRAGONITE(Type.DRAGON, Type.FLYING, new int[]{91, 134, 95, 100, 100, 80}, EnumSet.of(Attack.DRAGON_CLAW, Attack.AERIAL_ACE)), 
     MEWTWO(Type.PSYCHIC, null, new int[]{106,110,90,154,90,130}, EnumSet.of(Attack.PSYSTRIKE, Attack.SHADOW_BALL, Attack.BLIZZARD)), 
     MEW(Type.PSYCHIC, null, new int[]{100,100,100,100,100,100}, EnumSet.complementOf(EnumSet.of(Attack.STRUGGLE))), 
+    SMEARGLE(Type.NORMAL, null, new int[]{55,20,35,20,45,75}, EnumSet.complementOf(EnumSet.of(Attack.STRUGGLE))), 
+    TYRANITAR(Type.ROCK, Type.DARK, new int[]{100,134,110,95,100,61}, EnumSet.of(Attack.ROCK_SLIDE, Attack.CRUNCH)), 
     SHEDINJA(Type.NONE, null, new int[]{1, 90, 45, 30, 30, 40}, EnumSet.of(Attack.X_SCISSOR, Attack.SHADOW_BALL)), 
     METAGROSS(Type.STEEL, Type.PSYCHIC, new int[]{80, 135, 130, 95, 90, 70}, EnumSet.of(Attack.IRON_HEAD, Attack.PSYCHIC)), 
     GARCHOMP(Type.DRAGON, Type.GROUND, new int[]{108, 130, 95, 80, 85, 102}, EnumSet.of(Attack.DRAGON_CLAW, Attack.EARTHQUAKE)), 
     REGIGIGAS(Type.NORMAL, null, new int[]{110,160,110,80,110,100}, EnumSet.of(Attack.DIZZY_PUNCH, Attack.BRICK_BREAK)), 
+    ARCEUS(Type.NORMAL, null, new int[]{120,120,120,120,120,120}, EnumSet.of(Attack.BODY_SLAM, Attack.EARTHQUAKE)), 
     VICTINI(Type.PSYCHIC, Type.FIRE, new int[]{100, 100, 100, 100, 100, 100}, EnumSet.of(Attack.FLARE_BLITZ, Attack.PSYCHIC)), 
+    HYDREIGON(Type.DARK, Type.DRAGON, new int[]{92,105,90,125,90,98}, EnumSet.of(Attack.DARK_PULSE, Attack.DRAGON_PULSE)), 
 
     MEGA_VENUSAUR(Type.GRASS, Type.POISON, new int[]{80,100,123,122,120,80}, 
     	EnumSet.of(Attack.ENERGY_BALL, Attack.SLUDGE_BOMB, Attack.EARTHQUAKE, Attack.BODY_SLAM)),
@@ -614,22 +640,32 @@ enum PokemonEnum {
     CHARIZARD(Type.FIRE, Type.FLYING, new int[]{78, 84, 78, 109, 85, 100}, EnumSet.of(Attack.FLAMETHROWER, Attack.DRAGON_PULSE, 
         Attack.AIR_SLASH, Attack.SOLAR_BEAM)), 
     BLASTOISE(Type.WATER, null, new int[]{79, 83, 100, 85, 105, 78}, EnumSet.of(Attack.SURF, Attack.ICE_BEAM)), 
-    PIDGEOT(Type.NORMAL, Type.FLYING, new int[]{83, 80, 75, 70, 70, 101}, EnumSet.of(Attack.AIR_SLASH, Attack.STEEL_WING)), 
+    PIDGEOT(Type.NORMAL, Type.FLYING, new int[]{83, 80, 75, 70, 70, 101}, EnumSet.of(Attack.BRAVE_BIRD, Attack.STEEL_WING)), 
     RAICHU(Type.ELECTRIC, null, new int[]{60, 90, 55, 90, 80, 110}, EnumSet.of(Attack.THUNDERBOLT, Attack.IRON_TAIL)), 
     ALAKAZAM(Type.PSYCHIC, null, new int[]{55, 50, 45, 135, 95, 120}, EnumSet.of(Attack.PSYCHIC)), 
     MACHAMP(Type.FIGHTING, null, new int[]{90, 130, 80, 65, 85, 55}, EnumSet.of(Attack.BRICK_BREAK)), 
     GOLEM(Type.ROCK, Type.GROUND, new int[]{80, 120, 130, 55, 65, 45}, EnumSet.of(Attack.ROCK_SLIDE)), 
     GENGAR(Type.GHOST, Type.POISON, new int[]{60, 65, 60, 130, 75, 110}, EnumSet.of(Attack.SHADOW_BALL)), 
+    STARMIE(Type.WATER, Type.PSYCHIC, new int[]{60,75,85,100,85,115}, EnumSet.of(Attack.SURF, Attack.PSYCHIC)), 
     SCYTHER(Type.BUG, Type.FLYING, new int[]{70,110,80,55,80,105}, EnumSet.of(Attack.X_SCISSOR)), 
     ELECTABUZZ(Type.ELECTRIC, null, new int[]{65, 83, 57, 95, 85, 105}, EnumSet.of(Attack.THUNDERBOLT)), 
     MAGMAR(Type.FIRE, null, new int[]{65, 95, 57, 100, 85, 93}, EnumSet.of(Attack.FLAMETHROWER)), 
-    MAGIKARP(Type.WATER, null, new int[]{20, 10, 55, 15, 20, 80}, EnumSet.of(Attack.TACKLE)), 
     SNORLAX(Type.NORMAL, null, new int[]{160, 110, 65, 65, 110, 30}, EnumSet.of(Attack.BODY_SLAM)), 
+    CROBAT(Type.POISON, Type.FLYING, new int[]{85,90,80,70,80,130}, EnumSet.of(Attack.CROSS_POISON)), 
     STEELIX(Type.STEEL, Type.GROUND, new int[]{75, 85, 200, 55, 65, 30}, EnumSet.of(Attack.IRON_HEAD)), 
+    SCIZOR(Type.BUG, Type.STEEL, new int[]{70,130,100,55,80,65}, EnumSet.of(Attack.X_SCISSOR, Attack.IRON_HEAD)), 
+    BLISSEY(Type.NORMAL, null, new int[]{255,10,10,75,135,55}, EnumSet.of(Attack.HYPER_BEAM)), 
+    AGGRON(Type.STEEL, Type.ROCK, new int[]{70,110,180,60,60,50}, EnumSet.of(Attack.IRON_HEAD)), 
+    FLYGON(Type.GROUND, Type.DRAGON, new int[]{80,100,80,80,80,100}, EnumSet.of(Attack.DRAGON_CLAW)), 
+    GLALIE(Type.ICE, null, new int[]{80,80,80,80,80,80}, EnumSet.of(Attack.ICE_BEAM)), 
+    FLOATZEL(Type.WATER, null, new int[]{85,105,55,85,50,115}, EnumSet.of(Attack.SURF)), 
     SPIRITOMB(Type.GHOST, Type.DARK, new int[]{50, 92, 108, 92, 108, 35}, EnumSet.of(Attack.SHADOW_BALL)), 
     TOGEKISS(Type.FAIRY, Type.FLYING, new int[]{85,50,95,120,115,80}, EnumSet.of(Attack.DAZZLING_GLEAM)), 
     GLACEON(Type.ICE, null, new int[]{65, 60, 110, 130, 95, 65}, EnumSet.of(Attack.ICE_BEAM)), 
-    ZOROARK(Type.DARK, null, new int[]{60,105,60,120,60,105}, EnumSet.of(Attack.DARK_PULSE));
+    CONKELDURR(Type.FIGHTING, null, new int[]{105,140,95,55,65,45}, EnumSet.of(Attack.BRICK_BREAK)), 
+    ZOROARK(Type.DARK, null, new int[]{60,105,60,120,60,105}, EnumSet.of(Attack.DARK_PULSE)), 
+
+    MAGIKARP(Type.WATER, null, new int[]{20, 10, 55, 15, 20, 80}, EnumSet.of(Attack.TACKLE));
 
     public final Type type1;
     public final Type type2;
@@ -665,7 +701,7 @@ enum Stat {
 
 enum Attack {
     //Add new attacks here
-    SOLAR_BEAM(120, 70, 10, Type.GRASS, false), 
+    SOLAR_BEAM(120, 80, 10, Type.GRASS, false), 
     PSYSTRIKE(100, 100, 10, Type.PSYCHIC, false), 
     THUNDER(110, 70, 10, Type.ELECTRIC, false), 
     AURA_SPHERE(90, 100, 20, Type.FIGHTING, false), 
@@ -677,7 +713,8 @@ enum Attack {
     BLIZZARD(110, 70, 5, Type.ICE, false), 
     HYPER_BEAM(150, 60, 5, Type.NORMAL, false), 
     AERIAL_ACE(60, 100, 20, Type.FLYING, true), 
-    FLARE_BLITZ(120, 85, 15, Type.FIRE, true), 
+    FLARE_BLITZ(120, 80, 15, Type.FIRE, true), 
+    BRAVE_BIRD(120, 80, 15, Type.FLYING, true), 
 
     TACKLE(40, 100, 35, Type.NORMAL, true), 
     ENERGY_BALL(90, 100, 10, Type.GRASS, false), 
@@ -699,6 +736,8 @@ enum Attack {
     SLUDGE_BOMB(90, 100, 10, Type.POISON, false), 
     DAZZLING_GLEAM(80, 100, 10, Type.FAIRY, false), 
     DARK_PULSE(80, 100, 15, Type.DARK, false), 
+    CRUNCH(80, 100, 15, Type.DARK, true), 
+    CROSS_POISON(70, 100, 20, Type.POISON, true), 
 
     STRUGGLE(50, 100, 1, Type.NONE, true);
 
@@ -709,6 +748,7 @@ enum Attack {
     //AERIAL_ACE (accuracy)
     //FLARE_BLITZ (accuracy)
     //STRUGGLE (accuracy)
+    //BRAVE_BIRD (accuracy)
     
     public final int baseDamage;
     public final int baseAccuracy;
