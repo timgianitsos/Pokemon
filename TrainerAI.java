@@ -7,12 +7,12 @@ import java.util.Comparator;
 class TrainerAI {
 
     //Array of PokemonEnums that is sorted by ascending difficulty as determined by the simulation
-    private static final PokemonEnum[] ascendingDifficulty;
+    private static final PokemonEnum[] ascendingDifficulty = PokemonEnum.values();
     //Mapping from a PokemonEnum to a set of PokemonEnums that it performed the worst against
     private static final EnumMap<PokemonEnum, EnumSet<PokemonEnum>> pokeToWorstMatchup = new EnumMap<>(PokemonEnum.class);
     private static final int SIMULATIONS_PER_POKEMON = 500;
     private static int MAX_DIFFICULTY = 3;
-    private static int CURRENT_DIFFICULTY = 1;
+    private static int CURRENT_DIFFICULTY = 3;
     private final boolean isPokemonMaster;
     private Pokemon[] party;
 
@@ -55,7 +55,6 @@ class TrainerAI {
             }
         }
 
-        ascendingDifficulty = pokeToWins.keySet().toArray(new PokemonEnum[PokemonEnum.numberOfPokemonEnums()]);
         Arrays.sort(ascendingDifficulty, new Comparator<PokemonEnum>() {
             public int compare(PokemonEnum p1, PokemonEnum p2) {
                 return pokeToWins.get(p1).compareTo(pokeToWins.get(p2));
@@ -89,6 +88,7 @@ class TrainerAI {
     }
 
     public TrainerAI(int partySize) {
+        //TODO currently omits strongest pokemon from the highest tier because of integer division. Should this be a feature or a bug?
         int pokemonPerDifficultyTier = PokemonEnum.numberOfPokemonEnums() / MAX_DIFFICULTY;
         if (pokemonPerDifficultyTier < partySize) {
             throw new IllegalStateException("Cannot create a party of size " + partySize 
@@ -96,6 +96,12 @@ class TrainerAI {
             + " level. You can either.. \n(1) Decrease the max difficulty\n(2) Increase the number of available Pokemon"
             + "\n(3) Decrease the party size");
         }
+
+        boolean oldDisplayTextSetting = Pokemon.DISPLAY_BATTLE_TEXT;
+        boolean oldPlaySoundSetting = Pokemon.PLAY_SOUND;
+        Pokemon.DISPLAY_BATTLE_TEXT = false;
+        Pokemon.PLAY_SOUND = false;
+
         if (CURRENT_DIFFICULTY <= MAX_DIFFICULTY) {
             //TODO check tier threshold logic through testing
             isPokemonMaster = false;
@@ -119,6 +125,9 @@ class TrainerAI {
             //Pokemon master setting - chooses most optimal Pokemon to challenge opponent based on simulations
             isPokemonMaster = true;
         }
+
+        Pokemon.PLAY_SOUND = oldPlaySoundSetting;
+        Pokemon.DISPLAY_BATTLE_TEXT = oldDisplayTextSetting;
     }
 
     public Pokemon getNextPokemon(Pokemon opponentPokemon) {

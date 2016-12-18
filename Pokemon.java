@@ -644,7 +644,7 @@ enum PokemonEnum {
     //Add new pokemon here
     ZAPDOS(Type.ELECTRIC, Type.FLYING, new int[]{90,90,85,125,90,100}, EnumSet.of(Attack.THUNDERBOLT, Attack.DRILL_PECK)), 
     DRAGONITE(Type.DRAGON, Type.FLYING, new int[]{91, 134, 95, 100, 100, 80}, EnumSet.of(Attack.DRAGON_CLAW, Attack.AERIAL_ACE)), 
-    MEWTWO(Type.PSYCHIC, null, new int[]{106,110,90,154,90,130}, EnumSet.of(Attack.PSYSTRIKE, Attack.SHADOW_BALL, Attack.BLIZZARD)), 
+    MEWTWO(Type.PSYCHIC, null, new int[]{106,110,90,154,90,130}, EnumSet.of(Attack.PSYSTRIKE, Attack.AURA_SPHERE)), 
     MEW(Type.PSYCHIC, null, new int[]{100,100,100,100,100,100}, EnumSet.complementOf(EnumSet.of(Attack.STRUGGLE))), 
     SMEARGLE(Type.NORMAL, null, new int[]{55,20,35,20,45,75}, EnumSet.complementOf(EnumSet.of(Attack.STRUGGLE))), 
     TYRANITAR(Type.ROCK, Type.DARK, new int[]{100,134,110,95,100,61}, EnumSet.of(Attack.ROCK_SLIDE, Attack.CRUNCH)), 
@@ -666,7 +666,7 @@ enum PokemonEnum {
     MEGA_BLASTOISE(Type.WATER, null, new int[]{79,103,120,135,115,78}, 
     	EnumSet.of(Attack.SURF, Attack.ICE_BEAM, Attack.AURA_SPHERE, Attack.DRAGON_PULSE)), 
     MEGA_PIDGEOT(Type.NORMAL, Type.FLYING, new int[]{83, 80, 80, 135, 80, 121}, EnumSet.of(Attack.HYPER_BEAM, Attack.HURRICANE)), 
-    MEGA_MEWTWO_X(Type.PSYCHIC, Type.FIGHTING, new int[]{106, 190, 100, 154, 100, 130}, EnumSet.of(Attack.PSYSTRIKE, Attack.AURA_SPHERE)), 
+    MEGA_MEWTWO_X(Type.PSYCHIC, Type.FIGHTING, new int[]{106, 190, 100, 154, 100, 130}, EnumSet.of(Attack.PSYCHO_CUT, Attack.BRICK_BREAK)), 
     MEGA_MEWTWO_Y(Type.PSYCHIC, null, new int[]{106, 150, 70, 194, 120, 140}, EnumSet.of(Attack.PSYSTRIKE, Attack.SHADOW_BALL)), 
     MEGA_SCIZOR(Type.BUG, Type.STEEL, new int[]{70,150,140,65,100,75}, EnumSet.of(Attack.X_SCISSOR, Attack.IRON_HEAD)), 
     PRIMAL_KYOGRE(Type.WATER, null, new int[]{100, 150, 90, 180, 160, 90}, EnumSet.of(Attack.SURF, Attack.ICE_BEAM)), 
@@ -785,6 +785,7 @@ enum Attack {
     FLARE_BLITZ(120, 80, 15, Type.FIRE, true), 
     BRAVE_BIRD(120, 80, 15, Type.FLYING, true), 
     VOLT_TACKLE(120, 80, 15, Type.ELECTRIC, true), 
+    PSYCHO_CUT(70, 100, 20, Type.PSYCHIC, true), 
 
     TACKLE(40, 100, 35, Type.NORMAL, true), 
     ENERGY_BALL(90, 100, 10, Type.GRASS, false), 

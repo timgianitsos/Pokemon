@@ -26,9 +26,7 @@ class TrainerBattle {
         }
         
         System.out.println("Your opponent is choosing his pokemon...");
-        Pokemon.PLAY_SOUND = false;
         TrainerAI AIopponent = new TrainerAI(PARTY_SIZE);
-        Pokemon.PLAY_SOUND = true;
         System.out.println("\nReady for battle, send out your first pokemon! (press enter)");
         
         int playerPartyIndex = 0;
