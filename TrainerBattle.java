@@ -7,6 +7,8 @@ import java.util.EnumMap;
  */
 class TrainerBattle {
 
+    public static final int PARTY_SIZE = 3;
+
     public static void main(String[] args) {
 //        testCode();
 //        practice();
@@ -16,27 +18,27 @@ class TrainerBattle {
     static void battle() {
         Scanner scan = new Scanner(System.in);
         Pokemon.displayPokemon();
-        Pokemon[] playerParty = new Pokemon[3];
-        for(int i = 0; i < 3; i++) {
+        Pokemon[] playerParty = new Pokemon[PARTY_SIZE];
+        for(int i = 0; i < playerParty.length; i++) {
             System.out.println("Enter pokemon " + (i + 1));
             playerParty[i] = Pokemon.askForPokemon(scan);
-            System.out.println("This is your pokemon " + playerParty[i].toString());
+            System.out.println(playerParty[i].toString());
         }
-        Pokemon playerPokemon = playerParty[0];
         
         System.out.println("Your opponent is choosing his pokemon...");
-        TrainerAI AIopponent = new TrainerAI();
-        Pokemon opponentPokemon = AIopponent.getNextPokemon(playerPokemon);
+        Pokemon.PLAY_SOUND = false;
+        TrainerAI AIopponent = new TrainerAI(PARTY_SIZE);
+        Pokemon.PLAY_SOUND = true;
+        System.out.println("\nReady for battle, send out your first pokemon! (press enter)");
         
-        System.out.println("Ready for battle, send out your first pokemon! (press enter)");
-        scan.nextLine();
-        
-        int playerPartyIndex = 1;
-        while (playerPartyIndex <= 3 && opponentPokemon != null) {
+        int playerPartyIndex = 0;
+        Pokemon opponentPokemon;
+        do {
+            Pokemon playerPokemon = playerParty[playerPartyIndex];
+            opponentPokemon = AIopponent.getNextPokemon(playerPokemon);
             while(playerPokemon.getCurrentHP() > 0 && opponentPokemon.getCurrentHP() > 0 ){
-                
-                Pokemon.doTurn(playerPokemon, opponentPokemon);
                 scan.nextLine();
+                Pokemon.doTurn(playerPokemon, opponentPokemon);
             }
             if(playerPokemon.getCurrentHP() == 0){
                 playerPokemon = playerParty[playerPartyIndex];
@@ -46,7 +48,7 @@ class TrainerBattle {
                 opponentPokemon = AIopponent.getNextPokemon(playerPokemon);
                 
             }
-        }    
+        } while (playerPartyIndex < playerParty.length && opponentPokemon != null);
     }
 
     static void testCode() {

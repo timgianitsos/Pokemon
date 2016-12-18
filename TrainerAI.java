@@ -88,10 +88,10 @@ class TrainerAI {
         CURRENT_DIFFICULTY = newDifficulty;
     }
 
-    public TrainerAI() {
+    public TrainerAI(int partySize) {
         int pokemonPerDifficultyTier = PokemonEnum.numberOfPokemonEnums() / MAX_DIFFICULTY;
-        if (pokemonPerDifficultyTier < 3) {
-            throw new IllegalStateException("Cannot create a party of size " + 3 
+        if (pokemonPerDifficultyTier < partySize) {
+            throw new IllegalStateException("Cannot create a party of size " + partySize 
             + " because the difficulty granularity is too high - there are not enough unique Pokemon per difficulty"
             + " level. You can either.. \n(1) Decrease the max difficulty\n(2) Increase the number of available Pokemon"
             + "\n(3) Decrease the party size");
@@ -99,7 +99,7 @@ class TrainerAI {
         if (CURRENT_DIFFICULTY <= MAX_DIFFICULTY) {
             //TODO check tier threshold logic through testing
             isPokemonMaster = false;
-            party = new Pokemon[3];
+            party = new Pokemon[partySize];
 
             //Find the minimum index in the difficulty array that correspond to the current difficulty tier
             int minIndex = (CURRENT_DIFFICULTY - 1) * pokemonPerDifficultyTier;
