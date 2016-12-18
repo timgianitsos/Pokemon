@@ -3,8 +3,7 @@ import java.util.EnumSet;
 import java.util.EnumMap;
 import java.io.File;
 
-//TODO parameterized print, improve stat calculation for slow Pokemon, AI for trainer battle opponent
-//put sound effects into a file
+//TODO check parameterized print, put stat calculation explanation in comments
 public class Pokemon {
     
     /*
@@ -80,11 +79,12 @@ public class Pokemon {
      * Pokemon class variables - there is only one global copy of these. They can be referenced by using Pokemon.variable
      */
     public static final PokemonEnum DEFAULT_POKEMON = PokemonEnum.MAGIKARP;
-    public static final int LEVEL = 50;
+    public static final int LEVEL = 100;
     public static final double CRITICAL_HIT_PROBABILITY = 0.0625;
     public static final String STAT_MAXIMIZER_PREFIX = "_";
     public static int BASE_STAT_TOTAL_DISPLAY_THRESHHOLD = 580;
     public static int MOVE_QUANTITY_DISPLAY_THRESHOLD = 5;
+    public static int BASE_SPEED_MAXIMIZER_THRESHHOLD = 80;
     public static boolean PLAY_SOUND = true;
     public static boolean DISPLAY_BATTLE_TEXT = true;
 
@@ -133,8 +133,8 @@ public class Pokemon {
      */
     public Pokemon(String name, Type type1, Type type2, int[] baseStats, EnumSet<Attack> attacks) {
         boolean invalidArguments = false;
-        if (name == null || name.length() == 0) {
-            display("Name must be non null and non empty. Generating default..\n");
+        if (name == null || name.length() == 0 || baseStats == null) {
+            display("Initialization parameters must be non null and non empty. Generating default..\n");
             invalidArguments = true;
         }
         else if (type1 == null) {
@@ -192,23 +192,55 @@ public class Pokemon {
      * Helper method for the constructors. It is private so it can be ignored from the outside
      */
     private void calculateStats(boolean maximizeStats, int[] baseStats) {
-        Stat attackStatToMaximize = !maximizeStats ? null: baseStats[Stat.ATTACK.ordinal()] >= baseStats[Stat.SPECIAL_ATTACK.ordinal()] 
-            ? Stat.ATTACK: Stat.SPECIAL_ATTACK;
-        Stat attackStatToMinimize = !maximizeStats ? null: baseStats[Stat.ATTACK.ordinal()] < baseStats[Stat.SPECIAL_ATTACK.ordinal()] 
-            ? Stat.ATTACK: Stat.SPECIAL_ATTACK;
-        for (int i = 0; i < baseStats.length; i++) {
-            Stat s = Stat.getStatAtIndex(i);
-            if (s == Stat.HP) {
-                this.statToValue.put(Stat.HP, baseStats[i] == 1 ? 1: 
-                    (int)(((2.0 * baseStats[i] + (maximizeStats ? 31.0: (int)(Math.random() * 32.0)) 
-                    + (maximizeStats ? 4.0: 0.0) / 4.0) * LEVEL / 100.0) + LEVEL + 10.0));
+        assert baseStats.length == Stat.numberOfStats(): "Attempted to create " + baseStats.length + " stats when " 
+            + Stat.numberOfStats() + " are required";
+        
+        boolean maximizeAttack = baseStats[Stat.ATTACK.ordinal()] >= baseStats[Stat.SPECIAL_ATTACK.ordinal()];
+        boolean maximizeSpeed = baseStats[Stat.SPEED.ordinal()] >= BASE_SPEED_MAXIMIZER_THRESHHOLD;
+        
+        this.statToValue.put(Stat.HP, baseStats[Stat.HP.ordinal()] == 1 ? 1: 
+            (int)(((2.0 * baseStats[Stat.HP.ordinal()] + (maximizeStats ? 31.0: (int)(Math.random() * 32.0)) 
+            + (maximizeStats && maximizeSpeed ? 6.0: 0.0) / 4.0) * LEVEL / 100.0) + LEVEL + 10.0));
+        this.statToValue.put(Stat.ATTACK, 
+            (int)((((2.0 * baseStats[Stat.ATTACK.ordinal()] + (maximizeStats ? 31.0: (int)(Math.random() * 32.0)) 
+            + (maximizeStats && maximizeAttack ? 252.0: 0.0) / 4.0) * LEVEL / 100.0) + 5.0) 
+            * (maximizeStats && maximizeAttack && !maximizeSpeed ? 1.1: maximizeStats && !maximizeAttack ? 0.9: 1.0)));
+        this.statToValue.put(Stat.DEFENCE, 
+            (int)((((2.0 * baseStats[Stat.DEFENCE.ordinal()] + (maximizeStats ? 31.0: (int)(Math.random() * 32.0)) 
+            + (0.0) / 4.0) * LEVEL / 100.0) + 5.0) * (1.0)));
+        this.statToValue.put(Stat.SPECIAL_ATTACK, 
+            (int)((((2.0 * baseStats[Stat.SPECIAL_ATTACK.ordinal()] + (maximizeStats ? 31.0: (int)(Math.random() * 32.0)) 
+            + (maximizeStats && !maximizeAttack ? 252.0: 0.0) / 4.0) * LEVEL / 100.0) + 5.0) 
+            * (maximizeStats && !maximizeAttack && !maximizeSpeed ? 1.1: maximizeStats && maximizeAttack ? 0.9: 1.0)));
+        this.statToValue.put(Stat.SPECIAL_DEFENCE, 
+            (int)((((2.0 * baseStats[Stat.SPECIAL_DEFENCE.ordinal()] + (maximizeStats ? 31.0: (int)(Math.random() * 32.0)) 
+            + (0.0) / 4.0) * LEVEL / 100.0) + 5.0) * (1.0)));
+        this.statToValue.put(Stat.SPEED, 
+            (int)((((2.0 * baseStats[Stat.SPEED.ordinal()] + (maximizeStats ? 31.0: (int)(Math.random() * 32.0)) 
+            + (maximizeStats && maximizeSpeed ? 252.0: 0.0) / 4.0) * LEVEL / 100.0) + 5.0) 
+            * (maximizeStats && maximizeSpeed ? 1.1: 1.0)));
+
+        if (maximizeStats && !maximizeSpeed) {
+            double hp = statToValue.get(Stat.HP);
+            double def = statToValue.get(Stat.DEFENCE);
+            double spdef = statToValue.get(Stat.SPECIAL_DEFENCE);
+            for (int remainingEvs = 252; remainingEvs > 0; remainingEvs--) {
+                if (hp <= def && hp <= spdef) {
+                    hp += LEVEL / 400.0;
+                }
+                else if (def <= spdef) {
+                    assert def < hp;
+                    def += LEVEL / 400.0;
+                }
+                else {
+                    assert spdef < hp && spdef < def;
+                    spdef += LEVEL / 400.0;
+                }
             }
-            else {
-                this.statToValue.put(s, 
-                    (int)((((2.0 * baseStats[i] + (maximizeStats ? 31.0: (int)(Math.random() * 32.0)) 
-                    + (maximizeStats && (s == Stat.SPEED || s == attackStatToMaximize) ? 252.0: 0.0) 
-                    / 4.0) * LEVEL / 100.0) + 5.0) * (s == Stat.SPEED ? 1.1: s == attackStatToMinimize ? 0.9: 1.0)));
-            }
+            statToValue.put(Stat.HP, (int)hp);
+            statToValue.put(Stat.DEFENCE, (int)def);
+            statToValue.put(Stat.SPECIAL_DEFENCE, (int)spdef);
+            statToValue.put(Stat.SPEED, statToValue.get(Stat.SPEED) + (int)(6.0 * LEVEL / 400.0));
         }
     }
 
@@ -485,16 +517,16 @@ public class Pokemon {
         return sb.toString();
     }
 
-    private static final String ANSI_RESET = "\u001B[0m";
-    private static final String ANSI_BLACK = "\u001B[30m";
-    private static final String ANSI_RED = "\u001B[31m";
-    private static final String ANSI_GREEN = "\u001B[32m";
-    private static final String ANSI_YELLOW = "\u001B[33m";
-    private static final String ANSI_BLUE = "\u001B[34m";
-    private static final String ANSI_PURPLE = "\u001B[35m";
-    private static final String ANSI_CYAN = "\u001B[36m";
-    private static final String ANSI_WHITE = "\u001B[37m";
-    private static final String charizardString = "                 .\"-,.__\n                 `.     `.  ,\n"
+    public static final String ANSI_RESET = "\u001B[0m";
+    public static final String ANSI_BLACK = "\u001B[30m";
+    public static final String ANSI_RED = "\u001B[31m";
+    public static final String ANSI_GREEN = "\u001B[32m";
+    public static final String ANSI_YELLOW = "\u001B[33m";
+    public static final String ANSI_BLUE = "\u001B[34m";
+    public static final String ANSI_PURPLE = "\u001B[35m";
+    public static final String ANSI_CYAN = "\u001B[36m";
+    public static final String ANSI_WHITE = "\u001B[37m";
+    public static final String charizardString = "                 .\"-,.__\n                 `.     `.  ,\n"
             + "              .--'  .._,'\"-' `.\n             .    .'         `'\n             "
             + "`.   /          ,'\n               `  '--.   ,-\"'\n                `\"`   |  \\"
             + "\n                   -. \\, |\n                    `--Y.'      ___.\n           "
@@ -523,7 +555,7 @@ public class Pokemon {
             + "  __  /\n                .'        /\"'          |  \"'   '_\n               /_|"
             + ".-'\\ ,\".             '.'`__'-( \\\n                 / ,\"'\"\\,'              "
             + " `/  `-.|\" mh";
-    private static final String machampString = "                 __.\"`. .-.                    ,-..__\n    "
+    public static final String machampString = "                 __.\"`. .-.                    ,-..__\n    "
             + "          ,-.  \\  |-| |               ,-\"+' ,\"'  `.\n              \\  \\  \\"
             + "_' `.'             .'  .|_.|_.,--'.\n               \\.'`\"     `.              "
             + "`-' `.   .  _,'.\n                \\_     `\"\"\"-.             .\"--+\\   '\"  "
@@ -556,7 +588,7 @@ public class Pokemon {
             + "       |        `.\n                                                         (  "
             + " -..     .\n                                                          `\"\"\"' `"
             + "....' mh";
-    private static final String scytherString = "           ______\n       _.-\"______`._             ,.\n   "
+    public static final String scytherString = "           ______\n       _.-\"______`._             ,.\n   "
             + "  ,\"_,\"'      `-.`._         /.|\n   ,',\"   ____      `-.`.___   // |\n  /.' "
             + ",-\"'    `-._     `.   | j.  |  /|\n // .'   __...._  `\"--.. `. ' |   | ' '\nj/"
             + "  _.-\"'       `._,.\"\".   |  |   |/ '\n|.-'                    `.'/| |   | /\n"
@@ -576,7 +608,7 @@ public class Pokemon {
             + "                            |`-'  \\     /  /.'\n                             ` "
             + "  _ ,.   / ,'/\n                              ||'.'`.  / /,'\n                  "
             + "             `      ' .'\n                                     /.' mh";
-    private static final String alakazamString = "                                               _,'|\n      "
+    public static final String alakazamString = "                                               _,'|\n      "
             + "                                       .'  /\n                    __            "
             + "         ,'   '\n                   `  `.                 .'    '\n             "
             + "       \\   `.             ,'     '\n                     \\    `.          ,   "
@@ -721,6 +753,9 @@ enum Stat {
     private static final Stat[] statArray;
 
     static {
+        //Only applicable stats are the 6 official stats used in Pokemon
+        assert EnumSet.of(HP, ATTACK, DEFENCE, SPECIAL_ATTACK, SPECIAL_DEFENCE, SPEED).equals(EnumSet.allOf(Stat.class)): 
+            "Only the stats HP, Attack, Defense, Special Attack, Special Defence, and Speed are allowed";
         statArray = values();
     }
 

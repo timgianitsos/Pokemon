@@ -1,7 +1,7 @@
 import java.util.Scanner;
 import java.util.EnumSet;
 import java.util.EnumMap;
-
+//TODO Nik needs to implement trainer battles, Tim needs to implement AI for trainer battle opponent using the simulation data
 /*
  * A class to simulate a Trainer battle using Pokemon objects
  */
@@ -11,7 +11,7 @@ class TrainerBattle {
         //testCode();
         // practice();
         // simulation("_mega_charizard_y", "_mega_charizard_x", 10000);
-        simulateAll(5000);
+        simulateAll(100);
     }
 
     static void testCode() {
