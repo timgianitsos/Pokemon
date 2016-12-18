@@ -8,13 +8,62 @@ import java.util.EnumMap;
 class TrainerBattle {
 
     public static void main(String[] args) {
-        //testCode();
-        // practice();
+//        testCode();
+//        practice();
         battle();
     }
 
     static void battle() {
-        //TODO implement trainer battle
+        
+//        TrainerAI opponent = new TrainerAI();
+//        Pokemon mine = new Pokemon("steelix");
+//        Pokemon next = opponent.getNextPokemon(mine.name);
+        Pokemon.PLAY_SOUND = false;
+
+        Scanner scan = new Scanner(System.in);
+        Pokemon.displayPokemon();
+        Pokemon[] playerParty = new Pokemon[3];
+        for(int i = 0; i < 3; i++) {
+            System.out.println("Enter pokemon " + (i + 1));
+            playerParty[i] = Pokemon.askForPokemon(scan);
+            System.out.println("This is your pokemon " + playerParty[i].toString());
+        }
+        Pokemon playerPokemon = playerParty[0];
+        
+        System.out.println("Your opponent is choosing his pokemon...");
+        TrainerAI AIopponent = new TrainerAI();
+        Pokemon opponentPokemon = AIopponent.getNextPokemon(playerParty[0].name);
+        
+        System.out.println("Ready for battle, send out your first pokemon! (press enter)");
+        scan.nextLine();
+        
+        int playerPartyIndex = 1;
+        while (playerPartyIndex < 3 && opponentPokemon != null) {
+            //when opponent dies, use "opponentPokemon = AIopponent.getNextPokemon(playerParty[playerPartyIndex].name);"
+            
+            while(playerPokemon.getCurrentHP() > 0 && opponentPokemon.getCurrentHP() > 0 ){
+                
+                Pokemon.doTurn(playerPokemon, opponentPokemon);
+
+            }
+            if(playerPokemon.getCurrentHP() == 0){
+                playerPokemon = playerParty[playerPartyIndex];
+                playerPartyIndex++;
+            }
+            if(opponentPokemon.getCurrentHP() == 0){
+                opponentPokemon = AIopponent.getNextPokemon(playerPokemon.name);
+                
+            }
+            //loop doTurn()
+            //when loop finishes, figure out which died, and get the next one
+            
+        }
+        
+        
+        
+          
+          
+          
     }
 
     static void testCode() {
