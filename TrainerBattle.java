@@ -32,7 +32,7 @@ class TrainerBattle {
         scan.nextLine();
         
         int playerPartyIndex = 1;
-        while (playerPartyIndex < 3 && opponentPokemon != null) {
+        while (playerPartyIndex <= 3 && opponentPokemon != null) {
             while(playerPokemon.getCurrentHP() > 0 && opponentPokemon.getCurrentHP() > 0 ){
                 
                 Pokemon.doTurn(playerPokemon, opponentPokemon);
