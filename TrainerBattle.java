@@ -26,13 +26,13 @@ class TrainerBattle {
         
         System.out.println("Your opponent is choosing his pokemon...");
         TrainerAI AIopponent = new TrainerAI();
-        Pokemon opponentPokemon = AIopponent.getNextPokemon(playerParty[0].name);
+        Pokemon opponentPokemon = AIopponent.getNextPokemon(playerPokemon);
         
         System.out.println("Ready for battle, send out your first pokemon! (press enter)");
         scan.nextLine();
         
         int playerPartyIndex = 1;
-        while (playerPartyIndex < 3 && opponentPokemon != null) {
+        while (playerPartyIndex <= 3 && opponentPokemon != null) {
             while(playerPokemon.getCurrentHP() > 0 && opponentPokemon.getCurrentHP() > 0 ){
                 
                 Pokemon.doTurn(playerPokemon, opponentPokemon);
@@ -43,7 +43,7 @@ class TrainerBattle {
                 playerPartyIndex++;
             }
             if(opponentPokemon.getCurrentHP() == 0){
-                opponentPokemon = AIopponent.getNextPokemon(playerPokemon.name);
+                opponentPokemon = AIopponent.getNextPokemon(playerPokemon);
                 
             }
         }    
