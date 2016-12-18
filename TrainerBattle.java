@@ -10,8 +10,11 @@ class TrainerBattle {
     public static void main(String[] args) {
         //testCode();
         // practice();
-        // simulation("_mega_charizard_y", "_mega_charizard_x", 10000);
-        simulateAll(100);
+        battle();
+    }
+
+    static void battle() {
+        //TODO implement trainer battle
     }
 
     static void testCode() {
@@ -103,72 +106,6 @@ class TrainerBattle {
         battleMusic.start();
         scan.nextLine();
         battleMusic.quit();
-    }
-
-    static void simulation(String p1String, String p2String, int numberOfSimulations) {
-        Pokemon.DISPLAY_BATTLE_TEXT = false;
-        Pokemon.PLAY_SOUND = false;
-        Pokemon p1 = new Pokemon(p1String);
-        Pokemon p2 = new Pokemon(p2String);
-        int p1Wins = 0;
-        int p2Wins = 0;
-        for (int i = 0; i < numberOfSimulations; i++){
-            while (p1.getCurrentHP() != 0 && p2.getCurrentHP() != 0) {
-                Pokemon.doTurn(p1, p2);
-            }
-            if (p1.getCurrentHP() == 0) {
-                assert p2.getCurrentHP() != 0 : "Both Pokemon should not be able to faint";
-                p2Wins++;
-            }
-            else {
-                p1Wins++;
-            }
-            p1.heal();
-            p2.heal();
-        }
-        System.out.println(p1.name + "'s wins: " + p1Wins + "\n" + p2.name + "'s wins: " + p2Wins);
-        Pokemon.PLAY_SOUND = true;
-        Pokemon.DISPLAY_BATTLE_TEXT = true;
-    }
-
-    static void simulateAll(int simulationPerPokemon) {
-        Pokemon.DISPLAY_BATTLE_TEXT = false;
-        Pokemon.PLAY_SOUND = false;
-        EnumMap<PokemonEnum, Integer> pokeToWins = new EnumMap<PokemonEnum, Integer>(PokemonEnum.class);
-        for (int pokeEnumIndex = 0; pokeEnumIndex < PokemonEnum.numberOfPokemonEnums(); pokeEnumIndex++) {
-            PokemonEnum pe = PokemonEnum.getPokemonEnumAtIndex(pokeEnumIndex);
-            pokeToWins.put(pe, 0);
-        }
-        for (int i = 0; i < PokemonEnum.numberOfPokemonEnums() - 1; i++) {
-            Pokemon p1 = new Pokemon("_" + PokemonEnum.getPokemonEnumAtIndex(i).name());
-            for (int j = i + 1; j < PokemonEnum.numberOfPokemonEnums(); j++) {
-                int p1Wins = 0;
-                int p2Wins = 0;
-                for (int k = 0; k < simulationPerPokemon; k++) {
-                    Pokemon p2 = new Pokemon("_" + PokemonEnum.getPokemonEnumAtIndex(j).name());
-                    while (p1.getCurrentHP() != 0 && p2.getCurrentHP() != 0) {
-                        Pokemon.doTurn(p1, p2);
-                    }
-                    if (p1.getCurrentHP() == 0) {
-                        assert p2.getCurrentHP() != 0 : "Both combatant Pokemon should not be able to faint";
-                        p2Wins++;
-                    }
-                    else {
-                        p1Wins++;   
-                    }
-                    p1.heal();
-                    p2.heal();
-                }
-                pokeToWins.put(PokemonEnum.getPokemonEnumAtIndex(i), pokeToWins.get(PokemonEnum.getPokemonEnumAtIndex(i)) + p1Wins);
-                pokeToWins.put(PokemonEnum.getPokemonEnumAtIndex(j), pokeToWins.get(PokemonEnum.getPokemonEnumAtIndex(j)) + p2Wins);
-            }
-        }
-        double numberOfBattlesPerPokemon = simulationPerPokemon * (PokemonEnum.numberOfPokemonEnums() - 1);
-        for (PokemonEnum p: pokeToWins.keySet()) {
-            System.out.println(String.format("%-18s %.2f%%", p.name() + ":", ((double)pokeToWins.get(p) / numberOfBattlesPerPokemon * 100.0)));
-        }
-        Pokemon.PLAY_SOUND = true;
-        Pokemon.DISPLAY_BATTLE_TEXT = true;
     }
 
 }
