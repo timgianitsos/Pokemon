@@ -14,12 +14,6 @@ class TrainerBattle {
     }
 
     static void battle() {
-        
-//        TrainerAI opponent = new TrainerAI();
-//        Pokemon mine = new Pokemon("steelix");
-//        Pokemon next = opponent.getNextPokemon(mine.name);
-        Pokemon.PLAY_SOUND = false;
-
         Scanner scan = new Scanner(System.in);
         Pokemon.displayPokemon();
         Pokemon[] playerParty = new Pokemon[3];
@@ -39,12 +33,10 @@ class TrainerBattle {
         
         int playerPartyIndex = 1;
         while (playerPartyIndex < 3 && opponentPokemon != null) {
-            //when opponent dies, use "opponentPokemon = AIopponent.getNextPokemon(playerParty[playerPartyIndex].name);"
-            
             while(playerPokemon.getCurrentHP() > 0 && opponentPokemon.getCurrentHP() > 0 ){
                 
                 Pokemon.doTurn(playerPokemon, opponentPokemon);
-
+                scan.nextLine();
             }
             if(playerPokemon.getCurrentHP() == 0){
                 playerPokemon = playerParty[playerPartyIndex];
@@ -54,16 +46,7 @@ class TrainerBattle {
                 opponentPokemon = AIopponent.getNextPokemon(playerPokemon.name);
                 
             }
-            //loop doTurn()
-            //when loop finishes, figure out which died, and get the next one
-            
-        }
-        
-        
-        
-          
-          
-          
+        }    
     }
 
     static void testCode() {
