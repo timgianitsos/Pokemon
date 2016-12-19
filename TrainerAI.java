@@ -5,17 +5,20 @@ import java.util.Arrays;
 import java.util.Comparator;
 
 class TrainerAI {
-
+    //TODO consider more granularity with disabling 
     //Array of PokemonEnums that is sorted by ascending difficulty as determined by the simulation
     private static final PokemonEnum[] ascendingDifficulty = PokemonEnum.values();
     //Mapping from a PokemonEnum to a set of PokemonEnums that it performed the worst against
     private static final EnumMap<PokemonEnum, EnumSet<PokemonEnum>> pokeToWorstMatchup = new EnumMap<>(PokemonEnum.class);
     private static final int SIMULATIONS_PER_POKEMON = 500;
     private static int MAX_DIFFICULTY = 3;
-    private static int CURRENT_DIFFICULTY = 3;
+    private static int CURRENT_DIFFICULTY = 4;
     private final boolean isPokemonMaster;
     private Pokemon[] party;
 
+    /*
+     * Runs simulations to collect data about matchups
+     */
     static {
         assert MAX_DIFFICULTY >= 1: "The maximum difficulty must be positive";
         assert CURRENT_DIFFICULTY >= 1: "The current difficulty must be positive";
@@ -25,18 +28,17 @@ class TrainerAI {
         Pokemon.DISPLAY_BATTLE_TEXT = false;
         Pokemon.PLAY_SOUND = false;
         
-        EnumMap<PokemonEnum, Integer> pokeToWins = new EnumMap<PokemonEnum, Integer>(PokemonEnum.class);
-        for (int pokeEnumIndex = 0; pokeEnumIndex < PokemonEnum.numberOfPokemonEnums(); pokeEnumIndex++) {
-            PokemonEnum pe = PokemonEnum.getPokemonEnumAtIndex(pokeEnumIndex);
-            pokeToWins.put(pe, 0);
-        }
-        for (int i = 0; i < PokemonEnum.numberOfPokemonEnums() - 1; i++) {
-            Pokemon p1 = new Pokemon("_" + PokemonEnum.getPokemonEnumAtIndex(i).name());
-            for (int j = i + 1; j < PokemonEnum.numberOfPokemonEnums(); j++) {
+        EnumMap<PokemonEnum, Integer> pokeToWins = new EnumMap<>(PokemonEnum.class);
+        EnumMap<PokemonEnum, Integer> pokeToFewestWinsMatchup = new EnumMap<>(PokemonEnum.class);
+        for (int p1Index = 0; p1Index < PokemonEnum.numberOfPokemonEnums() - 1; p1Index++) {
+            PokemonEnum p1Enum = PokemonEnum.getPokemonEnumAtIndex(p1Index);
+            Pokemon p1 = new Pokemon("_" + p1Enum.name());
+            for (int p2Index = p1Index + 1; p2Index < PokemonEnum.numberOfPokemonEnums(); p2Index++) {
+                PokemonEnum p2Enum = PokemonEnum.getPokemonEnumAtIndex(p2Index);
+                Pokemon p2 = new Pokemon("_" + p2Enum.name());
                 int p1Wins = 0;
                 int p2Wins = 0;
-                for (int k = 0; k < SIMULATIONS_PER_POKEMON; k++) {
-                    Pokemon p2 = new Pokemon("_" + PokemonEnum.getPokemonEnumAtIndex(j).name());
+                for (int battleRound = 0; battleRound < SIMULATIONS_PER_POKEMON; battleRound++) {
                     while (p1.getCurrentHP() != 0 && p2.getCurrentHP() != 0) {
                         Pokemon.doTurn(p1, p2);
                     }
@@ -50,8 +52,38 @@ class TrainerAI {
                     p1.heal();
                     p2.heal();
                 }
-                pokeToWins.put(PokemonEnum.getPokemonEnumAtIndex(i), pokeToWins.get(PokemonEnum.getPokemonEnumAtIndex(i)) + p1Wins);
-                pokeToWins.put(PokemonEnum.getPokemonEnumAtIndex(j), pokeToWins.get(PokemonEnum.getPokemonEnumAtIndex(j)) + p2Wins);
+
+                //TODO clean this
+                pokeToWins.put(p1Enum, (pokeToWins.get(p1Enum) == null ? 0: pokeToWins.get(p1Enum)) + p1Wins);
+                pokeToWins.put(p2Enum, (pokeToWins.get(p2Enum) == null ? 0: pokeToWins.get(p2Enum)) + p2Wins);
+                if (pokeToFewestWinsMatchup.get(p1Enum) == null) {
+                    pokeToFewestWinsMatchup.put(p1Enum, p1Wins);
+                    pokeToWorstMatchup.put(p1Enum, EnumSet.of(p2Enum));
+                }
+                else {
+                    if (p1Wins < pokeToFewestWinsMatchup.get(p1Enum)) {
+                        pokeToFewestWinsMatchup.put(p1Enum, p1Wins);
+                        pokeToWorstMatchup.get(p1Enum).clear();
+                        pokeToWorstMatchup.get(p1Enum).add(p2Enum);
+                    }
+                    else if (pokeToFewestWinsMatchup.get(p1Enum) == p1Wins) {
+                        pokeToWorstMatchup.get(p1Enum).add(p2Enum);
+                    }
+                }
+                if (pokeToFewestWinsMatchup.get(p2Enum) == null) {
+                    pokeToFewestWinsMatchup.put(p2Enum, p2Wins);
+                    pokeToWorstMatchup.put(p2Enum, EnumSet.of(p1Enum));
+                }
+                else {
+                    if (p2Wins < pokeToFewestWinsMatchup.get(p2Enum)) {
+                        pokeToFewestWinsMatchup.put(p2Enum, p2Wins);
+                        pokeToWorstMatchup.get(p2Enum).clear();
+                        pokeToWorstMatchup.get(p2Enum).add(p1Enum);
+                    }
+                    else if (pokeToFewestWinsMatchup.get(p2Enum) == p2Wins) {
+                        pokeToWorstMatchup.get(p1Enum).add(p2Enum);
+                    }
+                }
             }
         }
 
@@ -89,6 +121,9 @@ class TrainerAI {
 
     public TrainerAI(int partySize) {
         //TODO currently omits strongest pokemon from the highest tier because of integer division. Should this be a feature or a bug?
+        if (partySize < 1) {
+            throw new IllegalArgumentException("Party size must be positive");
+        }
         int pokemonPerDifficultyTier = PokemonEnum.numberOfPokemonEnums() / MAX_DIFFICULTY;
         if (pokemonPerDifficultyTier < partySize) {
             throw new IllegalStateException("Cannot create a party of size " + partySize 
@@ -131,16 +166,30 @@ class TrainerAI {
     }
 
     public Pokemon getNextPokemon(Pokemon opponentPokemon) {
+        Pokemon result = null;
         if (!isPokemonMaster) {
-            for (int i = 0; i < party.length; i++) {
+            boolean found = false;
+            for (int i = 0; i < party.length && !found; i++) {
                 if (party[i].getCurrentHP() != 0) {
-                    return party[i];
+                    result = party[i];
+                    found = true;
                 }
             }
-            return null;
         }
         else {
-            return new Pokemon(Pokemon.DEFAULT_POKEMON);
+            boolean oldPlaySoundSetting = Pokemon.PLAY_SOUND;
+            Pokemon.PLAY_SOUND = false;
+
+            try {
+                PokemonEnum poke = PokemonEnum.valueOf(opponentPokemon.name);
+                result = new Pokemon("_" + pokeToWorstMatchup.get(poke).iterator().next().name());
+            }
+            catch (Exception e) {
+                result = new Pokemon("_shedinja");
+            }
+
+            Pokemon.PLAY_SOUND = oldPlaySoundSetting;
         }
+        return result;
     }
 }

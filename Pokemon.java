@@ -39,9 +39,9 @@ public class Pokemon {
             scan.nextLine();
         }
 
-        int i = 1;
+        int turn = 1;
         while (p1.currentHP != 0 && p2.currentHP != 0) {
-            System.out.println("Turn " + (i++) + " ---------------------------");
+            System.out.println("Turn " + (turn++) + " ---------------------------");
             doTurn(p1, p2);
             if (pauseEachStep && p1.currentHP != 0 && p2.currentHP != 0) {
                 scan.nextLine();
@@ -196,7 +196,7 @@ public class Pokemon {
             + Stat.numberOfStats() + " are required";
         
         boolean maximizeAttack = baseStats[Stat.ATTACK.ordinal()] >= baseStats[Stat.SPECIAL_ATTACK.ordinal()];
-        boolean maximizeSpeed = baseStats[Stat.SPEED.ordinal()] >= BASE_SPEED_MAXIMIZER_THRESHHOLD;
+        boolean maximizeSpeed = baseStats[Stat.SPEED.ordinal()] >= BASE_SPEED_MAXIMIZER_THRESHHOLD || baseStats[Stat.HP.ordinal()] == 1;
         
         this.statToValue.put(Stat.HP, baseStats[Stat.HP.ordinal()] == 1 ? 1: 
             (int)(((2.0 * baseStats[Stat.HP.ordinal()] + (maximizeStats ? 31.0: (int)(Math.random() * 32.0)) 
@@ -702,6 +702,9 @@ enum PokemonEnum {
     ZOROARK(Type.DARK, null, new int[]{60,105,60,120,60,105}, EnumSet.of(Attack.DARK_PULSE)), 
 
     MAGIKARP(Type.WATER, null, new int[]{20, 10, 55, 15, 20, 80}, EnumSet.of(Attack.TACKLE));
+
+    //List of Pokemon that differ from official
+    //Shedinja (type1, type2)
 
     public final Type type1;
     public final Type type2;

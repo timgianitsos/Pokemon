@@ -1,7 +1,7 @@
 import java.util.Scanner;
 import java.util.EnumSet;
 import java.util.EnumMap;
-//TODO Nik needs to implement trainer battles, Tim needs to implement AI for trainer battle opponent using the simulation data
+//TODO implement turn switching, display winner
 /*
  * A class to simulate a Trainer battle using Pokemon objects
  */
@@ -10,6 +10,7 @@ class TrainerBattle {
     public static final int PARTY_SIZE = 3;
 
     public static void main(String[] args) {
+        int[] a = new int[0];//TODO
 //        testCode();
 //        practice();
         battle();
@@ -19,34 +20,34 @@ class TrainerBattle {
         Scanner scan = new Scanner(System.in);
         Pokemon.displayPokemon();
         Pokemon[] playerParty = new Pokemon[PARTY_SIZE];
-        for(int i = 0; i < playerParty.length; i++) {
+        for (int i = 0; i < playerParty.length; i++) {
             System.out.println("Enter pokemon " + (i + 1));
             playerParty[i] = Pokemon.askForPokemon(scan);
             System.out.println(playerParty[i].toString());
         }
         
         System.out.println("Your opponent is choosing his pokemon...");
-        TrainerAI AIopponent = new TrainerAI(PARTY_SIZE);
+        TrainerAI opponent = new TrainerAI(PARTY_SIZE);
         System.out.println("\nReady for battle, send out your first pokemon! (press enter)");
         
+        int turn = 1;
         int playerPartyIndex = 0;
-        Pokemon opponentPokemon;
-        do {
-            Pokemon playerPokemon = playerParty[playerPartyIndex];
-            opponentPokemon = AIopponent.getNextPokemon(playerPokemon);
-            while(playerPokemon.getCurrentHP() > 0 && opponentPokemon.getCurrentHP() > 0 ){
+        Pokemon playerPokemon = playerPartyIndex >= playerParty.length ? null: playerParty[playerPartyIndex];
+        Pokemon opponentPokemon = opponent.getNextPokemon(playerPokemon);
+        while (playerPokemon != null && opponentPokemon != null) {
+            while (playerPokemon.getCurrentHP() > 0 && opponentPokemon.getCurrentHP() > 0){
                 scan.nextLine();
+                System.out.println("Turn " + (turn++) + " ---------------------------");
                 Pokemon.doTurn(playerPokemon, opponentPokemon);
             }
-            if(playerPokemon.getCurrentHP() == 0){
-                playerPokemon = playerParty[playerPartyIndex];
+            if (playerPokemon.getCurrentHP() == 0){
                 playerPartyIndex++;
+                playerPokemon = playerPartyIndex >= playerParty.length ? null: playerParty[playerPartyIndex];
             }
-            if(opponentPokemon.getCurrentHP() == 0){
-                opponentPokemon = AIopponent.getNextPokemon(playerPokemon);
-                
+            if (opponentPokemon.getCurrentHP() == 0){
+                opponentPokemon = opponent.getNextPokemon(playerPokemon);
             }
-        } while (playerPartyIndex < playerParty.length && opponentPokemon != null);
+        }
     }
 
     static void testCode() {
@@ -58,7 +59,8 @@ class TrainerBattle {
         //--------------------------------------------------------------------------------
         //Here are three different ways of making a pokemon - firstly you can just use a string name. 
         //If you use this method, the name must exist as an enum or else it will default to magikarp
-        Pokemon p1 = new Pokemon("_steelix"); //the underscore at the beginning is a secret that maxes out IVs - this Pokemon is way better than any random one
+        Pokemon p1 = new Pokemon("_steelix"); //the underscore at the beginning is a secret that maxes out IVs - this Pokemon is way 
+                                              //better than any random one
         System.out.println(p1.toString()); //Calling toString on a pokemon prints out the info for it
         scan.nextLine(); //Press enter to proceed
 
@@ -78,7 +80,8 @@ class TrainerBattle {
 
         Attack bestAttack = p1.getBestAttack(p2); //Returns the Attack that is best against this opponent
 
-        System.out.println(p1.name + "'s best attack against " + p2.name + " is " + bestAttack.name()); //bestAttack is an Attack enum. Call name() on an enum to get it as a String
+        System.out.println(p1.name + "'s best attack against " + p2.name + " is " + bestAttack.name()); //bestAttack is an Attack enum. 
+                                                                                                        //Call name() on an enum to get it as a String
         
         double damage = p1.attackDamage(bestAttack, p2); //Computes damage of using the attack
         
