@@ -66,7 +66,7 @@ class TrainerAI {
                         pokeToWorstMatchup.get(p1Enum).clear();
                         pokeToWorstMatchup.get(p1Enum).add(p2Enum);
                     }
-                    else if (pokeToFewestWinsMatchup.get(p1Enum) == p1Wins) {
+                    else if (p1Wins == pokeToFewestWinsMatchup.get(p1Enum)) {
                         pokeToWorstMatchup.get(p1Enum).add(p2Enum);
                     }
                 }
@@ -92,7 +92,6 @@ class TrainerAI {
                 return pokeToWins.get(p1).compareTo(pokeToWins.get(p2));
             }
         });
-
         Pokemon.PLAY_SOUND = oldPlaySoundSetting;
         Pokemon.DISPLAY_BATTLE_TEXT = oldDisplayTextSetting;
     }
@@ -122,7 +121,7 @@ class TrainerAI {
     public TrainerAI(int partySize) {
         //TODO currently omits strongest pokemon from the highest tier because of integer division. Should this be a feature or a bug?
         if (partySize < 1) {
-            throw new IllegalArgumentException("Party size must be positive");
+            throw new IllegalArgumentException("Party size must be a positive integer");
         }
         int pokemonPerDifficultyTier = PokemonEnum.numberOfPokemonEnums() / MAX_DIFFICULTY;
         if (pokemonPerDifficultyTier < partySize) {
@@ -181,8 +180,18 @@ class TrainerAI {
             Pokemon.PLAY_SOUND = false;
 
             try {
-                PokemonEnum poke = PokemonEnum.valueOf(opponentPokemon.name);
-                result = new Pokemon("_" + pokeToWorstMatchup.get(poke).iterator().next().name());
+                //Obtain set of Pokemon that have the best probability of beating the opponent, and choose a random one in the set
+                EnumSet<PokemonEnum> choices = pokeToWorstMatchup.get(PokemonEnum.valueOf(opponentPokemon.name));
+                PokemonEnum pe = null;
+                double i = choices.size();
+                for (PokemonEnum choice: choices) {
+                    pe = choice;
+                    if (Math.random() < 1.0 / i) {
+                        break;
+                    }
+                    i--;
+                }
+                result = new Pokemon("_" + pe.name());
             }
             catch (Exception e) {
                 result = new Pokemon("_shedinja");

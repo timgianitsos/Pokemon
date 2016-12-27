@@ -10,13 +10,15 @@ class TrainerBattle {
     public static final int PARTY_SIZE = 3;
 
     public static void main(String[] args) {
-        int[] a = new int[0];//TODO
+        battle();
 //        testCode();
 //        practice();
-        battle();
     }
 
     static void battle() {
+        if (PARTY_SIZE < 1) {
+            throw new IllegalStateException("Party size must be a positive integer");
+        }
         Scanner scan = new Scanner(System.in);
         Pokemon.displayPokemon();
         Pokemon[] playerParty = new Pokemon[PARTY_SIZE];
