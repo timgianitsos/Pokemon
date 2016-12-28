@@ -20,7 +20,7 @@ class TrainerBattle {
             throw new IllegalStateException("Party size must be a positive integer");
         }
         Scanner scan = new Scanner(System.in);
-        AePlayWave battleMusic = Pokemon.intro(scan);
+        AePlayWave battleMusic = Pokemon.intro(scan, AePlayWave.BATTLE_MUSIC_PETIT_CUP, AePlayWave.PETIT_CUP_BUFFER_SIZE);
         Pokemon.displayPokemon();
         Pokemon[] playerParty = new Pokemon[PARTY_SIZE];
         for (int i = 0; i < playerParty.length; i++) {
@@ -67,10 +67,10 @@ class TrainerBattle {
             }
         }
         assert (playerPokemon == null || opponentPokemon == null) && (playerPokemon != opponentPokemon): "Both trainers cannot lose";
-        System.out.println("The " + (playerPokemon == null ? "opponent trainer": "player") + " has won the battle!");
         if (battleMusic != null){
             battleMusic.quit();
         }
+        System.out.println("The " + (playerPokemon == null ? "opponent trainer": "player") + " has won the battle!");
     }
     
     static Pokemon playerChooseNextPokemon(Scanner scan, Pokemon[] playerParty, Pokemon currentPokemon) {
@@ -213,7 +213,7 @@ class TrainerBattle {
         scan.nextLine();
 
         System.out.println("Press enter to stop the music (it may delay a few seconds before stopping - use \"command C\" to stop immediately)");
-        AePlayWave battleMusic = new AePlayWave(AePlayWave.BATTLE_MUSIC, AePlayWave.BATTLE_MUSIC_BUFFER_SIZE);
+        AePlayWave battleMusic = new AePlayWave(AePlayWave.BATTLE_MUSIC_PETIT_CUP, AePlayWave.PETIT_CUP_BUFFER_SIZE);
         battleMusic.start();
         scan.nextLine();
         battleMusic.quit();

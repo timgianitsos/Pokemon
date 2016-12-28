@@ -19,13 +19,13 @@ public class Pokemon {
             pauseEachStep = args.length < 3 || !args[2].equalsIgnoreCase("skip");
             PLAY_SOUND = pauseEachStep;
             if (pauseEachStep) {
-                battleMusic = intro(scan);
+                battleMusic = intro(scan, AePlayWave.BATTLE_MUSIC_PRIME_CUP, AePlayWave.PRIME_CUP_BUFFER_SIZE);
             }
             p1 = new Pokemon(args[0].toUpperCase());
             p2 = new Pokemon(args[1].toUpperCase());
         }
         else {
-            battleMusic = intro(scan);
+            battleMusic = intro(scan, AePlayWave.BATTLE_MUSIC_PRIME_CUP, AePlayWave.PRIME_CUP_BUFFER_SIZE);
             displayPokemon();
             System.out.println("Choose player 1's Pokemon");
             p1 = askForPokemon(scan);
@@ -52,14 +52,14 @@ public class Pokemon {
         }
     }
 
-    protected static AePlayWave intro(Scanner scan) {
+    protected static AePlayWave intro(Scanner scan, String musicFilename, int bufferSize) {
         AePlayWave battleMusic = null;
         double random = Math.random();
         System.out.println(random < 0.25 ? machampString: random < 0.5 ? scytherString: random < 0.75 ? alakazamString: charizardString);
         System.out.println("\nMusic? [y] - yes, [blank] - no");
         String response = scan.nextLine();
         if (response != null && response.length() > 0 && response.charAt(0) == 'y') {
-            battleMusic = new AePlayWave(AePlayWave.BATTLE_MUSIC, AePlayWave.BATTLE_MUSIC_BUFFER_SIZE);
+            battleMusic = new AePlayWave(musicFilename, bufferSize);
             battleMusic.start();
         }
         return battleMusic;
