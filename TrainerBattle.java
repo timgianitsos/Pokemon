@@ -38,21 +38,39 @@ class TrainerBattle {
         while (playerPokemon != null && opponentPokemon != null) {
             while (playerPokemon.getCurrentHP() > 0 && opponentPokemon.getCurrentHP() > 0){
                 System.out.println("Turn " + (turn++) + " ---------------------------");
-                Pokemon.doTurn(playerPokemon, opponentPokemon);
+                System.out.println("Press: (1) fight, (2) switch");
+                int choice = scan.nextInt();
                 scan.nextLine();
+                if (choice == 1) {
+                    Pokemon.doTurn(playerPokemon, opponentPokemon);
+                    scan.nextLine();
+                }
+                else if (choice == 2) {
+                    playerPokemon = playerChoseNextPokemon(scan, playerParty);
+                    Attack attack = opponentPokemon.getBestAttack(playerPokemon);
+                    opponentPokemon.useAttack(attack, playerPokemon);
+                    scan.nextLine();
+                }
+                
             }
-            if (playerPokemon.getCurrentHP() == 0){
+            if (playerPokemon.getCurrentHP() == 0) {
                 playerPokemon = playerChoseNextPokemon(scan, playerParty);
+                if (playerPokemon != null) {
+                    System.out.println("The player sent out " + playerPokemon.name);
+                }
             }
-            if (opponentPokemon.getCurrentHP() == 0){
+            if (opponentPokemon.getCurrentHP() == 0) {
                 opponentPokemon = opponent.getNextPokemon(playerPokemon);
+                if (opponentPokemon != null) {
+                    System.out.println("The opponent sent out " + opponentPokemon.name);
+                }
             }
         }
     }
     
     static Pokemon playerChoseNextPokemon(Scanner scan, Pokemon[] playerParty) {
         boolean allDead = true;
-        for (int i = 0; i < playerParty.length; i++){
+        for (int i = 0; i < playerParty.length; i++) {
             if (playerParty[i].getCurrentHP() > 0) {
                 System.out.println("Enter " + i + " for " + playerParty[i].toString());
                 allDead = false;
