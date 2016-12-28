@@ -30,62 +30,90 @@ class TrainerBattle {
         
         System.out.println("Your opponent is choosing his pokemon...");
         TrainerAI opponent = new TrainerAI(PARTY_SIZE);
-        System.out.println("\nReady for battle, send out your first pokemon! (press enter)");
-        scan.nextLine();
         int turn = 1;
         Pokemon playerPokemon = playerParty[0];
         Pokemon opponentPokemon = opponent.getNextPokemon(playerPokemon);
+        System.out.println("\nReady for battle! The player sends " + playerPokemon.name 
+            + ". His opponent sends " + opponentPokemon.name + ". (press enter)");
+        scan.nextLine();
+
         while (playerPokemon != null && opponentPokemon != null) {
             while (playerPokemon.getCurrentHP() > 0 && opponentPokemon.getCurrentHP() > 0){
                 System.out.println("Turn " + (turn++) + " ---------------------------");
-                System.out.println("Press: (1) fight, (2) switch");
-                int choice = scan.nextInt();
-                scan.nextLine();
-                if (choice == 1) {
+                System.out.println("Press: (0) fight, (1) switch");
+                int choice = getIntFromInput(scan, 0, 1);
+                if (choice == 0) {
                     Pokemon.doTurn(playerPokemon, opponentPokemon);
-                    scan.nextLine();
                 }
-                else if (choice == 2) {
-                    playerPokemon = playerChoseNextPokemon(scan, playerParty);
+                else if (choice == 1) {
                     Attack attack = opponentPokemon.getBestAttack(playerPokemon);
+                    playerPokemon = playerChooseNextPokemon(scan, playerParty);
                     opponentPokemon.useAttack(attack, playerPokemon);
-                    scan.nextLine();
                 }
-                
+                else {
+                    throw new IllegalStateException("Invalid choice");
+                }
             }
             if (playerPokemon.getCurrentHP() == 0) {
-                playerPokemon = playerChoseNextPokemon(scan, playerParty);
-                if (playerPokemon != null) {
-                    System.out.println("The player sent out " + playerPokemon.name);
-                }
+                playerPokemon = playerChooseNextPokemon(scan, playerParty);
             }
             if (opponentPokemon.getCurrentHP() == 0) {
                 opponentPokemon = opponent.getNextPokemon(playerPokemon);
                 if (opponentPokemon != null) {
-                    System.out.println("The opponent sent out " + opponentPokemon.name);
+                    System.out.println("The opponent sent out " + opponentPokemon.name + "\n");
                 }
             }
         }
+        assert (playerPokemon == null || opponentPokemon == null) && (playerPokemon != opponentPokemon): "Both trainers cannot lose";
+        System.out.println("The " + (playerPokemon == null ? "opponent trainer": "player") + " has won the battle!");
     }
     
-    static Pokemon playerChoseNextPokemon(Scanner scan, Pokemon[] playerParty) {
+    static Pokemon playerChooseNextPokemon(Scanner scan, Pokemon[] playerParty) {
         boolean allDead = true;
         for (int i = 0; i < playerParty.length; i++) {
             if (playerParty[i].getCurrentHP() > 0) {
-                System.out.println("Enter " + i + " for " + playerParty[i].toString());
+                System.out.println("Enter " + i + " to choose " + playerParty[i].toString());
                 allDead = false;
             }
         }
-        
+
         if (allDead) {
             return null;
         }
         else {
-            //TODO check input
-            int chosedIndex = scan.nextInt();
-            scan.nextLine();
-            return playerParty[chosedIndex];
+            int chosenIndex;
+            boolean invalidInput;
+            do {
+                chosenIndex = getIntFromInput(scan, 0, playerParty.length - 1);
+                invalidInput = playerParty[chosenIndex].getCurrentHP() <= 0;
+                if (invalidInput) {
+                    System.out.println("That Pokemon is unable to fight!");
+                }
+            } while (invalidInput);
+            assert playerParty[chosenIndex].getCurrentHP() > 0: "Cannot choose a Pokemon with 0 HP or less";
+            System.out.println("The player sent out " + playerParty[chosenIndex].name + "\n");
+            return playerParty[chosenIndex];
         }
+    }
+
+    //Lower and upper bounds are inclusive
+    protected static int getIntFromInput(Scanner scan, int lowerBound, int upperBound) {
+        assert lowerBound <= upperBound : "Lower bound must not be greater than upper bound";
+        int input;
+        boolean invalidInput;
+        do {
+            while (!scan.hasNextInt()) {
+                System.out.println("Only integers are allowed. Try again");
+                scan.nextLine();
+            }
+            input = scan.nextInt();
+            scan.nextLine();
+            invalidInput = input < lowerBound || input > upperBound;
+            if (invalidInput) {
+                System.out.println("Choice is out of the valid range. Try again");
+            }
+        } while (invalidInput);
+        return input;
     }
 
     static void testCode() {
