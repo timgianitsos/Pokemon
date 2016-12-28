@@ -32,12 +32,16 @@ class TrainerBattle {
         System.out.println("The computer is generating your opponent...");
         System.out.println("Select difficulty between 1 and " + (TrainerAI.getMaxDifficulty() + 1));
         TrainerAI.setCurrentDifficulty(getIntFromInput(scan, 1, Integer.MAX_VALUE));
+        System.out.print((TrainerAI.getCurrentDifficulty() - 1 >= TrainerAI.getMaxDifficulty() ? "The Pokemon Master " 
+            + "would like to battle you!\n":""));
         TrainerAI opponent = new TrainerAI(PARTY_SIZE);
         int turn = 1;
         Pokemon playerPokemon = playerParty[0];
         Pokemon opponentPokemon = opponent.getNextPokemon(playerPokemon);
         System.out.println("\nReady for battle! The player sends " + playerPokemon.name 
             + ". His opponent sends " + opponentPokemon.name + ". (press enter)");
+        new AePlayWave("cries/" + playerPokemon.name + ".wav", AePlayWave.DEFAULT_BUFFER_SIZE).start();
+        new AePlayWave("cries/" + opponentPokemon.name + ".wav", AePlayWave.DEFAULT_BUFFER_SIZE).start();
         scan.nextLine();
 
         while (playerPokemon != null && opponentPokemon != null) {

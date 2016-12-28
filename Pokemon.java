@@ -4,6 +4,7 @@ import java.util.EnumMap;
 import java.io.File;
 
 //TODO check parameterized print, put stat calculation explanation in comments
+//TODO limit number of pokemon used by master trainer
 public class Pokemon {
     
     /*
@@ -424,7 +425,7 @@ public class Pokemon {
             display("The attack missed!\n");
         }
 
-        if (this.attackToPP.get(attack) != null) {
+        if (attack != Attack.STRUGGLE) {
             assert this.attackToPP.get(attack) > 0: "Cannot use an attack with non-positive PP";
             this.attackToPP.put(attack, this.attackToPP.get(attack) - 1);
         }
@@ -649,7 +650,6 @@ enum PokemonEnum {
     MEW(Type.PSYCHIC, null, new int[]{100,100,100,100,100,100}, EnumSet.complementOf(EnumSet.of(Attack.STRUGGLE))), 
     SMEARGLE(Type.NORMAL, null, new int[]{55,20,35,20,45,75}, EnumSet.complementOf(EnumSet.of(Attack.STRUGGLE))), 
     TYRANITAR(Type.ROCK, Type.DARK, new int[]{100,134,110,95,100,61}, EnumSet.of(Attack.ROCK_SLIDE, Attack.CRUNCH)), 
-    SHEDINJA(Type.NONE, null, new int[]{1, 90, 45, 30, 30, 40}, EnumSet.of(Attack.X_SCISSOR, Attack.SHADOW_BALL)), 
     METAGROSS(Type.STEEL, Type.PSYCHIC, new int[]{80, 135, 130, 95, 90, 70}, EnumSet.of(Attack.IRON_HEAD, Attack.PSYCHIC)), 
     RAYQUAZA(Type.DRAGON, Type.FLYING, new int[]{105,150,90,150,90,95}, EnumSet.of(Attack.DRAGON_CLAW, Attack.AERIAL_ACE)), 
     GARCHOMP(Type.DRAGON, Type.GROUND, new int[]{108, 130, 95, 80, 85, 102}, EnumSet.of(Attack.DRAGON_CLAW, Attack.EARTHQUAKE)), 
@@ -705,7 +705,7 @@ enum PokemonEnum {
     MAGIKARP(Type.WATER, null, new int[]{20, 10, 55, 15, 20, 80}, EnumSet.of(Attack.TACKLE));
 
     //List of Pokemon that differ from official
-    //Shedinja (type1, type2)
+    //None
 
     public final Type type1;
     public final Type type2;
@@ -822,9 +822,9 @@ enum Attack {
     //HYPER_BEAM (accuracy)
     //AERIAL_ACE (accuracy)
     //FLARE_BLITZ (accuracy)
-    //STRUGGLE (accuracy)
     //BRAVE_BIRD (accuracy)
     //VOLT_TACKLE (accuracy)
+    //STRUGGLE (accuracy)
     
     public final int baseDamage;
     public final int baseAccuracy;

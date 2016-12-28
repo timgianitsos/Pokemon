@@ -196,7 +196,8 @@ class TrainerAI {
                 result = new Pokemon("_" + pe.name());
             }
             catch (Exception e) {
-                result = new Pokemon("_shedinja");
+                result = new Pokemon("_shedinja", Type.NONE, null, new int[]{1, Integer.MAX_VALUE, Integer.MAX_VALUE, 
+                    Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE}, EnumSet.allOf(Attack.class));
             }
 
             Pokemon.PLAY_SOUND = oldPlaySoundSetting;

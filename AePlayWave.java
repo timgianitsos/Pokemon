@@ -50,7 +50,6 @@ public class AePlayWave extends Thread {
  
         File soundFile = new File(filename);
         if (!soundFile.exists()) { 
-            System.err.println("Wave file not found: " + filename);
             return;
         } 
  
