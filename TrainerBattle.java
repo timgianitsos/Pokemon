@@ -31,24 +31,42 @@ class TrainerBattle {
         System.out.println("Your opponent is choosing his pokemon...");
         TrainerAI opponent = new TrainerAI(PARTY_SIZE);
         System.out.println("\nReady for battle, send out your first pokemon! (press enter)");
-        
+        scan.nextLine();
         int turn = 1;
-        int playerPartyIndex = 0;
-        Pokemon playerPokemon = playerPartyIndex >= playerParty.length ? null: playerParty[playerPartyIndex];
+        Pokemon playerPokemon = playerParty[0];
         Pokemon opponentPokemon = opponent.getNextPokemon(playerPokemon);
         while (playerPokemon != null && opponentPokemon != null) {
             while (playerPokemon.getCurrentHP() > 0 && opponentPokemon.getCurrentHP() > 0){
-                scan.nextLine();
                 System.out.println("Turn " + (turn++) + " ---------------------------");
                 Pokemon.doTurn(playerPokemon, opponentPokemon);
+                scan.nextLine();
             }
             if (playerPokemon.getCurrentHP() == 0){
-                playerPartyIndex++;
-                playerPokemon = playerPartyIndex >= playerParty.length ? null: playerParty[playerPartyIndex];
+                playerPokemon = playerChoseNextPokemon(scan, playerParty);
             }
             if (opponentPokemon.getCurrentHP() == 0){
                 opponentPokemon = opponent.getNextPokemon(playerPokemon);
             }
+        }
+    }
+    
+    static Pokemon playerChoseNextPokemon(Scanner scan, Pokemon[] playerParty) {
+        boolean allDead = true;
+        for (int i = 0; i < playerParty.length; i++){
+            if (playerParty[i].getCurrentHP() > 0) {
+                System.out.println("Enter " + i + " for " + playerParty[i].toString());
+                allDead = false;
+            }
+        }
+        
+        if (allDead) {
+            return null;
+        }
+        else {
+            //TODO check input
+            int chosedIndex = scan.nextInt();
+            scan.nextLine();
+            return playerParty[chosedIndex];
         }
     }
 

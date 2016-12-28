@@ -12,7 +12,7 @@ class TrainerAI {
     private static final EnumMap<PokemonEnum, EnumSet<PokemonEnum>> pokeToWorstMatchup = new EnumMap<>(PokemonEnum.class);
     private static final int SIMULATIONS_PER_POKEMON = 500;
     private static int MAX_DIFFICULTY = 3;
-    private static int CURRENT_DIFFICULTY = 4;
+    private static int CURRENT_DIFFICULTY = 1;
     private final boolean isPokemonMaster;
     private Pokemon[] party;
 
