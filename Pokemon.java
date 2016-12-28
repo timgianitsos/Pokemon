@@ -509,7 +509,12 @@ public class Pokemon {
         sb.append(String.format(this.name + ": %-1s %-1s%n", type1.name(), (type2 != null ? type2.name(): "")));
         sb.append("Stats: ");
         for (Stat s: statToValue.keySet()) {
-            sb.append(String.format("%-5s ", s.name() + "(" + statToValue.get(s) + ")"));
+            if (s != Stat.HP) {
+                sb.append(String.format("%-20s ", s.name() + "(" + statToValue.get(s) + ")"));
+            }
+            else {
+                sb.append(String.format("%-20s ", s.name() + "(" + this.currentHP + ")"));
+            }
         }
         sb.append('\n');
         sb.append("Attacks: ");
