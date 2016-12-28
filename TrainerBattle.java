@@ -20,6 +20,7 @@ class TrainerBattle {
             throw new IllegalStateException("Party size must be a positive integer");
         }
         Scanner scan = new Scanner(System.in);
+        AePlayWave battleMusic = Pokemon.intro(scan);
         Pokemon.displayPokemon();
         Pokemon[] playerParty = new Pokemon[PARTY_SIZE];
         for (int i = 0; i < playerParty.length; i++) {
@@ -67,6 +68,9 @@ class TrainerBattle {
         }
         assert (playerPokemon == null || opponentPokemon == null) && (playerPokemon != opponentPokemon): "Both trainers cannot lose";
         System.out.println("The " + (playerPokemon == null ? "opponent trainer": "player") + " has won the battle!");
+        if (battleMusic != null){
+            battleMusic.quit();
+        }
     }
     
     static Pokemon playerChooseNextPokemon(Scanner scan, Pokemon[] playerParty, Pokemon currentPokemon) {

@@ -52,7 +52,7 @@ public class Pokemon {
         }
     }
 
-    static AePlayWave intro(Scanner scan) {
+    protected static AePlayWave intro(Scanner scan) {
         AePlayWave battleMusic = null;
         double random = Math.random();
         System.out.println(random < 0.25 ? machampString: random < 0.5 ? scytherString: random < 0.75 ? alakazamString: charizardString);
