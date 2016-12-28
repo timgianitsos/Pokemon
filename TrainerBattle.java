@@ -61,6 +61,7 @@ class TrainerBattle {
                 opponentPokemon = opponent.getNextPokemon(playerPokemon);
                 if (opponentPokemon != null) {
                     System.out.println("The opponent sent out " + opponentPokemon.name + "\n");
+                    new AePlayWave("cries/" + opponentPokemon.name + ".wav", AePlayWave.DEFAULT_BUFFER_SIZE).start();
                 }
             }
         }
@@ -96,6 +97,7 @@ class TrainerBattle {
                 }
             } while (invalidInput);
             System.out.println("The player sent out " + playerParty[chosenIndex].name + "\n");
+            new AePlayWave("cries/" + playerParty[chosenIndex].name + ".wav", AePlayWave.DEFAULT_BUFFER_SIZE).start();
             return playerParty[chosenIndex];
         }
     }

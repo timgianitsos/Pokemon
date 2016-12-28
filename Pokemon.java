@@ -240,6 +240,7 @@ public class Pokemon {
             statToValue.put(Stat.HP, (int)hp);
             statToValue.put(Stat.DEFENCE, (int)def);
             statToValue.put(Stat.SPECIAL_DEFENCE, (int)spdef);
+            //Putting some evs in speed prevents one of the defensive stats from becoming too large
             statToValue.put(Stat.SPEED, statToValue.get(Stat.SPEED) + (int)(6.0 * LEVEL / 400.0));
         }
     }
