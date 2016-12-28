@@ -29,7 +29,9 @@ class TrainerBattle {
             System.out.println(playerParty[i].toString());
         }
         
-        System.out.println("Your opponent is choosing his pokemon...");
+        System.out.println("The computer is generating your opponent...");
+        System.out.println("Select difficulty between 1 and " + (TrainerAI.getMaxDifficulty() + 1));
+        TrainerAI.setCurrentDifficulty(getIntFromInput(scan, 1, Integer.MAX_VALUE));
         TrainerAI opponent = new TrainerAI(PARTY_SIZE);
         int turn = 1;
         Pokemon playerPokemon = playerParty[0];
