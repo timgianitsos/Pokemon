@@ -38,8 +38,8 @@ class TrainerBattle {
         int turn = 1;
         Pokemon playerPokemon = playerParty[0];
         Pokemon opponentPokemon = opponent.getNextPokemon(playerPokemon);
-        System.out.println("\nReady for battle! The player sends " + playerPokemon.name 
-            + ". His opponent sends " + opponentPokemon.name + ". (press enter)");
+        System.out.println("\nReady for battle! The player sends " + playerPokemon.name + " with HP:" + playerPokemon.getCurrentHP() 
+            + ". His opponent sends " + opponentPokemon.name + " with HP:" + opponentPokemon.getCurrentHP() + ". (press enter)");
         new AePlayWave("cries/" + playerPokemon.name + ".wav", AePlayWave.DEFAULT_BUFFER_SIZE).start();
         new AePlayWave("cries/" + opponentPokemon.name + ".wav", AePlayWave.DEFAULT_BUFFER_SIZE).start();
         scan.nextLine();
