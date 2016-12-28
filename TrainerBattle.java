@@ -1,7 +1,7 @@
 import java.util.Scanner;
 import java.util.EnumSet;
 import java.util.EnumMap;
-//TODO implement turn switching, display winner
+//TODO prevent switch if only one Pokemon remaining
 /*
  * A class to simulate a Trainer battle using Pokemon objects
  */
@@ -47,7 +47,7 @@ class TrainerBattle {
                 }
                 else if (choice == 1) {
                     Attack attack = opponentPokemon.getBestAttack(playerPokemon);
-                    playerPokemon = playerChooseNextPokemon(scan, playerParty);
+                    playerPokemon = playerChooseNextPokemon(scan, playerParty, playerPokemon);
                     opponentPokemon.useAttack(attack, playerPokemon);
                 }
                 else {
@@ -55,7 +55,7 @@ class TrainerBattle {
                 }
             }
             if (playerPokemon.getCurrentHP() == 0) {
-                playerPokemon = playerChooseNextPokemon(scan, playerParty);
+                playerPokemon = playerChooseNextPokemon(scan, playerParty, playerPokemon);
             }
             if (opponentPokemon.getCurrentHP() == 0) {
                 opponentPokemon = opponent.getNextPokemon(playerPokemon);
@@ -68,7 +68,7 @@ class TrainerBattle {
         System.out.println("The " + (playerPokemon == null ? "opponent trainer": "player") + " has won the battle!");
     }
     
-    static Pokemon playerChooseNextPokemon(Scanner scan, Pokemon[] playerParty) {
+    static Pokemon playerChooseNextPokemon(Scanner scan, Pokemon[] playerParty, Pokemon currentPokemon) {
         boolean allDead = true;
         for (int i = 0; i < playerParty.length; i++) {
             if (playerParty[i].getCurrentHP() > 0) {
@@ -84,13 +84,17 @@ class TrainerBattle {
             int chosenIndex;
             boolean invalidInput;
             do {
+                invalidInput = false;
                 chosenIndex = getIntFromInput(scan, 0, playerParty.length - 1);
-                invalidInput = playerParty[chosenIndex].getCurrentHP() <= 0;
-                if (invalidInput) {
+                if (playerParty[chosenIndex].getCurrentHP() <= 0) {
+                    invalidInput = true;
                     System.out.println("That Pokemon is unable to fight!");
                 }
+                else if (playerParty[chosenIndex] == currentPokemon) {
+                    invalidInput = true;
+                    System.out.println("That Pokemon is already on the field!");
+                }
             } while (invalidInput);
-            assert playerParty[chosenIndex].getCurrentHP() > 0: "Cannot choose a Pokemon with 0 HP or less";
             System.out.println("The player sent out " + playerParty[chosenIndex].name + "\n");
             return playerParty[chosenIndex];
         }
