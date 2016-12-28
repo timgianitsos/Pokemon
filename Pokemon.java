@@ -56,7 +56,8 @@ public class Pokemon {
     protected static AePlayWave intro(Scanner scan, String musicFilename, int bufferSize) {
         AePlayWave battleMusic = null;
         double random = Math.random();
-        System.out.println(random < 0.25 ? machampString: random < 0.5 ? scytherString: random < 0.75 ? alakazamString: charizardString);
+        System.out.println(random < 0.2 ? machampString: random < 0.4 ? scytherString: random < 0.6 ? alakazamString: 
+            random < 0.8 ? rapidashString: charizardString);
         System.out.println("\nMusic? [y] - yes, [blank] - no");
         String response = scan.nextLine();
         if (response != null && response.length() > 0 && response.charAt(0) == 'y') {
@@ -639,7 +640,37 @@ public class Pokemon {
             + "                  j   '.  `-+---'\n                                             "
             + "            |,.. |\n                                                          `."
             + " `;\n                                                            `' mh";
-
+    public static final String rapidashString = "                     :`./\n                    _|  ,-\n    "
+            + "           ,'\"\"'    ,`\n             ,'.\\       `.    __  ,.-.\n          . ."
+            + "/ `'    __  '. ,'  \\ `.|\n          \\\\  \\   .\"'  L   \"     `\" `\\        "
+            + "                  _,-.\n           \\` |\\.`      7     .,   :._|   --'`.       "
+            + "          ` |\n          ` \\`+ `'\\      \\^--\"  `. |    ,'     `.            "
+            + ",..' |\n           | ,.    |              ` `.  |    ..  '.          |    /\n   "
+            + "        ':P'     '.    ,..      \\  `-+`\"-'  `._ \\     -`,- ..,'\n          / "
+            + "       / `-,-'  ,'`.    `.   ; .--'   `+    '.   | ,\n         /     _..     .  "
+            + " `-.  \\,.   `-'  '.  `.^  `\".__|   ' |\n        '   , / |       `.   \\    |  "
+            + "      ,'     \\           /\n         `\"' \" .         \\   |  __ \\    ,-'    "
+            + "   `----.   _,'\n              /           |  `\"' _} `\"\"'                `-'\n"
+            + "             /.'         /     .-.         ,\".\n     .._,.  /           /     '"
+            + "-.,'    ,'-. .'.\n    /  `. \\/             `-.      `.   /`.  :\n   /  __ `.'  "
+            + "              '-.     `-+_.'  .'          ,__\n  / .'  `.___                  `,"
+            + "..__      <__          \\ (\n / /       \"..   /                   `-.     .' .-"
+            + "'\"`--.'  \\\n/  |       /-'  /                       \\ ,._|  |          /'\n\\"
+            + ".'|+.+.  (`..,'                         \\`._ _,'           \\__\n \\ |||| \\ _`"
+            + ".^ `.            .            |  \"    .'`\"-.       `.\n  `+'|/ `( \\'    `-..."
+            + ".__    |            |._,\".,'     `,        |\n                         `:-.|   "
+            + "         `           ..'   ,'`.,-\n                          |  |            |`."
+            + "        '-..    . /\n                          '  |           /  /           `. "
+            + "  |\n                           ` '          /  ',.         ,     `._\n         "
+            + "                   \\|        ,'   \\'|         :  __    '\n                    "
+            + "         `,     ,`     .._`..       `'  `-,.`.\n                       _`'`\".  "
+            + "`.   ``-._ /   F   )        ,._\\ `\n                      '-\"'`, \\   \\ ,. )."
+            + "-'-.^,|_,'         `  '.\n                          '.. \\___j  `\"'            "
+            + "   ,..  | .'\n                             \\            ___       ,. `\\ \\,+-'"
+            + "\n                              7.._   .--+`.  |_    |  `,'\n                   "
+            + "        _,'  .'`--'  '    7 ` v.-\n                         .\"._  /-.  -.   \\."
+            + "^-`\n                       .'  __+'...`'  `--'\n                        `\"\" m"
+            + "h";
 }
 
 enum PokemonEnum {
@@ -682,6 +713,7 @@ enum PokemonEnum {
     ALAKAZAM(Type.PSYCHIC, null, new int[]{55, 50, 45, 135, 95, 120}, EnumSet.of(Attack.PSYCHIC)), 
     MACHAMP(Type.FIGHTING, null, new int[]{90, 130, 80, 65, 85, 55}, EnumSet.of(Attack.BRICK_BREAK)), 
     GOLEM(Type.ROCK, Type.GROUND, new int[]{80, 120, 130, 55, 65, 45}, EnumSet.of(Attack.ROCK_SLIDE)), 
+    RAPIDASH(Type.FIRE, null, new int[]{65,100,70,80,80,105}, EnumSet.of(Attack.FLARE_BLITZ)), 
     GENGAR(Type.GHOST, Type.POISON, new int[]{60, 65, 60, 130, 75, 110}, EnumSet.of(Attack.SHADOW_BALL)), 
     STARMIE(Type.WATER, Type.PSYCHIC, new int[]{60,75,85,100,85,115}, EnumSet.of(Attack.SURF)), 
     SCYTHER(Type.BUG, Type.FLYING, new int[]{70,110,80,55,80,105}, EnumSet.of(Attack.X_SCISSOR)), 
