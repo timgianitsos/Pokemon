@@ -53,7 +53,7 @@ class TrainerAI {
                     p2.heal();
                 }
 
-                //TODO clean this
+                //TODO clean this if possible
                 pokeToWins.put(p1Enum, (pokeToWins.get(p1Enum) == null ? 0: pokeToWins.get(p1Enum)) + p1Wins);
                 pokeToWins.put(p2Enum, (pokeToWins.get(p2Enum) == null ? 0: pokeToWins.get(p2Enum)) + p2Wins);
                 if (pokeToFewestWinsMatchup.get(p1Enum) == null) {
@@ -75,13 +75,14 @@ class TrainerAI {
                     pokeToWorstMatchup.put(p2Enum, EnumSet.of(p1Enum));
                 }
                 else {
+
                     if (p2Wins < pokeToFewestWinsMatchup.get(p2Enum)) {
                         pokeToFewestWinsMatchup.put(p2Enum, p2Wins);
                         pokeToWorstMatchup.get(p2Enum).clear();
                         pokeToWorstMatchup.get(p2Enum).add(p1Enum);
                     }
-                    else if (pokeToFewestWinsMatchup.get(p2Enum) == p2Wins) {
-                        pokeToWorstMatchup.get(p1Enum).add(p2Enum);
+                    else if (p2Wins == pokeToFewestWinsMatchup.get(p2Enum)) {
+                        pokeToWorstMatchup.get(p2Enum).add(p1Enum);
                     }
                 }
             }
@@ -181,6 +182,7 @@ class TrainerAI {
 
             try {
                 //Obtain set of Pokemon that have the best probability of beating the opponent, and choose a random one in the set
+                //TODO make sure selects correctly
                 EnumSet<PokemonEnum> choices = pokeToWorstMatchup.get(PokemonEnum.valueOf(opponentPokemon.name));
                 PokemonEnum pe = null;
                 double i = choices.size();
