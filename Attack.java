@@ -16,6 +16,7 @@ enum Attack {
     BRAVE_BIRD(120, 80, 15, Type.FLYING, true), 
     VOLT_TACKLE(120, 80, 15, Type.ELECTRIC, true), 
     PSYCHO_CUT(70, 100, 20, Type.PSYCHIC, true), 
+    FOUL_PLAY(95, 100, 15, Type.DARK, true), 
 
     TACKLE(40, 100, 35, Type.NORMAL, true), 
     ENERGY_BALL(90, 100, 10, Type.GRASS, false), 
@@ -50,6 +51,7 @@ enum Attack {
     //FLARE_BLITZ (accuracy)
     //BRAVE_BIRD (accuracy)
     //VOLT_TACKLE (accuracy)
+    //FOUL_PLAY (use opponents attack stat)
     //STRUGGLE (accuracy)
     
     public final int baseDamage;

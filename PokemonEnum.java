@@ -55,7 +55,7 @@ enum PokemonEnum {
     FLYGON(Type.GROUND, Type.DRAGON, new int[]{80,100,80,80,80,100}, EnumSet.of(Attack.DRAGON_CLAW)), 
     GLALIE(Type.ICE, null, new int[]{80,80,80,80,80,80}, EnumSet.of(Attack.ICE_BEAM)), 
     FLOATZEL(Type.WATER, null, new int[]{85,105,55,85,50,115}, EnumSet.of(Attack.SURF)), 
-    SPIRITOMB(Type.GHOST, Type.DARK, new int[]{50, 92, 108, 92, 108, 35}, EnumSet.of(Attack.SHADOW_BALL)), 
+    SPIRITOMB(Type.GHOST, Type.DARK, new int[]{50, 92, 108, 92, 108, 35}, EnumSet.of(Attack.FOUL_PLAY)), 
     TOGEKISS(Type.FAIRY, Type.FLYING, new int[]{85,50,95,120,115,80}, EnumSet.of(Attack.DAZZLING_GLEAM)), 
     GLACEON(Type.ICE, null, new int[]{65, 60, 110, 130, 95, 65}, EnumSet.of(Attack.ICE_BEAM)), 
     CONKELDURR(Type.FIGHTING, null, new int[]{105,140,95,55,65,45}, EnumSet.of(Attack.BRICK_BREAK)), 

@@ -6,6 +6,7 @@ import java.util.Comparator;
 
 class TrainerAI {
     //TODO consider more granularity with disabling 
+    //TODO simulation method to analyze correctness
     //Array of PokemonEnums that is sorted by ascending difficulty as determined by the simulation
     private static final PokemonEnum[] ascendingDifficulty = PokemonEnum.values();
     //Mapping from a PokemonEnum to a set of PokemonEnums that it performed the worst against
