@@ -1,3 +1,3 @@
 #Pokemon Java
-A program to help teach coding in Java
+A program to simulate Pokemon battles
 
