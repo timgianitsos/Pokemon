@@ -1,3 +1,2 @@
-#Pokemon Java
+# Pokemon Java
 A program to simulate Pokemon battles
-
