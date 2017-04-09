@@ -72,7 +72,7 @@ class TrainerBattle {
                 }
             }
         }
-        assert (playerPokemon == null || opponentPokemon == null) && (playerPokemon != opponentPokemon): "Both trainers cannot lose";
+        assert playerPokemon == null ^ opponentPokemon == null: "Both trainers cannot lose";
         if (battleMusic != null){
             battleMusic.quit();
         }

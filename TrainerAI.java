@@ -197,7 +197,7 @@ class TrainerAI {
                 result = new Pokemon(Pokemon.STAT_MAXIMIZER_PREFIX + pe.name());
             }
             catch (Exception e) {
-                result = new Pokemon("_shedinja", Type.NONE, null, new int[]{1, Integer.MAX_VALUE, Integer.MAX_VALUE, 
+                result = new Pokemon("_shedinja", Type.NONE, null, new int[]{Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE, 
                     Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE}, EnumSet.allOf(Attack.class));
             }
 
