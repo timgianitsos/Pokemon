@@ -33,10 +33,10 @@ class TrainerAI {
         EnumMap<PokemonEnum, Integer> pokeToFewestWinsMatchup = new EnumMap<>(PokemonEnum.class);
         for (int p1Index = 0; p1Index < PokemonEnum.numberOfPokemonEnums() - 1; p1Index++) {
             PokemonEnum p1Enum = PokemonEnum.getPokemonEnumAtIndex(p1Index);
-            Pokemon p1 = new Pokemon("_" + p1Enum.name());
+            Pokemon p1 = new Pokemon(Pokemon.STAT_MAXIMIZER_PREFIX + p1Enum.name());
             for (int p2Index = p1Index + 1; p2Index < PokemonEnum.numberOfPokemonEnums(); p2Index++) {
                 PokemonEnum p2Enum = PokemonEnum.getPokemonEnumAtIndex(p2Index);
-                Pokemon p2 = new Pokemon("_" + p2Enum.name());
+                Pokemon p2 = new Pokemon(Pokemon.STAT_MAXIMIZER_PREFIX + p2Enum.name());
                 int p1Wins = 0;
                 int p2Wins = 0;
                 for (int battleRound = 0; battleRound < SIMULATIONS_PER_POKEMON; battleRound++) {
@@ -153,7 +153,7 @@ class TrainerAI {
                 do {
                     newPokemonIndex = (int)(Math.random() * pokemonPerDifficultyTier) + minIndex;
                 } while (usedIndices.contains(newPokemonIndex));
-                party[i] = new Pokemon("_" + ascendingDifficulty[newPokemonIndex].name());
+                party[i] = new Pokemon(Pokemon.STAT_MAXIMIZER_PREFIX + ascendingDifficulty[newPokemonIndex].name());
                 usedIndices.add(newPokemonIndex);
             }
         }
@@ -194,7 +194,7 @@ class TrainerAI {
                     }
                     i--;
                 }
-                result = new Pokemon("_" + pe.name());
+                result = new Pokemon(Pokemon.STAT_MAXIMIZER_PREFIX + pe.name());
             }
             catch (Exception e) {
                 result = new Pokemon("_shedinja", Type.NONE, null, new int[]{1, Integer.MAX_VALUE, Integer.MAX_VALUE, 
