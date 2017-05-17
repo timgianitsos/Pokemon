@@ -4,12 +4,10 @@ import java.util.EnumMap;
 import java.io.File;
 
 //TODO check parameterized print, put stat calculation explanation in comments
-//TODO limit number of pokemon used by master trainer
+//TODO replace some asserts with exceptions?
+//TODO refactor partition
 public class Pokemon {
     
-    /*
-     * This main method allows us to test Pokemon objects
-     */
     public static void main(String[] args) {
         Scanner scan = new Scanner(System.in);
         Pokemon p1;
@@ -67,9 +65,6 @@ public class Pokemon {
         return battleMusic;
     }
 
-    /*
-     * Pokemon instance variables - each Pokemon has its own copy. The public variables can be referenced using reference.variable
-     */
     public final String name;
     public final Type type1;
     public final Type type2;
@@ -77,9 +72,6 @@ public class Pokemon {
     private final EnumMap<Attack, Integer> attackToPP = new EnumMap<Attack, Integer>(Attack.class);
     private int currentHP;
 
-    /*
-     * Pokemon class variables - there is only one global copy of these. They can be referenced by using Pokemon.variable
-     */
     public static final PokemonEnum DEFAULT_POKEMON = PokemonEnum.MAGIKARP;
     public static final int LEVEL = 100;
     public static final double CRITICAL_HIT_PROBABILITY = 0.0625;
@@ -99,7 +91,7 @@ public class Pokemon {
 
     /*
      * Create a Pokemon from a name. The name must match a PokemonEnum or else it will create a default 
-     * (an underscore at the beginning is permitted as this is used to maximize stats)
+     * (the stat maximizer prefix at the beginning is permitted as this is used to maximize stats)
      */
     public Pokemon(String name) {
         boolean maximizeStats = false;
@@ -180,7 +172,7 @@ public class Pokemon {
     }
 
     /*
-     * Helper method for the constructors. It is private so it can be ignored from the outside
+     * Helper method for the constructors
      */
     private void createInstanceMappings(boolean maximizeStats, int[] baseStats, EnumSet<Attack> attacks) {
         calculateStats(maximizeStats, baseStats);
@@ -191,7 +183,7 @@ public class Pokemon {
     }
 
     /*
-     * Helper method for the constructors. It is private so it can be ignored from the outside
+     * Helper method for the constructors
      */
     private void calculateStats(boolean maximizeStats, int[] baseStats) {
         assert baseStats.length == Stat.numberOfStats(): "Attempted to create " + baseStats.length + " stats when " 
@@ -355,7 +347,7 @@ public class Pokemon {
     }
 
     /*
-     * Determines which of this Pokemons attacks is best - example of AI
+     * Determines which of this Pokemons attacks is best
      * Each move recieves a score by multiplying damage with accuracy
      * returns STRUGGLE if no move is available
      */
@@ -450,8 +442,10 @@ public class Pokemon {
         Stat offensiveStat = att.isPhysical ? Stat.ATTACK: Stat.SPECIAL_ATTACK;
         Stat defensiveStat = att.isPhysical ? Stat.DEFENCE: Stat.SPECIAL_DEFENCE;
 
-        double damageDealt = (((2.0 * LEVEL + 10.0) / 250.0 * this.statToValue.get(offensiveStat) / opponent.statToValue.get(defensiveStat) 
-            * att.baseDamage + 2.0) * att.type.getEffectiveness(this.type1, this.type2, opponent.type1, opponent.type2));
+        double damageDealt = (((2.0 * LEVEL + 10.0) / 250.0 * this.statToValue.get(offensiveStat) 
+            / opponent.statToValue.get(defensiveStat) 
+            * att.baseDamage + 2.0) 
+            * att.type.getEffectiveness(this.type1, this.type2, opponent.type1, opponent.type2));
         return damageDealt;
     }
 

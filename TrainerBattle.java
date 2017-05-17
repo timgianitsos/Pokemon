@@ -14,7 +14,7 @@ class TrainerBattle {
 //        testCode();
 //        practice();
     }
-
+//TODO clean gargantuan method
     static void battle() {
         if (PARTY_SIZE < 1) {
             throw new IllegalStateException("Party size must be a positive integer");

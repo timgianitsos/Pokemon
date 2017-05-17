@@ -10,7 +10,7 @@ import javax.sound.sampled.SourceDataLine;
 import javax.sound.sampled.UnsupportedAudioFileException; 
  
 public class AePlayWave extends Thread {
-
+//TODO make quit() work immediately
     public static final int DEFAULT_BUFFER_SIZE = 524288; // 128Kb 
     public static final int PRIME_CUP_BUFFER_SIZE = 11534336;
     public static final int PETIT_CUP_BUFFER_SIZE = 12478054;
