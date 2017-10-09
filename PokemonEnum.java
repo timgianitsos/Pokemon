@@ -68,6 +68,7 @@ enum PokemonEnum {
 
     public final Type type1;
     public final Type type2;
+    //TODO consider using byte array since no pokemon has a base stat greater than 255
     protected final int[] baseStats;
     protected final EnumSet<Attack> attacks;
     private static final PokemonEnum[] pokemonEnumArray;
@@ -107,5 +108,5 @@ enum PokemonEnum {
     public static int numberOfPokemonEnums() {
         return pokemonEnumArray.length;
     }
-
 }
+

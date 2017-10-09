@@ -20,3 +20,4 @@ enum Stat {
         return statArray.length;
     }
 }
+

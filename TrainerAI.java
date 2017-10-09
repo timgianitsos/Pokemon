@@ -197,6 +197,7 @@ class TrainerAI {
                 result = new Pokemon(Pokemon.STAT_MAXIMIZER_PREFIX + pe.name());
             }
             catch (Exception e) {
+                //TODO custom opponents with valid names don't get paired with shedinja
                 result = new Pokemon("_shedinja", Type.NONE, null, new int[]{Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE, 
                     Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE}, EnumSet.allOf(Attack.class));
             }
