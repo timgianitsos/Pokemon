@@ -6,6 +6,7 @@ import java.io.File;
 //TODO check parameterized print, put stat calculation explanation in comments
 //TODO replace some asserts with exceptions?
 //TODO refactor partition
+//TODO capability of downloading music at runtime
 public class Pokemon {
     
     public static void main(String[] args) {
