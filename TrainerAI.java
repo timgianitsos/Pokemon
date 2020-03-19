@@ -41,7 +41,7 @@ class TrainerAI {
                 int p2Wins = 0;
                 for (int battleRound = 0; battleRound < SIMULATIONS_PER_POKEMON; battleRound++) {
                     while (p1.getCurrentHP() != 0 && p2.getCurrentHP() != 0) {
-                        Pokemon.doTurn(p1, p2);
+                        PokemonBattle.doTurn(p1, p2);
                     }
                     if (p1.getCurrentHP() == 0) {
                         assert p2.getCurrentHP() != 0 : "Both combatant Pokemon should not be able to faint";

@@ -20,12 +20,12 @@ class TrainerBattle {
             throw new IllegalStateException("Party size must be a positive integer");
         }
         Scanner scan = new Scanner(System.in);
-        AePlayWave battleMusic = Pokemon.intro(scan, AePlayWave.BATTLE_MUSIC_PETIT_CUP, AePlayWave.PETIT_CUP_BUFFER_SIZE);
-        Pokemon.displayPokemon();
+        AePlayWave battleMusic = PokemonBattle.intro(scan, AePlayWave.BATTLE_MUSIC_PETIT_CUP, AePlayWave.PETIT_CUP_BUFFER_SIZE);
+        PokemonBattle.displayPokemon();
         Pokemon[] playerParty = new Pokemon[PARTY_SIZE];
         for (int i = 0; i < playerParty.length; i++) {
             System.out.println("Enter pokemon " + (i + 1));
-            playerParty[i] = Pokemon.askForPokemon(scan);
+            playerParty[i] = PokemonBattle.askForPokemon(scan);
             System.out.println(playerParty[i].toString());
         }
         
@@ -50,7 +50,7 @@ class TrainerBattle {
                 System.out.println("Press: (0) fight, (1) switch");
                 int choice = getIntFromInput(scan, 0, 1);
                 if (choice == 0) {
-                    Pokemon.doTurn(playerPokemon, opponentPokemon);
+                    PokemonBattle.doTurn(playerPokemon, opponentPokemon);
                 }
                 else if (choice == 1) {
                     Attack attack = opponentPokemon.getBestAttack(playerPokemon);
@@ -173,7 +173,7 @@ class TrainerBattle {
         //--------------------------------------------------------------------------------
         //A typical turn
         System.out.println("A typical turn-------------\n");
-        Pokemon.doTurn(p1, p2); //Both Pokemon attack each other. The Pokemon with higher speed goes first
+        PokemonBattle.doTurn(p1, p2); //Both Pokemon attack each other. The Pokemon with higher speed goes first
         scan.nextLine(); //Press enter to proceed
 
         //--------------------------------------------------------------------------------
@@ -181,7 +181,7 @@ class TrainerBattle {
             + "(Or type \"custom\" to make your own pokemon like latios or arceus)\n"
             + "(Even if the pokemon enum does not exist in the code, it will still make a cry if it "
             + "is spelled correctly)\n(The actual stats of a custom pokemon do NOT have to be authentic)");
-        Pokemon userPoke = Pokemon.askForPokemon(scan); //Use this method to ask user to enter a pokemon name
+        Pokemon userPoke = PokemonBattle.askForPokemon(scan); //Use this method to ask user to enter a pokemon name
         System.out.println("\nHere is the pokemon you chose:\n" + userPoke.toString());
         scan.nextLine(); //Press enter to proceed
 
@@ -201,7 +201,7 @@ class TrainerBattle {
         System.out.println("To display a list of all non-hidden pokemon use the displayPokemon() method");
         //This is a static method so we invoke it with Pokemon.method(), not variable.method()
         //This makes sense - displaying a list of all Pokemon should be a behavior of the whole class, not an instance of the class
-        Pokemon.displayPokemon();
+        PokemonBattle.displayPokemon();
     }
 
     static void practice() {
@@ -215,7 +215,7 @@ class TrainerBattle {
         System.out.println(p2.toString());
         scan.nextLine();
 
-        Pokemon.doTurn(p1, p2);
+        PokemonBattle.doTurn(p1, p2);
         scan.nextLine();
 
         System.out.println("Press enter to stop the music (it may delay a few seconds before stopping - use \"command C\" to stop immediately)");
