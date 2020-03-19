@@ -30,7 +30,7 @@ class TrainerBattle {
         }
         
         System.out.println("The computer is generating your opponent...");
-        System.out.println("Select difficulty between 1 and " + (TrainerAI.getMaxDifficulty() + 1));
+        System.out.println("Select difficulty between 1 and " + (TrainerAI.getMaxDifficulty()));
         TrainerAI.setCurrentDifficulty(getIntFromInput(scan, 1, Integer.MAX_VALUE));
         System.out.print((TrainerAI.getCurrentDifficulty() - 1 >= TrainerAI.getMaxDifficulty() ? "The Pokemon Master " 
             + "would like to battle you!\n":""));

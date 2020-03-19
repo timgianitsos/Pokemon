@@ -110,6 +110,7 @@ enum Type {
      * and how effective the move is against the opponent's types
      */
     public double getEffectiveness(Type userType1, Type userType2, Type opponentType1, Type opponentType2) {
+        //Same Type Attack Bonus (STAB)
         double scaleFactor =  this == userType1 || this == userType2 ? 1.5: 1;
 
         //Calculate scale for opponent type 1

@@ -28,7 +28,7 @@ class TrainerAI {
         boolean oldPlaySoundSetting = Pokemon.PLAY_SOUND;
         Pokemon.DISPLAY_BATTLE_TEXT = false;
         Pokemon.PLAY_SOUND = false;
-        
+
         EnumMap<PokemonEnum, Integer> pokeToWins = new EnumMap<>(PokemonEnum.class);
         EnumMap<PokemonEnum, Integer> pokeToFewestWinsMatchup = new EnumMap<>(PokemonEnum.class);
         for (int p1Index = 0; p1Index < PokemonEnum.numberOfPokemonEnums() - 1; p1Index++) {

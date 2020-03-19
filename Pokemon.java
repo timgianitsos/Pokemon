@@ -115,83 +115,6 @@ public class Pokemon {
     }
 
     /*
-     * Helper method for the constructors
-     */
-    private void createInstanceMappings(boolean maximizeStats, int[] baseStats, EnumSet<Attack> attacks) {
-        calculateStats(maximizeStats, baseStats);
-        for (Attack a: attacks) {
-            this.attackToPP.put(a, a.basePP);
-        }
-        this.currentHP = statToValue.get(Stat.HP);
-    }
-
-    /*
-     * Helper method for the constructors
-     */
-    private void calculateStats(boolean maximizeStats, int[] baseStats) {
-        assert baseStats.length == Stat.numberOfStats(): "Attempted to create " + baseStats.length + " stats when " 
-            + Stat.numberOfStats() + " are required";
-        
-        boolean maximizeAttack = baseStats[Stat.ATTACK.ordinal()] >= baseStats[Stat.SPECIAL_ATTACK.ordinal()];
-        boolean maximizeSpeed = baseStats[Stat.SPEED.ordinal()] >= BASE_SPEED_MAXIMIZER_THRESHHOLD || baseStats[Stat.HP.ordinal()] == 1;
-        
-        this.statToValue.put(Stat.HP, baseStats[Stat.HP.ordinal()] == 1 ? 1: 
-            (int)(((2.0 * baseStats[Stat.HP.ordinal()] + (maximizeStats ? 31.0: (int)(Math.random() * 32.0)) 
-            + (maximizeStats && maximizeSpeed ? 6.0: 0.0) / 4.0) * LEVEL / 100.0) + LEVEL + 10.0));
-        this.statToValue.put(Stat.ATTACK, 
-            (int)((((2.0 * baseStats[Stat.ATTACK.ordinal()] + (maximizeStats ? 31.0: (int)(Math.random() * 32.0)) 
-            + (maximizeStats && maximizeAttack ? 252.0: 0.0) / 4.0) * LEVEL / 100.0) + 5.0) 
-            * (maximizeStats && maximizeAttack && !maximizeSpeed ? 1.1: maximizeStats && !maximizeAttack ? 0.9: 1.0)));
-        this.statToValue.put(Stat.DEFENCE, 
-            (int)((((2.0 * baseStats[Stat.DEFENCE.ordinal()] + (maximizeStats ? 31.0: (int)(Math.random() * 32.0)) 
-            + (0.0) / 4.0) * LEVEL / 100.0) + 5.0) * (1.0)));
-        this.statToValue.put(Stat.SPECIAL_ATTACK, 
-            (int)((((2.0 * baseStats[Stat.SPECIAL_ATTACK.ordinal()] + (maximizeStats ? 31.0: (int)(Math.random() * 32.0)) 
-            + (maximizeStats && !maximizeAttack ? 252.0: 0.0) / 4.0) * LEVEL / 100.0) + 5.0) 
-            * (maximizeStats && !maximizeAttack && !maximizeSpeed ? 1.1: maximizeStats && maximizeAttack ? 0.9: 1.0)));
-        this.statToValue.put(Stat.SPECIAL_DEFENCE, 
-            (int)((((2.0 * baseStats[Stat.SPECIAL_DEFENCE.ordinal()] + (maximizeStats ? 31.0: (int)(Math.random() * 32.0)) 
-            + (0.0) / 4.0) * LEVEL / 100.0) + 5.0) * (1.0)));
-        this.statToValue.put(Stat.SPEED, 
-            (int)((((2.0 * baseStats[Stat.SPEED.ordinal()] + (maximizeStats ? 31.0: (int)(Math.random() * 32.0)) 
-            + (maximizeStats && maximizeSpeed ? 252.0: 0.0) / 4.0) * LEVEL / 100.0) + 5.0) 
-            * (maximizeStats && maximizeSpeed ? 1.1: 1.0)));
-
-        if (maximizeStats && !maximizeSpeed) {
-            double hp = statToValue.get(Stat.HP);
-            double def = statToValue.get(Stat.DEFENCE);
-            double spdef = statToValue.get(Stat.SPECIAL_DEFENCE);
-            for (int remainingEvs = 252; remainingEvs > 0; remainingEvs--) {
-                if (hp <= def && hp <= spdef) {
-                    hp += LEVEL / 400.0;
-                }
-                else if (def <= spdef) {
-                    assert def < hp;
-                    def += LEVEL / 400.0;
-                }
-                else {
-                    assert spdef < hp && spdef < def;
-                    spdef += LEVEL / 400.0;
-                }
-            }
-            statToValue.put(Stat.HP, (int)hp);
-            statToValue.put(Stat.DEFENCE, (int)def);
-            statToValue.put(Stat.SPECIAL_DEFENCE, (int)spdef);
-            //Putting some evs in speed prevents one of the defensive stats from becoming too large
-            statToValue.put(Stat.SPEED, statToValue.get(Stat.SPEED) + (int)(6.0 * LEVEL / 400.0));
-        }
-    }
-
-    /*
-     * Private helper method to print Strings if configuration allows
-     */
-    private void display(String s) {
-        if (DISPLAY_BATTLE_TEXT) {
-            System.out.print(s);
-        }
-    }
-
-    /*
      * Determines which of this Pokemons attacks is best
      * Each move recieves a score by multiplying damage with accuracy
      * returns STRUGGLE if no move is available
@@ -376,5 +299,82 @@ public class Pokemon {
     public static final String ANSI_CYAN = "\u001B[36m";
     public static final String ANSI_WHITE = "\u001B[37m";
 
-}
+    /*
+     * Helper method for the constructors
+     */
+    private void createInstanceMappings(boolean maximizeStats, int[] baseStats, EnumSet<Attack> attacks) {
+        calculateStats(maximizeStats, baseStats);
+        for (Attack a: attacks) {
+            this.attackToPP.put(a, a.basePP);
+        }
+        this.currentHP = statToValue.get(Stat.HP);
+    }
 
+    /*
+     * Helper method for the constructors
+     */
+    private void calculateStats(boolean maximizeStats, int[] baseStats) {
+        assert baseStats.length == Stat.numberOfStats(): "Attempted to create " + baseStats.length + " stats when " 
+            + Stat.numberOfStats() + " are required";
+
+        boolean maximizeAttack = baseStats[Stat.ATTACK.ordinal()] >= baseStats[Stat.SPECIAL_ATTACK.ordinal()];
+        boolean maximizeSpeed = baseStats[Stat.SPEED.ordinal()] >= BASE_SPEED_MAXIMIZER_THRESHHOLD
+            || baseStats[Stat.HP.ordinal()] == 1; //no EVs should be allocated defensively if base HP is 1
+
+        this.statToValue.put(Stat.HP, baseStats[Stat.HP.ordinal()] == 1 ? 1: 
+            (int)(((2.0 * baseStats[Stat.HP.ordinal()] + (maximizeStats ? 31.0: (int)(Math.random() * 32.0)) 
+            + (maximizeStats && maximizeSpeed ? 6.0: 0.0) / 4.0) * LEVEL / 100.0) + LEVEL + 10.0));
+        this.statToValue.put(Stat.ATTACK, 
+            (int)((((2.0 * baseStats[Stat.ATTACK.ordinal()] + (maximizeStats ? 31.0: (int)(Math.random() * 32.0)) 
+            + (maximizeStats && maximizeAttack ? 252.0: 0.0) / 4.0) * LEVEL / 100.0) + 5.0) 
+            * (maximizeStats && maximizeAttack && !maximizeSpeed ? 1.1: maximizeStats && !maximizeAttack ? 0.9: 1.0)));
+        this.statToValue.put(Stat.DEFENCE, 
+            (int)((((2.0 * baseStats[Stat.DEFENCE.ordinal()] + (maximizeStats ? 31.0: (int)(Math.random() * 32.0)) 
+            + (0.0) / 4.0) * LEVEL / 100.0) + 5.0) * (1.0)));
+        this.statToValue.put(Stat.SPECIAL_ATTACK, 
+            (int)((((2.0 * baseStats[Stat.SPECIAL_ATTACK.ordinal()] + (maximizeStats ? 31.0: (int)(Math.random() * 32.0)) 
+            + (maximizeStats && !maximizeAttack ? 252.0: 0.0) / 4.0) * LEVEL / 100.0) + 5.0) 
+            * (maximizeStats && !maximizeAttack && !maximizeSpeed ? 1.1: maximizeStats && maximizeAttack ? 0.9: 1.0)));
+        this.statToValue.put(Stat.SPECIAL_DEFENCE, 
+            (int)((((2.0 * baseStats[Stat.SPECIAL_DEFENCE.ordinal()] + (maximizeStats ? 31.0: (int)(Math.random() * 32.0)) 
+            + (0.0) / 4.0) * LEVEL / 100.0) + 5.0) * (1.0)));
+        this.statToValue.put(Stat.SPEED, 
+            (int)((((2.0 * baseStats[Stat.SPEED.ordinal()] + (maximizeStats ? 31.0: (int)(Math.random() * 32.0)) 
+            + (maximizeStats && maximizeSpeed ? 252.0: 0.0) / 4.0) * LEVEL / 100.0) + 5.0) 
+            * (maximizeStats && maximizeSpeed ? 1.1: 1.0)));
+
+        if (maximizeStats && !maximizeSpeed) {
+            double hp = statToValue.get(Stat.HP);
+            double def = statToValue.get(Stat.DEFENCE);
+            double spdef = statToValue.get(Stat.SPECIAL_DEFENCE);
+            for (int remainingEvs = 252; remainingEvs > 0; remainingEvs--) {
+                if (hp <= def && hp <= spdef) {
+                    hp += LEVEL / 400.0;
+                }
+                else if (def <= spdef) {
+                    assert def < hp;
+                    def += LEVEL / 400.0;
+                }
+                else {
+                    assert spdef < hp && spdef < def;
+                    spdef += LEVEL / 400.0;
+                }
+            }
+            statToValue.put(Stat.HP, (int)hp);
+            statToValue.put(Stat.DEFENCE, (int)def);
+            statToValue.put(Stat.SPECIAL_DEFENCE, (int)spdef);
+            //Putting remaining EVs in speed prevents one of the defensive stats from becoming too large
+            statToValue.put(Stat.SPEED, statToValue.get(Stat.SPEED) + (int)(6.0 * LEVEL / 400.0));
+        }
+    }
+
+    /*
+     * Private helper method to print Strings if configuration allows
+     */
+    private void display(String s) {
+        if (DISPLAY_BATTLE_TEXT) {
+            System.out.print(s);
+        }
+    }
+
+}
