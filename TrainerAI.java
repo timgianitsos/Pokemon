@@ -7,10 +7,10 @@ import java.util.Comparator;
 class TrainerAI {
     //TODO consider more granularity with disabling 
     //TODO simulation method to analyze correctness
-    //Array of PokemonEnums that is sorted by ascending difficulty as determined by the simulation
-    private static final PokemonEnum[] ascendingDifficulty = PokemonEnum.values();
-    //Mapping from a PokemonEnum to a set of PokemonEnums that it performed the worst against
-    private static final EnumMap<PokemonEnum, EnumSet<PokemonEnum>> pokeToWorstMatchup = new EnumMap<>(PokemonEnum.class);
+    //Array of PokemonTemplates that is sorted by ascending difficulty as determined by the simulation
+    private static final PokemonTemplate[] ascendingDifficulty = PokemonTemplate.values();
+    //Mapping from a PokemonTemplate to a set of PokemonTemplates that it performed the worst against
+    private static final EnumMap<PokemonTemplate, EnumSet<PokemonTemplate>> pokeToWorstMatchup = new EnumMap<>(PokemonTemplate.class);
     private static final int SIMULATIONS_PER_POKEMON = 500;
     private static int MAX_DIFFICULTY = 3;
     private static int CURRENT_DIFFICULTY = 1;
@@ -29,13 +29,13 @@ class TrainerAI {
         Pokemon.DISPLAY_BATTLE_TEXT = false;
         Pokemon.PLAY_SOUND = false;
 
-        EnumMap<PokemonEnum, Integer> pokeToWins = new EnumMap<>(PokemonEnum.class);
-        EnumMap<PokemonEnum, Integer> pokeToFewestWinsMatchup = new EnumMap<>(PokemonEnum.class);
-        for (int p1Index = 0; p1Index < PokemonEnum.numberOfPokemonEnums() - 1; p1Index++) {
-            PokemonEnum p1Enum = PokemonEnum.getPokemonEnumAtIndex(p1Index);
+        EnumMap<PokemonTemplate, Integer> pokeToWins = new EnumMap<>(PokemonTemplate.class);
+        EnumMap<PokemonTemplate, Integer> pokeToFewestWinsMatchup = new EnumMap<>(PokemonTemplate.class);
+        for (int p1Index = 0; p1Index < PokemonTemplate.numberOfPokemonTemplates() - 1; p1Index++) {
+            PokemonTemplate p1Enum = PokemonTemplate.getPokemonTemplateAtIndex(p1Index);
             Pokemon p1 = new Pokemon(Pokemon.STAT_MAXIMIZER_PREFIX + p1Enum.name());
-            for (int p2Index = p1Index + 1; p2Index < PokemonEnum.numberOfPokemonEnums(); p2Index++) {
-                PokemonEnum p2Enum = PokemonEnum.getPokemonEnumAtIndex(p2Index);
+            for (int p2Index = p1Index + 1; p2Index < PokemonTemplate.numberOfPokemonTemplates(); p2Index++) {
+                PokemonTemplate p2Enum = PokemonTemplate.getPokemonTemplateAtIndex(p2Index);
                 Pokemon p2 = new Pokemon(Pokemon.STAT_MAXIMIZER_PREFIX + p2Enum.name());
                 int p1Wins = 0;
                 int p2Wins = 0;
@@ -89,8 +89,8 @@ class TrainerAI {
             }
         }
 
-        Arrays.sort(ascendingDifficulty, new Comparator<PokemonEnum>() {
-            public int compare(PokemonEnum p1, PokemonEnum p2) {
+        Arrays.sort(ascendingDifficulty, new Comparator<PokemonTemplate>() {
+            public int compare(PokemonTemplate p1, PokemonTemplate p2) {
                 return pokeToWins.get(p1).compareTo(pokeToWins.get(p2));
             }
         });
@@ -125,7 +125,7 @@ class TrainerAI {
         if (partySize < 1) {
             throw new IllegalArgumentException("Party size must be a positive integer");
         }
-        int pokemonPerDifficultyTier = PokemonEnum.numberOfPokemonEnums() / MAX_DIFFICULTY;
+        int pokemonPerDifficultyTier = PokemonTemplate.numberOfPokemonTemplates() / MAX_DIFFICULTY;
         if (pokemonPerDifficultyTier < partySize) {
             throw new IllegalStateException("Cannot create a party of size " + partySize 
             + " because the difficulty granularity is too high - there are not enough unique Pokemon per difficulty"
@@ -184,10 +184,10 @@ class TrainerAI {
             try {
                 //Obtain set of Pokemon that have the best probability of beating the opponent, and choose a random one in the set
                 //TODO make sure selects correctly
-                EnumSet<PokemonEnum> choices = pokeToWorstMatchup.get(PokemonEnum.valueOf(opponentPokemon.name));
-                PokemonEnum pe = null;
+                EnumSet<PokemonTemplate> choices = pokeToWorstMatchup.get(PokemonTemplate.valueOf(opponentPokemon.name));
+                PokemonTemplate pe = null;
                 double i = choices.size();
-                for (PokemonEnum choice: choices) {
+                for (PokemonTemplate choice: choices) {
                     pe = choice;
                     if (Math.random() < 1.0 / i) {
                         break;

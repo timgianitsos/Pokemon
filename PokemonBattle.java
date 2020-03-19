@@ -22,8 +22,8 @@ public class PokemonBattle {
      */
     public static void displayPokemon() {
         System.out.println("\nAvailable Pokemon");
-        for (int pokeEnumIndex = 0; pokeEnumIndex < PokemonEnum.numberOfPokemonEnums(); pokeEnumIndex++) {
-            PokemonEnum poke = PokemonEnum.getPokemonEnumAtIndex(pokeEnumIndex);
+        for (int pokeEnumIndex = 0; pokeEnumIndex < PokemonTemplate.numberOfPokemonTemplates(); pokeEnumIndex++) {
+            PokemonTemplate poke = PokemonTemplate.getPokemonTemplateAtIndex(pokeEnumIndex);
             int baseStatTotal = 0;
             for (int i = 0; i < poke.baseStats.length; i++) {
                 baseStatTotal += poke.baseStats[i];

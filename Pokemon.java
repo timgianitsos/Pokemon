@@ -15,7 +15,7 @@ public class Pokemon {
     private final EnumMap<Attack, Integer> attackToPP = new EnumMap<Attack, Integer>(Attack.class);
     private int currentHP;
 
-    public static final PokemonEnum DEFAULT_POKEMON = PokemonEnum.MAGIKARP;
+    public static final PokemonTemplate DEFAULT_POKEMON = PokemonTemplate.MAGIKARP;
     public static final int LEVEL = 100;
     public static final double CRITICAL_HIT_PROBABILITY = 0.0625;
     public static final String STAT_MAXIMIZER_PREFIX = "_";
@@ -26,25 +26,25 @@ public class Pokemon {
     public static boolean PLAY_SOUND = true;
 
     /*
-     * Create a Pokemon by using a predefined enumeration from PokemonEnum
+     * Create a Pokemon by using a predefined enumeration from PokemonTemplate
      */
-    public Pokemon(PokemonEnum poke) {
+    public Pokemon(PokemonTemplate poke) {
         this(poke.name(), poke.type1, poke.type2, poke.baseStats, poke.attacks);
     }
 
     /*
-     * Create a Pokemon from a name. The name must match a PokemonEnum or else it will create a default 
+     * Create a Pokemon from a name. The name must match a PokemonTemplate or else it will create a default 
      * (the stat maximizer prefix at the beginning is permitted as this is used to maximize stats)
      */
     public Pokemon(String name) {
         boolean maximizeStats = false;
-        PokemonEnum p;
+        PokemonTemplate p;
         try {
             if (name.startsWith(STAT_MAXIMIZER_PREFIX)) {
                 maximizeStats = true;
                 name = name.substring(1, name.length());
             }
-            p = PokemonEnum.valueOf(name.toUpperCase());
+            p = PokemonTemplate.valueOf(name.toUpperCase());
         }
         catch (Exception e) {
             display("Invalid Pokemon name" + (name == null ? "": " \"" + name + "\"") + ". Generating default..\n");
@@ -66,7 +66,7 @@ public class Pokemon {
     }
 
     /*
-     * Create a Pokemon by providing necessary parameters. This allows us to create custom Pokemon not listed in PokemonEnum
+     * Create a Pokemon by providing necessary parameters. This allows us to create custom Pokemon not listed in PokemonTemplate
      */
     public Pokemon(String name, Type type1, Type type2, int[] baseStats, EnumSet<Attack> attacks) {
         boolean invalidArguments = false;

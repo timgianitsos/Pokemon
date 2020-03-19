@@ -1,6 +1,6 @@
 import java.util.EnumSet;
 
-enum PokemonEnum {
+enum PokemonTemplate {
     //Add new pokemon here
     ZAPDOS(Type.ELECTRIC, Type.FLYING, new int[]{90,90,85,125,90,100}, EnumSet.of(Attack.THUNDERBOLT, Attack.DRILL_PECK)), 
     DRAGONITE(Type.DRAGON, Type.FLYING, new int[]{91, 134, 95, 100, 100, 80}, EnumSet.of(Attack.DRAGON_CLAW, Attack.AERIAL_ACE)), 
@@ -71,13 +71,13 @@ enum PokemonEnum {
     //TODO consider using byte array since no pokemon has a base stat greater than 255
     protected final int[] baseStats;
     protected final EnumSet<Attack> attacks;
-    private static final PokemonEnum[] pokemonEnumArray;
+    private static final PokemonTemplate[] PokemonTemplateArray;
 
     static {
-        pokemonEnumArray = values();
+        PokemonTemplateArray = values();
     }
 
-    PokemonEnum(Type type1, Type type2, int[] baseStats, EnumSet<Attack> attacks) {
+    PokemonTemplate(Type type1, Type type2, int[] baseStats, EnumSet<Attack> attacks) {
         if (type1 == null) {
             throw new IllegalStateException(this.name() + " must have a valid primary type");
         }
@@ -99,14 +99,14 @@ enum PokemonEnum {
     }
 
     /*
-     * Returns the PokemonEnum at the index specified by the explicit ordering of this enum
+     * Returns the PokemonTemplate at the index specified by the explicit ordering of this enum
      */
-    public static PokemonEnum getPokemonEnumAtIndex(int i) {
-        return pokemonEnumArray[i];
+    public static PokemonTemplate getPokemonTemplateAtIndex(int i) {
+        return PokemonTemplateArray[i];
     }
 
-    public static int numberOfPokemonEnums() {
-        return pokemonEnumArray.length;
+    public static int numberOfPokemonTemplates() {
+        return PokemonTemplateArray.length;
     }
 }
 

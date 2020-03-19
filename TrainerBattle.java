@@ -146,7 +146,7 @@ class TrainerBattle {
         System.out.println(p1.toString()); //Calling toString on a pokemon prints out the info for it
         scan.nextLine(); //Press enter to proceed
 
-        Pokemon p2 = new Pokemon(PokemonEnum.RAICHU); //We can use a pre-made PokemonEnum to create a Pokemon
+        Pokemon p2 = new Pokemon(PokemonTemplate.RAICHU); //We can use a pre-made PokemonTemplate to create a Pokemon
         System.out.println(p2.toString());
         scan.nextLine(); //Press enter to proceed
 
@@ -207,7 +207,7 @@ class TrainerBattle {
     static void practice() {
         Scanner scan = new Scanner(System.in);
 
-        Pokemon p1 = new Pokemon(PokemonEnum.CHARIZARD);
+        Pokemon p1 = new Pokemon(PokemonTemplate.CHARIZARD);
         System.out.println(p1.toString());
         scan.nextLine();
 
