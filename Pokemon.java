@@ -271,14 +271,11 @@ public class Pokemon {
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append(String.format(this.name + ": %-1s %-1s%n", type1.name(), (type2 != null ? type2.name(): "")));
+        sb.append("Current HP: " + (this.currentHP > this.statToValue.get(Stat.HP) / 2
+            ? Color.ANSI_GREEN: Color.ANSI_RED) + this.currentHP + Color.ANSI_RESET + "\n");
         sb.append("Stats: ");
         for (Stat s: statToValue.keySet()) {
-            if (s != Stat.HP) {
-                sb.append(String.format("%-20s ", s.name() + "(" + statToValue.get(s) + ")"));
-            }
-            else {
-                sb.append(String.format("%-20s ", s.name() + "(" + this.currentHP + ")"));
-            }
+            sb.append(String.format("%-20s ", s.name() + "(" + statToValue.get(s) + ")"));
         }
         sb.append('\n');
         sb.append("Attacks: ");

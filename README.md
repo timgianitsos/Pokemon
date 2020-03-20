@@ -38,4 +38,4 @@ javac *.java && java -ea TrainerBattle
 ## Notes
 
 * If a Pokemon has multiple attacks, it will automatically select the "best" attack against a given opponent.
-* The difficulty for the TrainerAI is based on simulationed battles that it runs between all the Pokemon. Pokemon that win more frequently appear when higher difficulty is chosen. If you select a difficulty above the maximum, The Pokemon Master will challenge you - this trainer always chooses the Pokemon that wins most frequently against your Pokemon.
+* The difficulty for the TrainerAI is based on simulated battles that it runs between all the Pokemon. Pokemon that win more frequently appear when higher difficulty is chosen. If you select a difficulty above the maximum, The Pokemon Master will challenge you - this trainer always chooses the Pokemon that wins most frequently against your Pokemon.
