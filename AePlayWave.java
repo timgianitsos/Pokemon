@@ -8,9 +8,13 @@ import javax.sound.sampled.FloatControl;
 import javax.sound.sampled.LineUnavailableException; 
 import javax.sound.sampled.SourceDataLine; 
 import javax.sound.sampled.UnsupportedAudioFileException; 
- 
+
+/*
+ * Adapted from:
+ * http://www.anyexample.com/programming/java/java_play_wav_sound_file.xml
+ */
 public class AePlayWave extends Thread {
-//TODO make quit() work immediately
+    //TODO quit() often does not stop the music immediately but takes several seconds
     public static final int DEFAULT_BUFFER_SIZE = 524288; // 128Kb 
     public static final int PRIME_CUP_BUFFER_SIZE = 11534336;
     public static final int PETIT_CUP_BUFFER_SIZE = 12478054;
@@ -22,7 +26,7 @@ public class AePlayWave extends Thread {
     private String filename;
     private Position curPosition;
     private final int EXTERNAL_BUFFER_SIZE; 
-    private volatile boolean exit = false;
+    private volatile boolean stopped = false;
  
     enum Position { 
         LEFT, RIGHT, NORMAL
@@ -94,7 +98,7 @@ public class AePlayWave extends Thread {
  
         try { 
             int startRead = 0;
-            while (nBytesRead != -1 && !exit) { 
+            while (nBytesRead != -1 && !stopped) { 
                 nBytesRead = audioInputStream.read(abData, startRead, startRead + 2048);
                 if (nBytesRead >= 0) 
                     auline.write(abData, startRead, nBytesRead);
@@ -111,6 +115,6 @@ public class AePlayWave extends Thread {
     }
 
     public void quit() {
-        exit = true;
+        stopped = true;
     }
 } 

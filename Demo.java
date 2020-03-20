@@ -4,11 +4,10 @@ import java.util.EnumSet;
 class Demo {
 
     public static void main(String[] args) {
-        testCode();
-        // practice();
+        practice();
     }
 
-    static void testCode() {
+    private static void practice() {
         Scanner scan = new Scanner(System.in);
 
         //Makes a few pokemon
@@ -74,31 +73,17 @@ class Demo {
         scan.nextLine(); //Press enter to proceed
 
         //--------------------------------------------------------------------------------
-        System.out.println("To display a list of all non-hidden pokemon use the displayPokemon() method");
-        //This is a static method so we invoke it with Pokemon.method(), not variable.method()
-        //This makes sense - displaying a list of all Pokemon should be a behavior of the whole class, not an instance of the class
-        PokemonBattle.displayPokemon();
-    }
-
-    static void practice() {
-        Scanner scan = new Scanner(System.in);
-
-        Pokemon p1 = new Pokemon(PokemonTemplate.CHARIZARD);
-        System.out.println(p1.toString());
-        scan.nextLine();
-
-        Pokemon p2 = new Pokemon("_ARCANINE", Type.FIRE, null, new int[]{5,5,5,5,5,5}, EnumSet.of(Attack.THUNDERBOLT));
-        System.out.println(p2.toString());
-        scan.nextLine();
-
-        PokemonBattle.doTurn(p1, p2);
-        scan.nextLine();
-
-        System.out.println("Press enter to stop the music (it may delay a few seconds before stopping - use \"command C\" to stop immediately)");
+        System.out.println("Press enter to stop the music (it may delay a few seconds before stopping and I don't know how to fix this)");
         AePlayWave battleMusic = new AePlayWave(AePlayWave.BATTLE_MUSIC_PETIT_CUP, AePlayWave.PETIT_CUP_BUFFER_SIZE);
         battleMusic.start();
         scan.nextLine();
         battleMusic.quit();
+
+        //--------------------------------------------------------------------------------
+        System.out.println("To display a list of all non-hidden pokemon use the displayPokemon() method");
+        //This is a static method so we invoke it with Pokemon.method(), not variable.method()
+        //This makes sense - displaying a list of all Pokemon should be a behavior of the whole class, not an instance of the class
+        PokemonBattle.displayPokemon();
     }
 
 }
