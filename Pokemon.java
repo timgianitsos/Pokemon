@@ -157,14 +157,14 @@ public class Pokemon {
             double effectiveness = attack.type.getEffectiveness(this.type1, this.type2, opponent.type1, opponent.type2);
             if (effectiveness >= 2) {
                 if (PLAY_SOUND) {new AePlayWave(AePlayWave.SUPER_EFFECTIVE, AePlayWave.DEFAULT_BUFFER_SIZE).start();}
-                display(ANSI_CYAN +  "It's super effective!" + ANSI_RESET + "\n");
+                display(Color.ANSI_CYAN +  "It's super effective!" + Color.ANSI_RESET + "\n");
             }
             else if (effectiveness < 1 && effectiveness > 0) {
                 if (PLAY_SOUND) {new AePlayWave(AePlayWave.NOT_EFFECTIVE, AePlayWave.DEFAULT_BUFFER_SIZE).start();}
-                display(ANSI_RED +  "It's not very effective.." + ANSI_RESET + "\n");
+                display(Color.ANSI_RED +  "It's not very effective.." + Color.ANSI_RESET + "\n");
             }
             else if (effectiveness == 0) {
-                display(ANSI_PURPLE +  opponent.name + " is unaffected!" + ANSI_RESET + "\n");
+                display(Color.ANSI_PURPLE +  opponent.name + " is unaffected!" + Color.ANSI_RESET + "\n");
             }
             else {
                 if (PLAY_SOUND) {new AePlayWave(AePlayWave.NORMAL_EFFECTIVE, AePlayWave.DEFAULT_BUFFER_SIZE).start();}
@@ -174,7 +174,7 @@ public class Pokemon {
             //Scale factor includes critical hits and random scaling between 85-100%
             double scaleFactor = effectiveness == 0 ? 0: 1;
             if (effectiveness != 0 && Math.random() < CRITICAL_HIT_PROBABILITY) {
-                display(ANSI_YELLOW + "It's a critical hit!" + ANSI_RESET + "\n");
+                display(Color.ANSI_YELLOW + "It's a critical hit!" + Color.ANSI_RESET + "\n");
                 scaleFactor *= 2;
             }
             scaleFactor *= (100 - (int)(Math.random() * 16)) / 100.0;
@@ -192,8 +192,8 @@ public class Pokemon {
         }
 
         assert opponent.currentHP >= 0: "Cannot allow negative HP";
-        display(opponent.name + " has " + ANSI_GREEN + opponent.currentHP + " hp " + ANSI_RESET + "left\n" + 
-            (opponent.currentHP <= 0 ? opponent.name + " fainted!\n\n": "\n"));
+        display(opponent.name + " has " + Color.ANSI_GREEN + opponent.currentHP + " hp " + Color.ANSI_RESET + "left\n" + 
+            (opponent.currentHP <= 0 ? Color.ANSI_RED_HIGHLIGHT + opponent.name + " fainted!" + Color.ANSI_RESET + "\n\n": "\n"));
     }
 
     /*
@@ -288,16 +288,6 @@ public class Pokemon {
         sb.append('\n');
         return sb.toString();
     }
-
-    public static final String ANSI_RESET = "\u001B[0m";
-    public static final String ANSI_BLACK = "\u001B[30m";
-    public static final String ANSI_RED = "\u001B[31m";
-    public static final String ANSI_GREEN = "\u001B[32m";
-    public static final String ANSI_YELLOW = "\u001B[33m";
-    public static final String ANSI_BLUE = "\u001B[34m";
-    public static final String ANSI_PURPLE = "\u001B[35m";
-    public static final String ANSI_CYAN = "\u001B[36m";
-    public static final String ANSI_WHITE = "\u001B[37m";
 
     /*
      * Helper method for the constructors

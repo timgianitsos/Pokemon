@@ -29,7 +29,7 @@ class TrainerBattle {
             playerParty[i] = PokemonBattle.askForPokemon(scan);
             System.out.println(playerParty[i].toString());
         }
-        
+
         System.out.println("The computer is generating your opponent...");
         System.out.println("Select difficulty between 1 and " + (TrainerAI.getMaxDifficulty()));
         TrainerAI.setCurrentDifficulty(getIntFromInput(scan, 1, Integer.MAX_VALUE));
@@ -79,7 +79,7 @@ class TrainerBattle {
         }
         System.out.println("The " + (playerPokemon == null ? "opponent trainer": "player") + " has won the battle!");
     }
-    
+
     static Pokemon playerChooseNextPokemon(Scanner scan, Pokemon[] playerParty, Pokemon currentPokemon) {
         boolean allDead = true;
         for (int i = 0; i < playerParty.length; i++) {

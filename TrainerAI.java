@@ -76,7 +76,6 @@ class TrainerAI {
                     pokeToWorstMatchup.put(p2Enum, EnumSet.of(p1Enum));
                 }
                 else {
-
                     if (p2Wins < pokeToFewestWinsMatchup.get(p2Enum)) {
                         pokeToFewestWinsMatchup.put(p2Enum, p2Wins);
                         pokeToWorstMatchup.get(p2Enum).clear();
