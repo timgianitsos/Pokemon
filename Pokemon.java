@@ -279,7 +279,7 @@ public class Pokemon {
         sb.append('\n');
         sb.append("Attacks: ");
         for (Attack a: attackToPP.keySet()) {
-            sb.append(a.name() + ' ');
+            sb.append(a.name() + " " + this.attackToPP.get(a) + "/" + a.basePP + "\t");
         }
         sb.append('\n');
         return sb.toString();
