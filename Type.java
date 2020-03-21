@@ -1,4 +1,5 @@
 import java.util.EnumSet;
+import java.util.Collections;
 
 enum Type {
     NORMAL, 
@@ -103,6 +104,33 @@ enum Type {
         NONE.notVeryEffective = EnumSet.noneOf(Type.class);
         NONE.noEffect = EnumSet.noneOf(Type.class);
 
+        //validate that there is no overlap between effectiveness categories for each type
+        for (Type t: Type.values()) {
+            if (!Collections.disjoint(t.superEffective, t.notVeryEffective)) {
+                EnumSet<Type> intersection = EnumSet.copyOf(t.superEffective);
+                intersection.retainAll(t.notVeryEffective);
+                throw new IllegalStateException(
+                    "The type " + t + " counts the following types as both \"super effective\""
+                    + " and \"not very effective\": " + intersection.toString()
+                );
+            }
+            if (!Collections.disjoint(t.superEffective, t.noEffect)) {
+                EnumSet<Type> intersection = EnumSet.copyOf(t.superEffective);
+                intersection.retainAll(t.noEffect);
+                throw new IllegalStateException(
+                    "The type " + t + " counts the following types as both \"super effective\""
+                    + " and \"no effect\": " + intersection.toString()
+                );
+            }
+            if (!Collections.disjoint(t.notVeryEffective, t.noEffect)) {
+                EnumSet<Type> intersection = EnumSet.copyOf(t.notVeryEffective);
+                intersection.retainAll(t.noEffect);
+                throw new IllegalStateException(
+                    "The type " + t + " counts the following types as both \"not very effective\""
+                    + " and \"no effect\": " + intersection.toString()
+                );
+            }
+        }
     }
 
     /*

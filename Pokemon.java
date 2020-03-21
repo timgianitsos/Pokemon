@@ -144,8 +144,7 @@ public class Pokemon {
             throw new IllegalStateException("Combatants must not be null and must have positive HP");
         }
         if (attack != Attack.STRUGGLE && this.attackToPP.get(attack) == null) {
-            display("Invalid attack!\n");
-            attack = Attack.STRUGGLE;
+            throw new IllegalStateException(this.name + " does not know the attack " + attack);
         }
         else if (attack == Attack.STRUGGLE || this.attackToPP.get(attack) <= 0) {
             display(this.name + " has run out of attacks!\n");
