@@ -191,8 +191,11 @@ public class Pokemon {
         }
 
         assert opponent.currentHP >= 0: "Cannot allow negative HP";
-        display(opponent.name + " has " + Color.ANSI_GREEN + opponent.currentHP + " hp " + Color.ANSI_RESET + "left\n" + 
-            (opponent.currentHP <= 0 ? Color.ANSI_RED_HIGHLIGHT + opponent.name + " fainted!" + Color.ANSI_RESET + "\n\n": "\n"));
+        display(opponent.name + " has "
+            + Color.severityColor(opponent.currentHP, opponent.getStat(Stat.HP))
+            + opponent.currentHP + " hp" + Color.ANSI_RESET + " left\n"
+            + (opponent.currentHP <= 0 ? Color.ANSI_RED_HIGHLIGHT + opponent.name
+                + " fainted!" + Color.ANSI_RESET + "\n\n": "\n"));
     }
 
     /*
@@ -270,16 +273,34 @@ public class Pokemon {
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append(String.format(this.name + ": %-1s %-1s%n", type1.name(), (type2 != null ? type2.name(): "")));
-        sb.append("Current HP: " + (this.currentHP > this.statToValue.get(Stat.HP) / 2
-            ? Color.ANSI_GREEN: Color.ANSI_RED) + this.currentHP + Color.ANSI_RESET + "\n");
+        int maxHP = this.statToValue.get(Stat.HP);
+        sb.append("Current HP: "
+            + Color.severityColor(this.currentHP, maxHP)
+            + this.currentHP + Color.ANSI_RESET + "\n");
         sb.append("Stats: ");
+
+        //Get length of longest stat name for formatting purposes
+        int longestNameLen = 0;
+        for (Stat s: Stat.values()) {
+            longestNameLen = longestNameLen < s.name().length() ? s.name().length(): longestNameLen;
+        }
         for (Stat s: statToValue.keySet()) {
-            sb.append(String.format("%-20s ", s.name() + "(" + statToValue.get(s) + ")"));
+            sb.append(String.format("%-" + (longestNameLen + 5) + "s  ", s.name() + "("
+                + statToValue.get(s) + ")"));
         }
         sb.append('\n');
         sb.append("Attacks: ");
+
+        //Get length of longest attack name for formatting purposes
+        longestNameLen = 0;
+        for (Attack a: Attack.values()) {
+            longestNameLen = longestNameLen < a.name().length() ? a.name().length(): longestNameLen;
+        }
         for (Attack a: attackToPP.keySet()) {
-            sb.append(a.name() + " " + this.attackToPP.get(a) + "/" + a.basePP + "\t");
+            int pp = this.attackToPP.get(a);
+            sb.append(String.format("%-" + (longestNameLen + 4) + "s  ", a.name() + " "
+                + Color.severityColor(pp, a.basePP)
+                + pp + Color.ANSI_RESET + "/" + a.basePP));
         }
         sb.append('\n');
         return sb.toString();
