@@ -165,6 +165,27 @@ class TrainerAI {
         Pokemon.DISPLAY_BATTLE_TEXT = oldDisplayTextSetting;
     }
 
+    public TrainerAI(int partySize, Type type) {
+        boolean oldDisplayTextSetting = Pokemon.DISPLAY_BATTLE_TEXT;
+        boolean oldPlaySoundSetting = Pokemon.PLAY_SOUND;
+        Pokemon.DISPLAY_BATTLE_TEXT = false;
+        Pokemon.PLAY_SOUND = false;
+
+        this.isPokemonMaster = false;
+        //Fill this.party with pokemon of the given type
+        this.party = new Pokemon[partySize];
+        for (int i = 0; i < partySize; i++) {
+            for (PokemonTemplate mon : PokemonTemplate.values()) {
+                if (mon.type1 == type || mon.type2 == type) {
+                    this.party[i] = new Pokemon(mon);
+                }
+            }
+        }
+
+        Pokemon.PLAY_SOUND = oldPlaySoundSetting;
+        Pokemon.DISPLAY_BATTLE_TEXT = oldDisplayTextSetting;
+    }
+
     public Pokemon getNextPokemon(Pokemon opponentPokemon) {
         Pokemon result = null;
         if (!isPokemonMaster) {

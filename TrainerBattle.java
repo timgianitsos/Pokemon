@@ -12,17 +12,13 @@ class TrainerBattle {
     public static final int PARTY_SIZE = 3;
 
     public static void main(String[] args) {
-        battle();
-    }
+        Scanner scan = new Scanner(System.in);
 
-    //TODO clean huge method
-    static void battle() {
         if (PARTY_SIZE < 1) {
             throw new IllegalStateException("Party size must be a positive integer");
         }
-        Scanner scan = new Scanner(System.in);
-        AePlayWave battleMusic = PokemonBattle.intro(scan, AePlayWave.BATTLE_MUSIC_PETIT_CUP, AePlayWave.PETIT_CUP_BUFFER_SIZE);
         PokemonBattle.displayPokemon();
+        AePlayWave battleMusic = PokemonBattle.intro(scan, AePlayWave.BATTLE_MUSIC_PETIT_CUP, AePlayWave.PETIT_CUP_BUFFER_SIZE);
         Pokemon[] playerParty = new Pokemon[PARTY_SIZE];
         for (int i = 0; i < playerParty.length; i++) {
             System.out.println("Enter pokemon " + (i + 1));
@@ -36,6 +32,12 @@ class TrainerBattle {
         System.out.print((TrainerAI.getCurrentDifficulty() - 1 >= TrainerAI.getMaxDifficulty() ? "The Pokemon Master " 
             + "would like to battle you!\n":""));
         TrainerAI opponent = new TrainerAI(PARTY_SIZE);
+
+        battle(scan, battleMusic, playerParty, opponent);
+    }
+
+    static void battle(Scanner scan, AePlayWave battleMusic, Pokemon[] playerParty, TrainerAI opponent) {
+
         int turn = 1;
         Pokemon playerPokemon = playerParty[0];
         Pokemon opponentPokemon = opponent.getNextPokemon(playerPokemon);
