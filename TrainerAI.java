@@ -145,17 +145,19 @@ class TrainerAI {
         boolean oldPlaySoundSetting = Pokemon.PLAY_SOUND;
         Pokemon.DISPLAY_BATTLE_TEXT = false;
         Pokemon.PLAY_SOUND = false;
-
         //Fill this.party with pokemon of the given type
         this.party = new Pokemon[partySize];
-        for (int i = 0; i < partySize; i++) {
+        int count = 0;
             for (PokemonTemplate mon : PokemonTemplate.values()) {
-                if (mon.type1 == type || mon.type2 == type) {
-                    //TODO this is broken - only chooses the last one
-                    this.party[i] = new Pokemon(mon);
+                if (count < partySize) {
+                    if (mon.type1 == type || mon.type2 == type) {
+                        this.party[count] = new Pokemon(mon);
+                        count++;
+                    }
                 }
+                    
             }
-        }
+            
 
         Pokemon.PLAY_SOUND = oldPlaySoundSetting;
         Pokemon.DISPLAY_BATTLE_TEXT = oldDisplayTextSetting;
