@@ -7,27 +7,32 @@ enum Item {
     FULL_RESTORE, REVIVE, POTION;
 }
 
-
 public class EliteFour {
-    static Scanner scan = new Scanner(System.in);
+    static final Scanner scan = new Scanner(System.in);
 
     public static void main(String[] args) {
-        Map<Item, Integer> myItems = new EnumMap<>(Item.class);
+        final int playerPartySize = 6;
+        final int opponentPartySize = 3;
+        final Map<Type, Boolean> battleRooms = generateRooms();
+        final Map<Item, Integer> myItems = new EnumMap<>(Item.class);
         myItems.put(Item.FULL_RESTORE, 1);
         myItems.put(Item.REVIVE, 1);
         myItems.put(Item.POTION, 2);
-        Map<Type, Boolean> battleRooms = generateRooms();
+
+        final AePlayWave battleMusic = PokemonBattle.intro(scan, AePlayWave.BATTLE_MUSIC_PETIT_CUP, AePlayWave.PETIT_CUP_BUFFER_SIZE);
         PokemonBattle.displayPokemon();
-        System.out.println("Choose 6 pokemon.");
-        Pokemon[] party = new Pokemon[6];
+        System.out.println("Choose " + playerPartySize + " pokemon.");
+        final Pokemon[] party = new Pokemon[playerPartySize];
         for (int i = 0; i < party.length; i++) {
             party[i] = PokemonBattle.askForPokemon(scan);
         }
-
         Type nextRoom = postBattleMenu(party, myItems, battleRooms);
-        TrainerAI opponent = new TrainerAI(3, nextRoom);
-        TrainerBattle.battle(scan, PokemonBattle.intro(scan, AePlayWave.BATTLE_MUSIC_PETIT_CUP, AePlayWave.PETIT_CUP_BUFFER_SIZE), party, opponent);
+        TrainerAI opponent = new TrainerAI(opponentPartySize, nextRoom);
+        TrainerBattle.battle(scan, party, opponent);
 
+        if (battleMusic != null){
+            battleMusic.quit();
+        }
     }
 
     public static Type postBattleMenu(Pokemon[] party, Map<Item, Integer> myItems, Map<Type, Boolean> battleRooms) {
@@ -73,7 +78,6 @@ public class EliteFour {
         int path = TrainerBattle.getIntFromInput(scan, 0, counter - 1);
         System.out.println("You chose " + rooms.get(path));
         return rooms.get(path);
-
     }
 
     public static Map<Type, Boolean> generateRooms() {
@@ -84,11 +88,8 @@ public class EliteFour {
                 int ran = (int)(Math.random() * Type.values().length);
                 type = Type.values()[ran];
             } while (battleRooms.containsKey(type) || (type == Type.NONE));
-
             battleRooms.put(type, false);
-
         }
         return battleRooms;
     }
-
 }

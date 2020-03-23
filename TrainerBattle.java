@@ -9,16 +9,12 @@ import java.util.EnumMap;
  */
 class TrainerBattle {
 
-    public static final int PARTY_SIZE = 3;
+    static final Scanner scan = new Scanner(System.in);
 
     public static void main(String[] args) {
-        Scanner scan = new Scanner(System.in);
-
-        if (PARTY_SIZE < 1) {
-            throw new IllegalStateException("Party size must be a positive integer");
-        }
-        PokemonBattle.displayPokemon();
+        final int PARTY_SIZE = 3;
         AePlayWave battleMusic = PokemonBattle.intro(scan, AePlayWave.BATTLE_MUSIC_PETIT_CUP, AePlayWave.PETIT_CUP_BUFFER_SIZE);
+        PokemonBattle.displayPokemon();
         Pokemon[] playerParty = new Pokemon[PARTY_SIZE];
         for (int i = 0; i < playerParty.length; i++) {
             System.out.println("Enter pokemon " + (i + 1));
@@ -26,18 +22,23 @@ class TrainerBattle {
             System.out.println(playerParty[i].toString());
         }
 
+        System.out.println("Select difficulty between 1 and " + TrainerAI.MAX_DIFFICULTY);
+        int difficulty = getIntFromInput(scan, 1, Integer.MAX_VALUE);
         System.out.println("The computer is generating your opponent...");
-        System.out.println("Select difficulty between 1 and " + (TrainerAI.getMaxDifficulty()));
-        TrainerAI.setCurrentDifficulty(getIntFromInput(scan, 1, Integer.MAX_VALUE));
-        System.out.print((TrainerAI.getCurrentDifficulty() - 1 >= TrainerAI.getMaxDifficulty() ? "The Pokemon Master " 
-            + "would like to battle you!\n":""));
-        TrainerAI opponent = new TrainerAI(PARTY_SIZE);
-
-        battle(scan, battleMusic, playerParty, opponent);
+        TrainerAI opponent = difficulty > TrainerAI.MAX_DIFFICULTY ?
+            new TrainerAI():
+            new TrainerAI(PARTY_SIZE, difficulty);
+        if (difficulty > TrainerAI.MAX_DIFFICULTY) {
+            System.out.println(Color.ANSI_RED_HIGHLIGHT
+                + "The Pokemon Master would like to battle you!" + Color.ANSI_RESET);
+        }
+        battle(scan, playerParty, opponent);
+        if (battleMusic != null){
+            battleMusic.quit();
+        }
     }
 
-    static void battle(Scanner scan, AePlayWave battleMusic, Pokemon[] playerParty, TrainerAI opponent) {
-
+    static void battle(Scanner scan, Pokemon[] playerParty, TrainerAI opponent) {
         int turn = 1;
         Pokemon playerPokemon = playerParty[0];
         Pokemon opponentPokemon = opponent.getNextPokemon(playerPokemon);
@@ -76,10 +77,9 @@ class TrainerBattle {
             }
         }
         assert playerPokemon == null ^ opponentPokemon == null: "Both trainers cannot lose";
-        if (battleMusic != null){
-            battleMusic.quit();
-        }
-        System.out.println("The " + (playerPokemon == null ? "opponent trainer": "player") + " has won the battle!");
+        System.out.println((playerPokemon == null ?
+            Color.ANSI_RED_HIGHLIGHT + "The opponent trainer has won the battle!":
+            Color.ANSI_BLUE_HIGHLIGHT + "The player has won the battle!") + Color.ANSI_RESET);
     }
 
     static Pokemon playerChooseNextPokemon(Scanner scan, Pokemon[] playerParty, Pokemon currentPokemon) {

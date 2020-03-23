@@ -135,8 +135,10 @@ public class PokemonBattle {
             displayPokemon();
             System.out.println("Choose player 1's Pokemon");
             p1 = askForPokemon(scan);
+            System.out.println(p1);
             System.out.println("\nChoose player 2's Pokemon");
             p2 = askForPokemon(scan);
+            System.out.println(p2);
         }
 
         System.out.println("\n" + p1.name + " with HP:" + p1.getCurrentHP() + "   vs   " 

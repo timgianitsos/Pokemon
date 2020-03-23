@@ -10,6 +10,7 @@ class Color {
     public static final String ANSI_WHITE = "\u001B[37m";
 
     public static final String ANSI_RED_HIGHLIGHT = "\u001B[0;30;41m";
+    public static final String ANSI_BLUE_HIGHLIGHT = "\u001B[0;37;44m";
 
     public static String severityColor(int current, int capacity) {
         //https://gaming.stackexchange.com/a/331506

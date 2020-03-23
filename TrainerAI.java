@@ -12,9 +12,7 @@ class TrainerAI {
     //Mapping from a PokemonTemplate to a set of PokemonTemplates that it performed the worst against
     private static final EnumMap<PokemonTemplate, EnumSet<PokemonTemplate>> pokeToWorstMatchup = new EnumMap<>(PokemonTemplate.class);
     private static final int SIMULATIONS_PER_POKEMON = 500;
-    private static int MAX_DIFFICULTY = 3;
-    private static int CURRENT_DIFFICULTY = 1;
-    private final boolean isPokemonMaster;
+    public static final int MAX_DIFFICULTY = 3;
     private Pokemon[] party;
 
     /*
@@ -22,8 +20,6 @@ class TrainerAI {
      */
     static {
         assert MAX_DIFFICULTY >= 1: "The maximum difficulty must be positive";
-        assert CURRENT_DIFFICULTY >= 1: "The current difficulty must be positive";
-
         boolean oldDisplayTextSetting = Pokemon.DISPLAY_BATTLE_TEXT;
         boolean oldPlaySoundSetting = Pokemon.PLAY_SOUND;
         Pokemon.DISPLAY_BATTLE_TEXT = false;
@@ -97,32 +93,17 @@ class TrainerAI {
         Pokemon.DISPLAY_BATTLE_TEXT = oldDisplayTextSetting;
     }
 
-    public static int getMaxDifficulty() {
-        return MAX_DIFFICULTY;
-    }
+    //The default constructor leaves the party blank to signify a "Pokemon Master"
+    public TrainerAI() {}
 
-    public static void setMaxDifficulty(int newMax) {
-        if (newMax <= 0) {
-            throw new IllegalStateException("The maximum difficulty must be positive");
-        }
-        MAX_DIFFICULTY = newMax;
-    }
-
-    public static int getCurrentDifficulty() {
-        return CURRENT_DIFFICULTY;
-    }
-
-    public static void setCurrentDifficulty(int newDifficulty) {
-        if (newDifficulty <= 0) {
-            throw new IllegalStateException("The current difficulty must be positive");
-        }
-        CURRENT_DIFFICULTY = newDifficulty;
-    }
-
-    public TrainerAI(int partySize) {
+    public TrainerAI(int partySize, int difficulty) {
         //TODO currently omits strongest pokemon from the highest tier because of integer division. Should this be a feature or a bug?
         if (partySize < 1) {
             throw new IllegalArgumentException("Party size must be a positive integer");
+        }
+        if (difficulty < 1 || difficulty > MAX_DIFFICULTY) {
+            throw new IllegalArgumentException("Difficulty must be a positive integer"
+                + " less than or equal to " + MAX_DIFFICULTY);
         }
         int pokemonPerDifficultyTier = PokemonTemplate.numberOfPokemonTemplates() / MAX_DIFFICULTY;
         if (pokemonPerDifficultyTier < partySize) {
@@ -132,33 +113,27 @@ class TrainerAI {
             + "\n(3) Decrease the party size");
         }
 
+        //TODO sound disable and enable into separate function?
         boolean oldDisplayTextSetting = Pokemon.DISPLAY_BATTLE_TEXT;
         boolean oldPlaySoundSetting = Pokemon.PLAY_SOUND;
         Pokemon.DISPLAY_BATTLE_TEXT = false;
         Pokemon.PLAY_SOUND = false;
 
-        if (CURRENT_DIFFICULTY <= MAX_DIFFICULTY) {
-            //TODO check tier threshold logic through testing
-            isPokemonMaster = false;
-            party = new Pokemon[partySize];
+        //TODO check tier threshold logic through testing
+        party = new Pokemon[partySize];
 
-            //Find the minimum index in the difficulty array that correspond to the current difficulty tier
-            int minIndex = (CURRENT_DIFFICULTY - 1) * pokemonPerDifficultyTier;
+        //Find the minimum index in the difficulty array that correspond to the current difficulty tier
+        int minIndex = (difficulty - 1) * pokemonPerDifficultyTier;
 
-            //TODO brainstorm on more efficent random algorithm
-            HashSet<Integer> usedIndices = new HashSet<>();
-            for (int i = 0; i < this.party.length; i++) {
-                int newPokemonIndex;
-                do {
-                    newPokemonIndex = (int)(Math.random() * pokemonPerDifficultyTier) + minIndex;
-                } while (usedIndices.contains(newPokemonIndex));
-                party[i] = new Pokemon(Pokemon.STAT_MAXIMIZER_PREFIX + ascendingDifficulty[newPokemonIndex].name());
-                usedIndices.add(newPokemonIndex);
-            }
-        }
-        else {
-            //Pokemon master setting - chooses most optimal Pokemon to challenge opponent based on simulations
-            isPokemonMaster = true;
+        //TODO brainstorm on more efficent random algorithm
+        HashSet<Integer> usedIndices = new HashSet<>();
+        for (int i = 0; i < this.party.length; i++) {
+            int newPokemonIndex;
+            do {
+                newPokemonIndex = (int)(Math.random() * pokemonPerDifficultyTier) + minIndex;
+            } while (usedIndices.contains(newPokemonIndex));
+            party[i] = new Pokemon(Pokemon.STAT_MAXIMIZER_PREFIX + ascendingDifficulty[newPokemonIndex].name());
+            usedIndices.add(newPokemonIndex);
         }
 
         Pokemon.PLAY_SOUND = oldPlaySoundSetting;
@@ -171,12 +146,12 @@ class TrainerAI {
         Pokemon.DISPLAY_BATTLE_TEXT = false;
         Pokemon.PLAY_SOUND = false;
 
-        this.isPokemonMaster = false;
         //Fill this.party with pokemon of the given type
         this.party = new Pokemon[partySize];
         for (int i = 0; i < partySize; i++) {
             for (PokemonTemplate mon : PokemonTemplate.values()) {
                 if (mon.type1 == type || mon.type2 == type) {
+                    //TODO this is broken - only chooses the last one
                     this.party[i] = new Pokemon(mon);
                 }
             }
@@ -188,7 +163,7 @@ class TrainerAI {
 
     public Pokemon getNextPokemon(Pokemon opponentPokemon) {
         Pokemon result = null;
-        if (!isPokemonMaster) {
+        if (this.party != null) {
             boolean found = false;
             for (int i = 0; i < party.length && !found; i++) {
                 if (party[i].getCurrentHP() != 0) {
@@ -198,13 +173,16 @@ class TrainerAI {
             }
         }
         else {
+            //Party is null signifying "Pokemon Master" setting.
+            //Generate the best matchup against given opponent.
+
             boolean oldPlaySoundSetting = Pokemon.PLAY_SOUND;
             Pokemon.PLAY_SOUND = false;
-
             try {
                 //Obtain set of Pokemon that have the best probability of beating the opponent, and choose a random one in the set
                 //TODO make sure selects correctly
-                EnumSet<PokemonTemplate> choices = pokeToWorstMatchup.get(PokemonTemplate.valueOf(opponentPokemon.name));
+                EnumSet<PokemonTemplate> choices = pokeToWorstMatchup.get(
+                    PokemonTemplate.valueOf(opponentPokemon.name));
                 PokemonTemplate pe = null;
                 double i = choices.size();
                 for (PokemonTemplate choice: choices) {
@@ -218,8 +196,11 @@ class TrainerAI {
             }
             catch (Exception e) {
                 //TODO custom opponents with valid names don't get paired with shedinja
-                result = new Pokemon("_shedinja", Type.NONE, null, new int[]{Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE, 
-                    Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE}, EnumSet.allOf(Attack.class));
+                result = new Pokemon(
+                    Pokemon.STAT_MAXIMIZER_PREFIX + "shedinja",
+                    Type.NONE, null, new int[]{Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE, 
+                    Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE}, EnumSet.allOf(Attack.class)
+                );
             }
 
             Pokemon.PLAY_SOUND = oldPlaySoundSetting;
