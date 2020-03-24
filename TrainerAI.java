@@ -148,16 +148,17 @@ class TrainerAI {
         //Fill this.party with pokemon of the given type
         this.party = new Pokemon[partySize];
         int count = 0;
-            for (PokemonTemplate mon : PokemonTemplate.values()) {
-                if (count < partySize) {
-                    if (mon.type1 == type || mon.type2 == type) {
-                        this.party[count] = new Pokemon(mon);
-                        count++;
-                    }
+        for (PokemonTemplate mon : PokemonTemplate.values()) {
+            if (count < partySize) {
+                if (mon.type1 == type || mon.type2 == type) {
+                    this.party[count] = new Pokemon(mon);
+                    count++;
                 }
-                    
             }
-            
+            else {
+                break;
+            }
+        }
 
         Pokemon.PLAY_SOUND = oldPlaySoundSetting;
         Pokemon.DISPLAY_BATTLE_TEXT = oldDisplayTextSetting;

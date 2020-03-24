@@ -4,7 +4,28 @@ import java.util.Map;
 import java.util.ArrayList;
 
 enum Item {
-    FULL_RESTORE, REVIVE, POTION;
+    MAX_ELIXIR, FULL_RESTORE, REVIVE, POTION;
+
+    //TODO: decrease item count after use, actually heal pokemon
+    public boolean heal(Pokemon mon, Item item) {
+        switch (item) {
+            case MAX_ELIXIR:
+                //add to PP
+                return true;
+            case FULL_RESTORE:
+                //add all HP
+                return true;
+            case REVIVE:
+                //revive with half HP
+                return true;
+            case POTION:
+                //heal 50 hp
+                return true;
+            default:
+                System.out.println("Not A Valid Item");
+                return false;
+        }
+    }
 }
 
 public class EliteFour {
@@ -17,7 +38,8 @@ public class EliteFour {
         final Map<Item, Integer> myItems = new EnumMap<>(Item.class);
         myItems.put(Item.FULL_RESTORE, 1);
         myItems.put(Item.REVIVE, 1);
-        myItems.put(Item.POTION, 2);
+        myItems.put(Item.POTION, 4);
+        myItems.put(Item.MAX_ELIXIR, 6);
 
         final AePlayWave battleMusic = PokemonBattle.intro(scan, AePlayWave.BATTLE_MUSIC_PETIT_CUP, AePlayWave.PETIT_CUP_BUFFER_SIZE);
         PokemonBattle.displayPokemon();
@@ -26,9 +48,12 @@ public class EliteFour {
         for (int i = 0; i < party.length; i++) {
             party[i] = PokemonBattle.askForPokemon(scan);
         }
-        Type nextRoom = postBattleMenu(party, myItems, battleRooms);
-        TrainerAI opponent = new TrainerAI(opponentPartySize, nextRoom);
-        TrainerBattle.battle(scan, party, opponent);
+        for (int i = 0; i < 4; i++) {
+            Type nextRoom = postBattleMenu(party, myItems, battleRooms);
+            TrainerAI opponent = new TrainerAI(opponentPartySize, nextRoom);
+            TrainerBattle.battle(scan, party, opponent);
+        }
+        
 
         if (battleMusic != null){
             battleMusic.quit();
@@ -40,7 +65,8 @@ public class EliteFour {
         int choice = TrainerBattle.getIntFromInput(scan, 0, 1);
         if (choice == 0) {
             boolean chooseItem = true;
-            while (chooseItem) {
+            boolean getHeal = false;
+            while (chooseItem && !getHeal) {
                 int counter = 0;
                 System.out.print("Choose item: ");
                 for (Item i : myItems.keySet()) {
@@ -49,12 +75,19 @@ public class EliteFour {
                 }
                 System.out.print(counter + "|GO BACK|");
                 System.out.println();
-                int item = TrainerBattle.getIntFromInput(scan, 0, counter);
-                if (item < counter) {
+                int getItem = TrainerBattle.getIntFromInput(scan, 0, counter);
+                if (getItem < counter) {
                     System.out.println("Which Pokemon Do You Heal\n");
                     for (int i = 0; i < party.length; i++) {
-                        System.out.println(party[i] + "       ");
+                        System.out.println("|" + i + "|" + party[i]);
                     }
+                    ArrayList<Item> items = new ArrayList<>();
+                    for (Item i : myItems.keySet()) {
+                        items.add(i);
+                    }
+                    Item item = items.get(getItem);
+                    Pokemon mon = party[TrainerBattle.getIntFromInput(scan, 0, party.length)];
+                    getHeal = item.heal(mon, item);
                 }
                 else {
                     chooseItem = false;
@@ -77,6 +110,7 @@ public class EliteFour {
         System.out.println();
         int path = TrainerBattle.getIntFromInput(scan, 0, counter - 1);
         System.out.println("You chose " + rooms.get(path));
+        battleRooms.put(rooms.get(path), true);
         return rooms.get(path);
     }
 
