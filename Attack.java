@@ -21,7 +21,8 @@ enum Attack {
     CRUNCH(80, 100, 15, Type.DARK, true), 
     CROSS_POISON(70, 100, 20, Type.POISON, true), 
     LEAF_BLADE(90, 100, 15, Type.GRASS, true),
-
+    BUG_BITE(60, 100, 20, Type.BUG, true),
+    WATERFALL(80, 100, 15, Type.WATER, true),
 
     SOLAR_BEAM(120, 80, 10, Type.GRASS, false), 
     PSYSTRIKE(100, 100, 10, Type.PSYCHIC, false), 

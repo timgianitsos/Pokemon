@@ -18,23 +18,31 @@ enum PokemonTemplate {
     SCYTHER(Type.BUG, Type.FLYING, new int[]{70,110,80,55,80,105}, EnumSet.of(Attack.X_SCISSOR)), 
     ELECTABUZZ(Type.ELECTRIC, null, new int[]{65, 83, 57, 95, 85, 105}, EnumSet.of(Attack.THUNDERBOLT)), 
     MAGMAR(Type.FIRE, null, new int[]{65, 95, 57, 100, 85, 93}, EnumSet.of(Attack.FLAMETHROWER)), 
+    AERODACTYL(Type.ROCK, Type.FLYING, new int[]{80, 105, 65, 60, 75, 130}, EnumSet.of(Attack.ROCK_SLIDE)), //No.142
     SNORLAX(Type.NORMAL, null, new int[]{160, 110, 65, 65, 110, 30}, EnumSet.of(Attack.BODY_SLAM)), 
     CROBAT(Type.POISON, Type.FLYING, new int[]{85,90,80,70,80,130}, EnumSet.of(Attack.CROSS_POISON)), 
     STEELIX(Type.STEEL, Type.GROUND, new int[]{75, 85, 200, 55, 65, 30}, EnumSet.of(Attack.IRON_HEAD)), 
     SCIZOR(Type.BUG, Type.STEEL, new int[]{70,130,100,55,80,65}, EnumSet.of(Attack.X_SCISSOR)), 
+    KINGDRA(Type.WATER, Type.DRAGON, new int[]{75, 95, 95, 95, 95, 85}, EnumSet.of(Attack.DRAGON_PULSE, Attack.WATERFALL)), //No.230
     BLISSEY(Type.NORMAL, null, new int[]{255,10,10,75,135,55}, EnumSet.of(Attack.HYPER_BEAM)), 
     SCEPTILE(Type.GRASS, null, new int[]{70, 85, 65, 105, 85, 120}, EnumSet.of(Attack.ENERGY_BALL, Attack.DRAGON_PULSE)),
-    GARDEVOIR(Type.PSYCHIC, Type.FAIRY, new int[]{68, 65, 65, 125, 115, 80}, EnumSet.of(Attack.PSYCHIC, Attack.DAZZLING_GLEAM)),
+    DUSTOX(Type.BUG, Type.POISON, new int[]{60, 50, 70, 50, 90, 65}, EnumSet.of(Attack.BUG_BITE)), //No.269
+    GARDEVOIR(Type.PSYCHIC, Type.FAIRY, new int[]{68, 65, 65, 125, 115, 80}, EnumSet.of(Attack.PSYCHIC, Attack.DAZZLING_GLEAM)), //No.282
+    NINJASK(Type.BUG, Type.FLYING, new int[]{61, 90, 45, 50, 50, 160}, EnumSet.of(Attack.X_SCISSOR)),
     AGGRON(Type.STEEL, Type.ROCK, new int[]{70,110,180,60,60,50}, EnumSet.of(Attack.IRON_HEAD)), 
     FLYGON(Type.GROUND, Type.DRAGON, new int[]{80,100,80,80,80,100}, EnumSet.of(Attack.DRAGON_CLAW)), 
     GLALIE(Type.ICE, null, new int[]{80,80,80,80,80,80}, EnumSet.of(Attack.ICE_BEAM)), 
     FLOATZEL(Type.WATER, null, new int[]{85,105,55,85,50,115}, EnumSet.of(Attack.SURF)), 
     SPIRITOMB(Type.GHOST, Type.DARK, new int[]{50, 92, 108, 92, 108, 35}, EnumSet.of(Attack.FOUL_PLAY)), 
-    TOGEKISS(Type.FAIRY, Type.FLYING, new int[]{85,50,95,120,115,80}, EnumSet.of(Attack.DAZZLING_GLEAM)), 
+    WEAVILE(Type.DARK, Type.ICE, new int[]{70, 120, 65, 45, 85, 125}, EnumSet.of(Attack.FOUL_PLAY)),
+    TOGEKISS(Type.FAIRY, Type.FLYING, new int[]{85,50,95,120,115,80}, EnumSet.of(Attack.DAZZLING_GLEAM)), //No.468
     LEAFEON(Type.GRASS, null, new int[]{65, 110, 130, 60, 65, 95}, EnumSet.of(Attack.LEAF_BLADE)),
     GLACEON(Type.ICE, null, new int[]{65, 60, 110, 130, 95, 65}, EnumSet.of(Attack.ICE_BEAM)), 
+    ROTOM(Type.GHOST, Type.ELECTRIC, new int[]{50, 50, 77, 95, 77, 91}, EnumSet.of(Attack.THUNDERBOLT)), //No.479
     CONKELDURR(Type.FIGHTING, null, new int[]{105,140,95,55,65,45}, EnumSet.of(Attack.BRICK_BREAK)), 
-    ZOROARK(Type.DARK, null, new int[]{60,105,60,120,60,105}, EnumSet.of(Attack.DARK_PULSE)), 
+    SCRAFTY(Type.DARK, Type.FIGHTING, new int []{65, 90, 115, 45, 115, 58}, EnumSet.of(Attack.CRUNCH)), //No.560
+    ZOROARK(Type.DARK, null, new int[]{60,105,60,120,60,105}, EnumSet.of(Attack.DARK_PULSE)), //No.571
+    HAXORUS(Type.DRAGON, null, new int[]{76, 147, 90, 60, 70, 97}, EnumSet.of(Attack.DRAGON_CLAW, Attack.CRUNCH)), //No.613
 
     ZAPDOS(Type.ELECTRIC, Type.FLYING, new int[]{90,90,85,125,90,100}, EnumSet.of(Attack.THUNDERBOLT, Attack.DRILL_PECK)), 
     DRAGONITE(Type.DRAGON, Type.FLYING, new int[]{91, 134, 95, 100, 100, 80}, EnumSet.of(Attack.DRAGON_CLAW, Attack.AERIAL_ACE)), 

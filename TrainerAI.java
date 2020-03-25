@@ -147,17 +147,17 @@ class TrainerAI {
         Pokemon.PLAY_SOUND = false;
         //Fill this.party with pokemon of the given type
         this.party = new Pokemon[partySize];
-        int count = 0;
-        for (PokemonTemplate mon : PokemonTemplate.values()) {
-            if (count < partySize) {
-                if (mon.type1 == type || mon.type2 == type) {
-                    this.party[count] = new Pokemon(mon);
-                    count++;
-                }
+        int partyIndex = 0;
+        PokemonTemplate[] mons = PokemonTemplate.values();
+        for (int i = 0; i < mons.length && partyIndex < partySize; i++) {
+            if (mons[i].type1 == type || mons[i].type2 == type) {
+                this.party[partyIndex] = new Pokemon(mons[i]);
+                partyIndex++;
             }
-            else {
-                break;
-            }
+        }
+        if (this.party[this.party.length - 1] == null) {
+            throw new IllegalStateException("Not enough Pokemon of type " + type
+                + " to fill a party of size " + partySize);
         }
 
         Pokemon.PLAY_SOUND = oldPlaySoundSetting;
