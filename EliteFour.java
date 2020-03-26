@@ -63,7 +63,7 @@ public class EliteFour {
                     }
                     Pokemon.Item item = items.get(getItem);
                     Pokemon mon = party[TrainerBattle.getIntFromInput(scan, 0, party.length)];
-                    getHeal = item.heal(mon, item);
+                    getHeal = item.heal(mon);
                 }
                 else {
                     chooseItem = false;

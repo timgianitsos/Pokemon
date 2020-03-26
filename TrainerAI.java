@@ -151,7 +151,7 @@ class TrainerAI {
         PokemonTemplate[] mons = PokemonTemplate.values();
         for (int i = 0; i < mons.length && partyIndex < partySize; i++) {
             if (mons[i].type1 == type || mons[i].type2 == type) {
-                this.party[partyIndex] = new Pokemon(mons[i]);
+                this.party[partyIndex] = new Pokemon(Pokemon.STAT_MAXIMIZER_PREFIX + mons[i].name());
                 partyIndex++;
             }
         }
