@@ -38,7 +38,7 @@ class TrainerBattle {
         }
     }
 
-    static void battle(Scanner scan, Pokemon[] playerParty, TrainerAI opponent) {
+    static boolean  battle(Scanner scan, Pokemon[] playerParty, TrainerAI opponent) {
         int turn = 1;
         Pokemon playerPokemon = playerParty[0];
         Pokemon opponentPokemon = opponent.getNextPokemon(playerPokemon);
@@ -80,6 +80,7 @@ class TrainerBattle {
         System.out.println((playerPokemon == null ?
             Color.ANSI_RED_HIGHLIGHT + "The opponent trainer has won the battle!":
             Color.ANSI_BLUE_HIGHLIGHT + "The player has won the battle!") + Color.ANSI_RESET);
+        return playerPokemon != null;
     }
 
     static Pokemon playerChooseNextPokemon(Scanner scan, Pokemon[] playerParty, Pokemon currentPokemon) {

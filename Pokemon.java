@@ -25,6 +25,51 @@ public class Pokemon {
     public static boolean DISPLAY_BATTLE_TEXT = true;
     public static boolean PLAY_SOUND = true;
 
+    static enum Item {
+        MAX_ELIXIR, FULL_RESTORE, REVIVE, POTION;
+
+        public boolean heal(Pokemon mon, Item item) {
+            int maxHP = mon.statToValue.get(Stat.HP);
+            switch (item) {
+                case MAX_ELIXIR:
+                    boolean isUsed = false;
+                    for (Attack a: mon.attackToPP.keySet()) {
+                        if (mon.attackToPP.get(a) != a.basePP) {
+                            mon.attackToPP.put(a, a.basePP);
+                            isUsed = true;
+                        }
+                    }
+                    return isUsed;
+                case FULL_RESTORE:
+                    if (mon.currentHP == 0 || mon.currentHP == maxHP) {
+                        System.out.println("A full restore can't be used on this pokemon, they have "
+                            + (mon.currentHP == 0 ? "no": "full") + " health");
+                        return false;
+                    }
+                    mon.currentHP = maxHP;
+                    return true;
+                case REVIVE:
+                    if (mon.currentHP != 0) {
+                        System.out.println("This pokemon is already alive");
+                        return false;
+                    }
+                    mon.currentHP = maxHP / 2;;
+                    return true;
+                case POTION:
+                    if (mon.currentHP == 0 || mon.currentHP == maxHP) {
+                        System.out.println("A potion can't be used on this pokemon, they have "
+                            + (mon.currentHP == 0 ? "no": "full") + " health");
+                        return false;
+                    }
+                    mon.currentHP = maxHP - mon.currentHP >= maxHP / 2 ? mon.currentHP + maxHP / 2 : maxHP;
+                    return true;
+                default:
+                    System.out.println("Not A Valid Item");
+                    return false;
+            }
+        }
+    }
+
     /*
      * Create a Pokemon by using a predefined enumeration from PokemonTemplate
      */
