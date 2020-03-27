@@ -33,6 +33,7 @@ public class Pokemon {
                 if (mon.attackToPP.get(a) != a.basePP) {
                     mon.attackToPP.put(a, a.basePP);
                     isUsed = true;
+                    System.out.println(a.name() + "'s PP has been fully restored to " + mon.attackToPP.get(a) + ".");
                 }
             }
             if (!isUsed) {
@@ -48,6 +49,7 @@ public class Pokemon {
                 return false;
             }
             mon.currentHP = maxHP;
+            System.out.println(mon.name + "'s HP has been fully restored to " + mon.currentHP + ".");
             return true;
         }),
         POTION((mon) -> {
@@ -58,6 +60,7 @@ public class Pokemon {
                 return false;
             }
             mon.currentHP = maxHP - mon.currentHP >= maxHP / 2 ? mon.currentHP + maxHP / 2 : maxHP;
+            System.out.print(mon.name + "'s HP has been restored to " + mon.currentHP + ".");
             return true;
         }),
         REVIVE((mon) -> {
@@ -67,6 +70,7 @@ public class Pokemon {
                 return false;
             }
             mon.currentHP = maxHP / 2;
+            System.out.println(mon.name + " has been revived with " + mon.currentHP + " health.");
             return true;
         });
 

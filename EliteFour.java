@@ -37,12 +37,15 @@ public class EliteFour {
     }
 
     public static Type postBattleMenu(Pokemon[] party, Map<Pokemon.Item, Integer> myItems, Map<Type, Boolean> battleRooms) {
+        ArrayList<Pokemon.Item> items = new ArrayList<>();
+        for (Pokemon.Item i : myItems.keySet()) {
+            items.add(i);
+        }
         System.out.println("Do you want to (0)Heal or (1)Continue");
         int choice = TrainerBattle.getIntFromInput(scan, 0, 1);
         if (choice == 0) {
             boolean chooseItem = true;
-            boolean getHeal = false;
-            while (chooseItem && !getHeal) {
+            while (chooseItem) {
                 int counter = 0;
                 System.out.print("Choose item: ");
                 for (Pokemon.Item i : myItems.keySet()) {
@@ -51,24 +54,28 @@ public class EliteFour {
                 }
                 System.out.print(counter + "|GO BACK|");
                 System.out.println();
-                int getItem = TrainerBattle.getIntFromInput(scan, 0, counter);
-                if (getItem < counter) {
-                    System.out.println("Which Pokemon Do You Heal\n");
-                    for (int i = 0; i < party.length; i++) {
-                        System.out.println("|" + i + "|" + party[i]);
-                    }
-                    ArrayList<Pokemon.Item> items = new ArrayList<>();
-                    for (Pokemon.Item i : myItems.keySet()) {
-                        items.add(i);
-                    }
-                    Pokemon.Item item = items.get(getItem);
-                    Pokemon mon = party[TrainerBattle.getIntFromInput(scan, 0, party.length)];
-                    getHeal = item.use(mon);
+                int itemIndex = TrainerBattle.getIntFromInput(scan, 0, counter);
+                if (itemIndex != counter && myItems.get(items.get(itemIndex)) == 0) {
+                    System.out.println("There are no  more " + items.get(itemIndex) + "s to use.");
                 }
                 else {
-                    chooseItem = false;
+                    if (itemIndex < counter) {
+                        System.out.println("Which Pokemon Do You Heal\n");
+                        for (int i = 0; i < party.length; i++) {
+                            System.out.println("|" + i + "|" + party[i]);
+                        }
+                        Pokemon.Item item = items.get(itemIndex);
+                        Pokemon mon = party[TrainerBattle.getIntFromInput(scan, 0, party.length)];
+                        boolean useItem = item.use(mon);
+                        if (useItem) {
+                            myItems.put(items.get(itemIndex), myItems.get(items.get(itemIndex)) - 1);
+                        }
+                    }
+                    else {
+                        chooseItem = false;
+                    }
+                    System.out.println();
                 }
-                System.out.println();
             }
             
         }
