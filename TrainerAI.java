@@ -205,7 +205,6 @@ class TrainerAI {
                     Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE}, EnumSet.allOf(Attack.class)
                 );
             }
-
             Pokemon.PLAY_SOUND = oldPlaySoundSetting;
         }
         return result;

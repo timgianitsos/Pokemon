@@ -26,52 +26,62 @@ public class Pokemon {
     public static boolean PLAY_SOUND = true;
 
     static enum Item {
-        MAX_ELIXIR, FULL_RESTORE, REVIVE, POTION;
-
-        public boolean heal(Pokemon mon) {
+        MAX_ELIXIR((mon) -> {
             int maxHP = mon.statToValue.get(Stat.HP);
-            switch (this) {
-                case MAX_ELIXIR: {
-                    boolean isUsed = false;
-                    for (Attack a: mon.attackToPP.keySet()) {
-                        if (mon.attackToPP.get(a) != a.basePP) {
-                            mon.attackToPP.put(a, a.basePP);
-                            isUsed = true;
-                        }
-                    }
-                    return isUsed;
-                }
-                case FULL_RESTORE: {
-                    if (mon.currentHP == 0 || mon.currentHP == maxHP) {
-                        System.out.println("A full restore can't be used on this pokemon, they have "
-                            + (mon.currentHP == 0 ? "no": "full") + " health");
-                        return false;
-                    }
-                    mon.currentHP = maxHP;
-                    return true;
-                }
-                case REVIVE: {
-                    if (mon.currentHP != 0) {
-                        System.out.println("This pokemon is already alive");
-                        return false;
-                    }
-                    mon.currentHP = maxHP / 2;;
-                    return true;
-                }
-                case POTION: {
-                    if (mon.currentHP == 0 || mon.currentHP == maxHP) {
-                        System.out.println("A potion can't be used on this pokemon, they have "
-                            + (mon.currentHP == 0 ? "no": "full") + " health");
-                        return false;
-                    }
-                    mon.currentHP = maxHP - mon.currentHP >= maxHP / 2 ? mon.currentHP + maxHP / 2 : maxHP;
-                    return true;
-                }
-                default: {
-                    System.out.println("Not A Valid Item");
-                    return false;
+            boolean isUsed = false;
+            for (Attack a: mon.attackToPP.keySet()) {
+                if (mon.attackToPP.get(a) != a.basePP) {
+                    mon.attackToPP.put(a, a.basePP);
+                    isUsed = true;
                 }
             }
+            if (!isUsed) {
+                System.out.println(mon.name + " already has full pp for every attack!");
+            }
+            return isUsed;
+        }),
+        MAX_POTION((mon) -> {
+            int maxHP = mon.statToValue.get(Stat.HP);
+            if (mon.currentHP == 0 || mon.currentHP == maxHP) {
+                System.out.println("A max potion can't be used on " + mon.name + "; it has "
+                    + (mon.currentHP == 0 ? "no": "full") + " health.");
+                return false;
+            }
+            mon.currentHP = maxHP;
+            return true;
+        }),
+        POTION((mon) -> {
+            int maxHP = mon.statToValue.get(Stat.HP);
+            if (mon.currentHP == 0 || mon.currentHP == maxHP) {
+                System.out.println("A potion can't be used on " + mon.name + "; it has "
+                    + (mon.currentHP == 0 ? "no": "full") + " health.");
+                return false;
+            }
+            mon.currentHP = maxHP - mon.currentHP >= maxHP / 2 ? mon.currentHP + maxHP / 2 : maxHP;
+            return true;
+        }),
+        REVIVE((mon) -> {
+            int maxHP = mon.statToValue.get(Stat.HP);
+            if (mon.currentHP != 0) {
+                System.out.println("This pokemon is already alive!");
+                return false;
+            }
+            mon.currentHP = maxHP / 2;
+            return true;
+        });
+
+        private static interface UseItem {
+            boolean heal(Pokemon mon);
+        }
+
+        private final UseItem useFunc;
+
+        public boolean use(Pokemon mon) {
+            return this.useFunc.heal(mon);
+        }
+
+        Item(UseItem u) {
+            this.useFunc = u;
         }
     }
 

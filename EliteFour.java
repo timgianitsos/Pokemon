@@ -11,7 +11,7 @@ public class EliteFour {
         final int opponentPartySize = 3;
         final Map<Type, Boolean> battleRooms = generateRooms();
         final Map<Pokemon.Item, Integer> myItems = new EnumMap<>(Pokemon.Item.class);
-        myItems.put(Pokemon.Item.FULL_RESTORE, 1);
+        myItems.put(Pokemon.Item.MAX_POTION, 1);
         myItems.put(Pokemon.Item.REVIVE, 1);
         myItems.put(Pokemon.Item.POTION, 4);
         myItems.put(Pokemon.Item.MAX_ELIXIR, 6);
@@ -63,7 +63,7 @@ public class EliteFour {
                     }
                     Pokemon.Item item = items.get(getItem);
                     Pokemon mon = party[TrainerBattle.getIntFromInput(scan, 0, party.length)];
-                    getHeal = item.heal(mon);
+                    getHeal = item.use(mon);
                 }
                 else {
                     chooseItem = false;
