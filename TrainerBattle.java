@@ -68,8 +68,15 @@ class TrainerBattle {
                 }
                 else if (choice == 1) {
                     Attack attack = opponentPokemon.getBestAttack(playerPokemon);
-                    playerPokemon = playerChooseNextPokemon(scan, playerParty, playerPokemon);
-                    opponentPokemon.useAttack(attack, playerPokemon);
+                    Pokemon nextMon = playerChooseNextPokemon(scan, playerParty, playerPokemon);
+                    if (playerPokemon != nextMon) {
+                        playerPokemon = nextMon;
+                        opponentPokemon.useAttack(attack, playerPokemon);
+                    }
+                    else {
+                        //they changed their mind about switching Pokemon
+                        turn--;
+                    }
                 }
                 else {
                     throw new IllegalStateException("Invalid choice");
@@ -101,6 +108,9 @@ class TrainerBattle {
                 allDead = false;
             }
         }
+        if (currentPokemon.getCurrentHP() > 0) {
+            System.out.println("Enter " + playerParty.length + " to go back");
+        }
 
         if (allDead) {
             return null;
@@ -110,8 +120,17 @@ class TrainerBattle {
             boolean invalidInput;
             do {
                 invalidInput = false;
-                chosenIndex = getIntFromInput(scan, 0, playerParty.length - 1);
-                if (playerParty[chosenIndex].getCurrentHP() <= 0) {
+                chosenIndex = getIntFromInput(scan, 0, playerParty.length);
+                if (chosenIndex == playerParty.length) {
+                    if (currentPokemon.getCurrentHP() <= 0) {
+                        invalidInput = true;
+                        System.out.println("You must choose a new pokemon!");
+                    }
+                    else {
+                        return currentPokemon;
+                    }
+                }
+                else if (playerParty[chosenIndex].getCurrentHP() <= 0) {
                     invalidInput = true;
                     System.out.println("That Pokemon is unable to fight!");
                 }
