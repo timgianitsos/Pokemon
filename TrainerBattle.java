@@ -38,16 +38,26 @@ class TrainerBattle {
         }
     }
 
-    static boolean  battle(Scanner scan, Pokemon[] playerParty, TrainerAI opponent) {
-        int turn = 1;
-        Pokemon playerPokemon = playerParty[0];
-        Pokemon opponentPokemon = opponent.getNextPokemon(playerPokemon);
-        System.out.println("\nReady for battle! The player sends " + playerPokemon.name + " with HP:" + playerPokemon.getCurrentHP() 
-            + ". His opponent sends " + opponentPokemon.name + " with HP:" + opponentPokemon.getCurrentHP() + ". (press enter)");
-        new AePlayWave("cries/" + playerPokemon.name + ".wav", AePlayWave.DEFAULT_BUFFER_SIZE).start();
-        new AePlayWave("cries/" + opponentPokemon.name + ".wav", AePlayWave.DEFAULT_BUFFER_SIZE).start();
-        scan.nextLine();
+    static boolean battle(Scanner scan, Pokemon[] playerParty, TrainerAI opponent) {
 
+        //get player pokemon and opponent pokemon
+        Pokemon playerPokemon = null;
+        for (int i = 0; i < playerParty.length && playerPokemon == null; i++) {
+            if (playerParty[i].getCurrentHP() > 0) {
+                playerPokemon = playerParty[i];
+            }
+        }
+        Pokemon opponentPokemon = null;
+        if (playerPokemon != null) {
+            opponentPokemon = opponent.getNextPokemon(playerPokemon);
+            System.out.println("\nReady for battle! The player sends " + playerPokemon.name + " with HP:" + playerPokemon.getCurrentHP() 
+                + ". His opponent sends " + opponentPokemon.name + " with HP:" + opponentPokemon.getCurrentHP() + ". (press enter)");
+            new AePlayWave("cries/" + playerPokemon.name + ".wav", AePlayWave.DEFAULT_BUFFER_SIZE).start();
+            new AePlayWave("cries/" + opponentPokemon.name + ".wav", AePlayWave.DEFAULT_BUFFER_SIZE).start();
+            scan.nextLine();
+        }
+
+        int turn = 1;
         while (playerPokemon != null && opponentPokemon != null) {
             while (playerPokemon.getCurrentHP() > 0 && opponentPokemon.getCurrentHP() > 0){
                 System.out.println("Turn " + (turn++) + " ---------------------------");
