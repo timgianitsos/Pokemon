@@ -11,10 +11,10 @@ public class EliteFour {
         final int opponentPartySize = 3;
         final Map<Type, Boolean> battleRooms = generateRooms();
         final Map<Pokemon.Item, Integer> myItems = new EnumMap<>(Pokemon.Item.class);
-        myItems.put(Pokemon.Item.MAX_POTION, 1);
-        myItems.put(Pokemon.Item.REVIVE, 1);
+        myItems.put(Pokemon.Item.MAX_POTION, 2);
+        myItems.put(Pokemon.Item.REVIVE, 2);
         myItems.put(Pokemon.Item.POTION, 4);
-        myItems.put(Pokemon.Item.MAX_ELIXIR, 6);
+        myItems.put(Pokemon.Item.MAX_ELIXIR, 3);
 
         final AePlayWave battleMusic = PokemonBattle.intro(scan, AePlayWave.BATTLE_MUSIC_PETIT_CUP, AePlayWave.PETIT_CUP_BUFFER_SIZE);
         PokemonBattle.displayPokemon();
@@ -29,7 +29,14 @@ public class EliteFour {
             TrainerAI opponent = new TrainerAI(opponentPartySize, nextRoom);
             isDefeated = !TrainerBattle.battle(scan, party, opponent);
         }
-        
+        if (!isDefeated) {
+            System.out.println("You have beat the elite four. Now you must face the champion!");
+            TrainerAI champion = new TrainerAI(6, TrainerAI.MAX_DIFFICULTY - 1);
+            isDefeated = !TrainerBattle.battle(scan, party, champion);
+            if (!isDefeated) {
+                System.out.println("Congratulations you won!!! You are the new champion!");
+            }
+        }
 
         if (battleMusic != null){
             battleMusic.quit();
