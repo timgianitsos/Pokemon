@@ -1,5 +1,48 @@
 # Pokemon Java
-A program to simulate Pokemon battles
+
+A program to simulate Pokemon battles<sup id="a1">[1](#f1)</sup>
+
+```
+                                   ."-,.__
+                                   `.     `.  ,
+                                .--'  .._,'"-' `.
+                               .    .'         `'
+                               `.   /          ,'
+                                 `  '--.   ,-"'
+                                  `"`   |  \
+                                     -. \, |
+                                      `--Y.'      ___.
+                                           \     L._, \
+                                 _.,        `.   <  <\                _
+                               ,' '           `, `.   | \            ( `
+                            ../, `.            `  |    .\`.           \ \_
+                           ,' ,..  .           _.,'    ||\l            )  '".
+                          , ,'   \           ,'.-.`-._,'  |           .  _._`.
+                        ,' /      \ \        `' ' `--/   | \          / /   ..\
+                      .'  /        \ .         |\__ - _ ,'` `        / /     `.`.
+                      |  '          ..         `-...-"  |  `-'      / /        . `.
+                      | /           |L__           |    |          / /          `. `.
+                     , /            .   .          |    |         / /             ` `
+                    / /          ,. ,`._ `-_       |    |  _   ,-' /               ` \
+                   / .           \"`_/. `-_ \_,.  ,'    +-' `-'  _,        ..,-.    \`.
+                  .  '         .-f    ,'   `    '.       \__.---'     _   .'   '     \ \
+                  ' /          `.'    l     .' /          \..      ,_|/   `.  ,'`     L`
+                  |'      _.-""` `.    \ _,'  `            \ `.___`.'"`-.  , |   |    | \
+                  ||    ,'      `. `.   '       _,...._        `  |    `/ '  |   '     .|
+                  ||  ,'          `. ;.,.---' ,'       `.   `.. `-'  .-' /_ .'    ;_   ||
+                  || '              V      / /           `   | `   ,'   ,' '.    !  `. ||
+                  ||/            _,-------7 '              . |  `-'    l         /    `||
+                  . |          ,' .-   ,' ||               | .-.        `.      .'     ||
+                   `'        ,'    `".'    |               |    `.        '. -.'       `'
+                            /      ,'      |               |,'    \-.._,.'/'
+                            .     /        .               .       \    .''
+                          .`.    |         `.             /         :_,'.'
+                            \ `...\   _     ,'-.        .'         /_.-'
+                             `-.__ `,  `'   .  _.>----''.  _  __  /
+                                  .'        /"'          |  "'   '_
+                                 /_|.-'\ ,".             '.'`__'-( \
+                                   / ,"'"\,'               `/  `-.|" mh
+```
 
 ## Instructions
 
@@ -23,6 +66,11 @@ Trainer Battle
 javac *.java && java -ea TrainerBattle
 ```
 
+Elite Four Battle
+```
+javac *.java && java -ea EliteFour
+```
+
 ## Extras
 
 * When prompted to select a Pokemon, use "custom" to be prompted to enter custom stats and attacks
@@ -39,3 +87,7 @@ javac *.java && java -ea TrainerBattle
 
 * If a Pokemon has multiple attacks, it will automatically select the "best" attack against a given opponent.
 * The difficulty for the TrainerAI is based on simulated battles that it runs between all the Pokemon. Pokemon that win more frequently appear when higher difficulty is chosen. If you select a difficulty above the maximum, The Pokemon Master will challenge you - this trainer always chooses the Pokemon that wins most frequently against your Pokemon.
+
+## Reference
+<b id="f1">1)</b> ASCII art by [Maija Haavisto](https://www.fiikus.net/?pokedex) [↩](#a1)
+
