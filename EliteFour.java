@@ -26,14 +26,14 @@ public class EliteFour {
         }
         boolean isDefeated = false;
         for (int i = 0; i < battleRooms.size() && !isDefeated; i++) {
-            Type nextRoom = battleMenu(party, myItems, battleRooms, isDefeated);
+            Type nextRoom = battleMenu(party, myItems, battleRooms, isDefeated, playerPartySize);
             TrainerAI opponent = new TrainerAI(opponentPartySize, nextRoom);
             isDefeated = !TrainerBattle.battle(scan, party, opponent);
         }
         if (!isDefeated) {
             System.out.println("You have beat the elite four. Now you must face the champion! (Enter)");
             scan.nextLine();
-            battleMenu(party, myItems, battleRooms, isDefeated);
+            battleMenu(party, myItems, battleRooms, isDefeated, playerPartySize);
         }
 
         if (battleMusic != null) {
@@ -41,11 +41,11 @@ public class EliteFour {
         }
     }
 
-    public static Type battleMenu(Pokemon[] party, Map<Pokemon.Item, Integer> myItems, Map<Type, Boolean> battleRooms, Boolean isDefeated) {
+    public static Type battleMenu(Pokemon[] party, Map<Pokemon.Item, Integer> myItems, Map<Type, Boolean> battleRooms, Boolean isDefeated, int playerPartySize) {
         System.out.println("Do you want to (0)Heal or (1)Continue");
         int choice = TrainerBattle.getIntFromInput(scan, 0, 1);
         if (choice == 0) {
-            healMenu(party, myItems);
+            healMenu(party, myItems, playerPartySize);
         }
 
         ArrayList<Type> rooms = new ArrayList<>();
@@ -76,7 +76,7 @@ public class EliteFour {
         
     }
 
-    static void healMenu(Pokemon[] party, Map<Pokemon.Item, Integer> myItems) {
+    static void healMenu(Pokemon[] party, Map<Pokemon.Item, Integer> myItems, int playerPartySize) {
         ArrayList<Pokemon.Item> items = new ArrayList<>();
         for (Pokemon.Item i : myItems.keySet()) {
             items.add(i);
@@ -102,7 +102,13 @@ public class EliteFour {
                         System.out.println("|" + i + "|" + party[i]);
                     }
                     Pokemon.Item item = items.get(itemIndex);
-                    Pokemon mon = party[TrainerBattle.getIntFromInput(scan, 0, party.length)];
+                    int selectMon = TrainerBattle.getIntFromInput(scan, 0, party.length);
+                    if(selectMon == playerPartySize) {
+                        System.out.println("Item use cancelled!\n");
+                        break;
+                    }
+                    Pokemon mon = party[selectMon];
+
                     boolean useItem = item.use(mon);
                     if (useItem) {
                         myItems.put(items.get(itemIndex), myItems.get(items.get(itemIndex)) - 1);
