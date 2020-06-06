@@ -3,6 +3,7 @@ import java.util.EnumMap;
 import java.util.Map;
 import java.util.ArrayList;
 
+//TODO bug when choosing to use an item and selecting index `playerPartySize`
 public class EliteFour {
     static final Scanner scan = new Scanner(System.in);
 
@@ -92,7 +93,7 @@ public class EliteFour {
             System.out.println();
             int itemIndex = TrainerBattle.getIntFromInput(scan, 0, counter);
             if (itemIndex != counter && myItems.get(items.get(itemIndex)) == 0) {
-                System.out.println("There are no  more " + items.get(itemIndex) + "s to use.");
+                System.out.println("There are no more " + items.get(itemIndex) + "s to use.");
             }
             else {
                 if (itemIndex < counter) {

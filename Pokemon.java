@@ -60,7 +60,7 @@ public class Pokemon {
                 return false;
             }
             mon.currentHP = maxHP - mon.currentHP >= maxHP / 2 ? mon.currentHP + maxHP / 2 : maxHP;
-            System.out.print(mon.name + "'s HP has been restored to " + mon.currentHP + ".");
+            System.out.println(mon.name + "'s HP has been restored to " + mon.currentHP + ".");
             return true;
         }),
         REVIVE((mon) -> {
