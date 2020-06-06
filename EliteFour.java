@@ -3,7 +3,6 @@ import java.util.EnumMap;
 import java.util.Map;
 import java.util.ArrayList;
 
-//TODO bug when choosing to use an item and selecting index `playerPartySize`
 public class EliteFour {
     static final Scanner scan = new Scanner(System.in);
 
@@ -26,14 +25,14 @@ public class EliteFour {
         }
         boolean isDefeated = false;
         for (int i = 0; i < battleRooms.size() && !isDefeated; i++) {
-            Type nextRoom = battleMenu(party, myItems, battleRooms, isDefeated, playerPartySize);
+            Type nextRoom = battleMenu(party, myItems, battleRooms, isDefeated);
             TrainerAI opponent = new TrainerAI(opponentPartySize, nextRoom);
             isDefeated = !TrainerBattle.battle(scan, party, opponent);
         }
         if (!isDefeated) {
             System.out.println("You have beat the elite four. Now you must face the champion! (Enter)");
             scan.nextLine();
-            battleMenu(party, myItems, battleRooms, isDefeated, playerPartySize);
+            battleMenu(party, myItems, battleRooms, isDefeated);
         }
 
         if (battleMusic != null) {
@@ -41,11 +40,11 @@ public class EliteFour {
         }
     }
 
-    public static Type battleMenu(Pokemon[] party, Map<Pokemon.Item, Integer> myItems, Map<Type, Boolean> battleRooms, Boolean isDefeated, int playerPartySize) {
+    public static Type battleMenu(Pokemon[] party, Map<Pokemon.Item, Integer> myItems, Map<Type, Boolean> battleRooms, Boolean isDefeated) {
         System.out.println("Do you want to (0)Heal or (1)Continue");
         int choice = TrainerBattle.getIntFromInput(scan, 0, 1);
         if (choice == 0) {
-            healMenu(party, myItems, playerPartySize);
+            healMenu(party, myItems);
         }
 
         ArrayList<Type> rooms = new ArrayList<>();
@@ -76,7 +75,7 @@ public class EliteFour {
         
     }
 
-    static void healMenu(Pokemon[] party, Map<Pokemon.Item, Integer> myItems, int playerPartySize) {
+    static void healMenu(Pokemon[] party, Map<Pokemon.Item, Integer> myItems) {
         ArrayList<Pokemon.Item> items = new ArrayList<>();
         for (Pokemon.Item i : myItems.keySet()) {
             items.add(i);
@@ -103,9 +102,9 @@ public class EliteFour {
                     }
                     Pokemon.Item item = items.get(itemIndex);
                     int selectMon = TrainerBattle.getIntFromInput(scan, 0, party.length);
-                    if(selectMon == playerPartySize) {
+                    if(selectMon == party.length) {
                         System.out.println("Item use cancelled!\n");
-                        break;
+                        healMenu(party, myItems);
                     }
                     Pokemon mon = party[selectMon];
 
