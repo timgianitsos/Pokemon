@@ -105,6 +105,7 @@ public class EliteFour {
                     if(selectMon == party.length) {
                         System.out.println("Item use cancelled!\n");
                         healMenu(party, myItems);
+                        break;
                     }
                     Pokemon mon = party[selectMon];
 
