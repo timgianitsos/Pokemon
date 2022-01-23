@@ -87,6 +87,7 @@ javac *.java && java -ea EliteFour
 
 * If a Pokemon has multiple attacks, it will automatically select the "best" attack against a given opponent.
 * The difficulty for the TrainerAI is based on simulated battles that it runs between all the Pokemon. Pokemon that win more frequently appear when higher difficulty is chosen. If you select a difficulty above the maximum, The Pokemon Master will challenge you - this trainer always chooses the Pokemon that wins most frequently against your Pokemon.
+* Each row in `wins.csv` contains the percentage of wins a Pokemon had against each opposing Pokemon (obtained from simulating 500 battles). For example, row 0 column 1 is the probability Venusaur beats Charizard. The element in index [i,j] is equal to 1 minus the element in [j,i] of the matrix because every loss for one Pokemon was a win for the other.
 
 ## Reference
 <b id="f1">1)</b> ASCII art by [Maija Haavisto](https://www.fiikus.net/?pokedex) [↩](#a1)
